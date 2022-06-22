@@ -1,4 +1,5 @@
 ﻿using GsmAtWrapper;
+using GsmAtWrapper.Extensions;
 using System;
 using System.IO.Ports;
 using System.Linq;
@@ -11,10 +12,20 @@ var result = Regex.Split("\"test\" csv,\",2,32,\"some ,text\"", ",(?=(?:[^\"]*\"
 string[] ports = SerialPort.GetPortNames();
 
 using GsmClient gsmClient = new GsmClient("COM6");
-gsmClient.OnCommandReceived += GsmClient_OnCommandReceived;
+gsmClient.OnCommandResponse += GsmClient_OnCommandReceived;
 
 gsmClient.Open();
-//var a = await gsmClient.SmsTextMode();
+
+var a = await gsmClient.WriteMessageFormat(MessageFormat.TextMode);
+var a1 = await gsmClient.ReadMessageFormat();
+
+var b = await gsmClient.WriteNewMessageIndicationsToTerminalEquipment(CNMI_Mode.Class2, CNMI_MT.SmsDeliver);
+var b1 = await gsmClient.ReadWriteNewMessageIndicationsToTerminalEquipment();
+
+var c = await gsmClient.WritePreferredMessageStorage(CPMS_MEMR.SM);
+
+var d = await gsmClient.UnstructuredSupplementaryServiceData(CUSD_N.Enable, "*101#");
+
 //var b = await gsmClient.GetManufacturer();
 //var c = await gsmClient.GetModel();
 //var d = await gsmClient.GetFirmware();
