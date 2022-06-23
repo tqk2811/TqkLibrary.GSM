@@ -287,7 +287,10 @@ namespace GsmAtWrapper
         }
 
 
-        // ?
+        /// <summary>
+        /// &lt;command&gt;=?
+        /// </summary>
+        /// <returns></returns>
         public async Task<GsmCommandResult> Test(string command, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(command)) throw new ArgumentNullException(nameof(command));
@@ -295,7 +298,11 @@ namespace GsmAtWrapper
         }
 
 
-        // + ?
+        /// <summary>
+        /// +&lt;command&gt;?
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public async Task<GsmCommandResult> Read(string command, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(command)) throw new ArgumentNullException(nameof(command));
@@ -303,12 +310,25 @@ namespace GsmAtWrapper
         }
 
 
-
+        /// <summary>
+        /// +&lt;command&gt;=[val1],[val2],....
+        /// </summary>
+        /// <returns></returns>
         public Task<GsmCommandResult> Write(string command, CancellationToken cancellationToken = default, params object[] values)
             => Write(command, string.Join(",", values), cancellationToken);
+
+        /// <summary>
+        /// +&lt;command&gt;=[val1],[val2],....
+        /// </summary>
+        /// <returns></returns>
         public Task<GsmCommandResult> Write(string command, string[] values, CancellationToken cancellationToken = default)
             => Write(command, string.Join(",", values), cancellationToken);
-        // + = 
+        
+        /// <summary>
+        /// +&lt;command&gt;=[val1],[val2],....
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public async Task<GsmCommandResult> Write(string command, string value, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(command)) throw new ArgumentNullException(nameof(command));
@@ -317,7 +337,10 @@ namespace GsmAtWrapper
         }
 
 
-        // +
+        /// <summary>
+        /// +&lt;command&gt;
+        /// </summary>
+        /// <returns></returns>
         public async Task<GsmCommandResult> Execute(string command, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(command)) throw new ArgumentNullException(nameof(command));

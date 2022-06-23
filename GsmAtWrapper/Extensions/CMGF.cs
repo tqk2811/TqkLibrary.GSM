@@ -19,11 +19,9 @@ namespace GsmAtWrapper.Extensions
         /// <param name="gsmClient"></param>
         /// <param name="messageFormat"></param>
         /// <returns></returns>
-        public static async Task<bool> WriteMessageFormat(this GsmClient gsmClient, MessageFormat messageFormat = MessageFormat.TextMode)
-        {
-            var result = await gsmClient.Write("CMGF", ((int)messageFormat).ToString()).ConfigureAwait(false);
-            return result.IsSuccess;
-        }
+        public static Task<bool> WriteMessageFormat(this GsmClient gsmClient, MessageFormat messageFormat = MessageFormat.TextMode)
+            => gsmClient.Write("CMGF", ((int)messageFormat).ToString())
+            .GetTaskResult(x => x.IsSuccess);
 
         public static async Task<MessageFormat?> ReadMessageFormat(this GsmClient gsmClient)
         {
@@ -38,10 +36,8 @@ namespace GsmAtWrapper.Extensions
             return null;
         }
 
-        public static async Task<bool> TestMessageFormat(this GsmClient gsmClient)
-        {
-            var result = await gsmClient.Read("CMGF").ConfigureAwait(false);
-            return result.IsSuccess;
-        }
+        public static Task<bool> TestMessageFormat(this GsmClient gsmClient)
+            => gsmClient.Read("CMGF")
+            .GetTaskResult(x => x.IsSuccess);
     }
 }

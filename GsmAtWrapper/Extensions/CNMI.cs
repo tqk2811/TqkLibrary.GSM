@@ -123,67 +123,61 @@ namespace GsmAtWrapper.Extensions
         /// 3.5.3.3.1 +CNMI - New Message Indications To Terminal Equipment
         /// </summary>
         /// <returns></returns>
-        public static async Task<bool> WriteNewMessageIndicationsToTerminalEquipment(this GsmClient gsmClient,
+        public static Task<bool> WriteNewMessageIndicationsToTerminalEquipment(this GsmClient gsmClient,
             CNMI_Mode mode,
             CancellationToken cancellationToken = default)
-        {
-            var result = await gsmClient.Write("CNMI", cancellationToken, (int)mode).ConfigureAwait(false);
-            return result.IsSuccess;
-        }
+            => gsmClient.Write("CNMI", cancellationToken, (int)mode)
+            .GetTaskResult(x => x.IsSuccess);
+
         /// <summary>
         /// 3.5.3.3.1 +CNMI - New Message Indications To Terminal Equipment
         /// </summary>
         /// <returns></returns>
-        public static async Task<bool> WriteNewMessageIndicationsToTerminalEquipment(this GsmClient gsmClient,
+        public static Task<bool> WriteNewMessageIndicationsToTerminalEquipment(this GsmClient gsmClient,
             CNMI_Mode mode,
             CNMI_MT mt,
             CancellationToken cancellationToken = default)
-        {
-            var result = await gsmClient.Write("CNMI", cancellationToken, (int)mode, (int)mt).ConfigureAwait(false);
-            return result.IsSuccess;
-        }
+            => gsmClient.Write("CNMI", cancellationToken, (int)mode, (int)mt)
+            .GetTaskResult(x => x.IsSuccess);
+
         /// <summary>
         /// 3.5.3.3.1 +CNMI - New Message Indications To Terminal Equipment
         /// </summary>
         /// <returns></returns>
-        public static async Task<bool> WriteNewMessageIndicationsToTerminalEquipment(this GsmClient gsmClient,
+        public static Task<bool> WriteNewMessageIndicationsToTerminalEquipment(this GsmClient gsmClient,
             CNMI_Mode mode,
             CNMI_MT mt,
             CNMI_BM bm,
             CancellationToken cancellationToken = default)
-        {
-            var result = await gsmClient.Write("CNMI", cancellationToken, (int)mode, (int)mt, (int)bm).ConfigureAwait(false);
-            return result.IsSuccess;
-        }
+            => gsmClient.Write("CNMI", cancellationToken, (int)mode, (int)mt, (int)bm)
+            .GetTaskResult(x => x.IsSuccess);
+
         /// <summary>
         /// 3.5.3.3.1 +CNMI - New Message Indications To Terminal Equipment
         /// </summary>
         /// <returns></returns>
-        public static async Task<bool> WriteNewMessageIndicationsToTerminalEquipment(this GsmClient gsmClient,
+        public static Task<bool> WriteNewMessageIndicationsToTerminalEquipment(this GsmClient gsmClient,
             CNMI_Mode mode,
             CNMI_MT mt,
             CNMI_BM bm,
             CNMI_DS ds,
             CancellationToken cancellationToken = default)
-        {
-            var result = await gsmClient.Write("CNMI", cancellationToken, (int)mode, (int)mt, (int)bm, (int)ds).ConfigureAwait(false);
-            return result.IsSuccess;
-        }
+            => gsmClient.Write("CNMI", cancellationToken, (int)mode, (int)mt, (int)bm, (int)ds)
+            .GetTaskResult(x => x.IsSuccess);
+
         /// <summary>
         /// 3.5.3.3.1 +CNMI - New Message Indications To Terminal Equipment
         /// </summary>
         /// <returns></returns>
-        public static async Task<bool> WriteNewMessageIndicationsToTerminalEquipment(this GsmClient gsmClient,
+        public static Task<bool> WriteNewMessageIndicationsToTerminalEquipment(this GsmClient gsmClient,
             CNMI_Mode mode,
             CNMI_MT mt,
             CNMI_BM bm,
             CNMI_DS ds,
             CNMI_BFR bfr,
             CancellationToken cancellationToken = default)
-        {
-            var result = await gsmClient.Write("CNMI", cancellationToken, (int)mode, (int)mt, (int)bm, (int)ds, (int)bfr).ConfigureAwait(false);
-            return result.IsSuccess;
-        }
+            => gsmClient.Write("CNMI", cancellationToken, (int)mode, (int)mt, (int)bm, (int)ds, (int)bfr)
+            .GetTaskResult(x => x.IsSuccess);
 
         public static Task<GsmCommandResult> TestWriteNewMessageIndicationsToTerminalEquipment(
             this GsmClient gsmClient,

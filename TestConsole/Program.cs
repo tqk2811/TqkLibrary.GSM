@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-var result = Regex.Split("\"test\" csv,\",2,32,\"some ,text\"", ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+//var result = Regex.Split("\"test\" csv,\",2,32,\"some ,text\"", ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 
 
 string[] ports = SerialPort.GetPortNames();
@@ -24,7 +24,12 @@ var b1 = await gsmClient.ReadWriteNewMessageIndicationsToTerminalEquipment();
 
 var c = await gsmClient.WritePreferredMessageStorage(CPMS_MEMR.SM);
 
-var d = await gsmClient.UnstructuredSupplementaryServiceData(CUSD_N.Enable, "*101#");
+//var d = await gsmClient.WriteUnstructuredSupplementaryServiceData(CUSD_N.Enable, "*101#");
+//var d1 = await gsmClient.WriteUnstructuredSupplementaryServiceData(CUSD_N.Enable, "*102#");
+//var d2 = await gsmClient.WriteUnstructuredSupplementaryServiceData(CUSD_N.Enable, "*103#");
+
+var e = await gsmClient.ReadOperatorSelection();
+
 
 //var b = await gsmClient.GetManufacturer();
 //var c = await gsmClient.GetModel();

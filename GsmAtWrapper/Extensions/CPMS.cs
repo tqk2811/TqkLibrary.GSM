@@ -50,12 +50,34 @@ namespace GsmAtWrapper.Extensions
         /// Preferred Message Storage
         /// </summary>
         /// <returns></returns>
-        public static async Task<bool> WritePreferredMessageStorage(this GsmClient gsmClient,
+        public static Task<bool> WritePreferredMessageStorage(this GsmClient gsmClient,
             CPMS_MEMR memr,
             CancellationToken cancellationToken = default)
-        {
-            var result = await gsmClient.Write("CPMS", cancellationToken, memr).ConfigureAwait(false);
-            return result.IsSuccess;
-        }
+            => gsmClient.Write("CPMS", cancellationToken, memr.ToAtString())
+            .GetTaskResult(x => x.IsSuccess);
+
+        /// <summary>
+        /// Preferred Message Storage
+        /// </summary>
+        /// <returns></returns>
+        public static Task<bool> WritePreferredMessageStorage(this GsmClient gsmClient,
+            CPMS_MEMR memr,
+            CPMS_MEMW memw,
+            CancellationToken cancellationToken = default)
+            => gsmClient.Write("CPMS", cancellationToken, memr.ToAtString(), memw.ToAtString())
+            .GetTaskResult(x => x.IsSuccess);
+
+        /// <summary>
+        /// Preferred Message Storage
+        /// </summary>
+        /// <returns></returns>
+        public static Task<bool> WritePreferredMessageStorage(this GsmClient gsmClient,
+            CPMS_MEMR memr,
+            CPMS_MEMW memw,
+            CPMS_MEMS mems,
+            CancellationToken cancellationToken = default)
+            => gsmClient.Write("CPMS", cancellationToken, memr.ToAtString(), memw.ToAtString(), mems.ToAtString())
+            .GetTaskResult(x => x.IsSuccess);
+
     }
 }
