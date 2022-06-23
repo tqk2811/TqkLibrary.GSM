@@ -54,12 +54,12 @@ namespace GsmAtWrapper.Extensions
             var result = await gsmClient.Write("CUSD", cancellationToken, (int)n, str.ToAtString()).ConfigureAwait(false);
             if(result.IsSuccess && result.CommandResponses.ContainsKey("CUSD"))
             {
-                if (int.TryParse(result.CommandResponses["CUSD"].FirstOrDefault(),out int code))
+                if (int.TryParse(result.CommandResponses["CUSD"].Arguments.FirstOrDefault(),out int code))
                 {
                     CUSD_Response response = new CUSD_Response();
                     response.CUSD_M = (CUSD_M)code;
-                    response.Str = result.CommandResponses["CUSD"].Skip(1).FirstOrDefault();
-                    if (int.TryParse(result.CommandResponses["CUSD"].Skip(2).FirstOrDefault(), out int dcs)) response.DCS = dcs;
+                    response.Str = result.CommandResponses["CUSD"].Arguments.Skip(1).FirstOrDefault();
+                    if (int.TryParse(result.CommandResponses["CUSD"].Arguments.Skip(2).FirstOrDefault(), out int dcs)) response.DCS = dcs;
                     return response;
                 }
             }

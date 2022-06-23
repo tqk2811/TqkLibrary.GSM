@@ -6,6 +6,16 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 
+Regex regex_Command = new Regex("^\\+([A-z0-9]+):([\\x20-\\x7E]+)(|\\r\\n[\\x01-\\x7E]+)$", RegexOptions.Multiline);
+var test_str = "+CMGR: \"REC READ\",\"123\",\"\",\"2022/06/10 17:42:17+28\"";
+
+Match match = regex_Command.Match(test_str);
+if (match.Success)
+{
+
+}
+
+
 //var result = Regex.Split("\"test\" csv,\",2,32,\"some ,text\"", ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 
 
@@ -15,6 +25,7 @@ using GsmClient gsmClient = new GsmClient("COM6");
 gsmClient.OnCommandResponse += GsmClient_OnCommandReceived;
 
 gsmClient.Open();
+using var registerMsg = await gsmClient.RegisterMessage();
 
 var a = await gsmClient.WriteMessageFormat(MessageFormat.TextMode);
 var a1 = await gsmClient.ReadMessageFormat();
@@ -24,7 +35,7 @@ var b1 = await gsmClient.ReadWriteNewMessageIndicationsToTerminalEquipment();
 
 var c = await gsmClient.WritePreferredMessageStorage(CPMS_MEMR.SM);
 
-//var d = await gsmClient.WriteUnstructuredSupplementaryServiceData(CUSD_N.Enable, "*101#");
+var d = await gsmClient.WriteUnstructuredSupplementaryServiceData(CUSD_N.Enable, "*101#");
 //var d1 = await gsmClient.WriteUnstructuredSupplementaryServiceData(CUSD_N.Enable, "*102#");
 //var d2 = await gsmClient.WriteUnstructuredSupplementaryServiceData(CUSD_N.Enable, "*103#");
 
@@ -58,9 +69,9 @@ var e = await gsmClient.ReadOperatorSelection();
 gsmClient.TestSend();
 
 
-void GsmClient_OnCommandReceived(string arg1, string[] arg2)
+void GsmClient_OnCommandReceived(string cmd, string[] args, string data)
 {
-    switch (arg1)
+    switch (cmd)
     {
         case "CMT":
 

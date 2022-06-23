@@ -137,9 +137,9 @@ namespace GsmAtWrapper
         /// </summary>
         public event Action<bool> OnCommandResult;
         /// <summary>
-        /// +[Command]: [data],[data],[data],....
+        /// +[Command]: [arg0],[arg1],[arg2],....\r\n[data]
         /// </summary>
-        public event Action<string, string[]> OnCommandResponse;
+        public event Action<string, string[], string> OnCommandResponse;
         /// <summary>
         /// raw text reponse
         /// </summary>
@@ -154,7 +154,7 @@ namespace GsmAtWrapper
         public event Action<string, int> OnMsError;
 
         private static readonly Regex regex_splitResponse = new Regex(@"(?<=^\r?\n|[\x01-\x7E]\r?\n\r?\n)([\x01-\x7E]*?)(?=\r?\n\r?\n[\x01-\x7E]|\r?\n$)");
-        private static readonly Regex regex_Command = new Regex("^\\+([A-z0-9]+):([\\x01-\\x7E]+)$", RegexOptions.Multiline);
+        private static readonly Regex regex_Command = new Regex("^\\+([A-z0-9]+):([\\x20-\\x7E]+)(|\\r\\n[\\x01-\\x7E]+)$", RegexOptions.Multiline);
         private static readonly Regex regex_csv_partent = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 
         private string temp = string.Empty;
@@ -216,10 +216,11 @@ namespace GsmAtWrapper
                         if (match_cmd.Success)
                         {
                             string command = match_cmd.Groups[1].Value;
-                            string values = match_cmd.Groups[2].Value.Trim();
-                            string[] values_split = regex_csv_partent.Split(values);
+                            string args = match_cmd.Groups[2].Value.Trim();
+                            string data = match_cmd.Groups[3].Value.Trim();
+                            string[] args_split = regex_csv_partent.Split(args);
 
-                            OnCommandResponse?.Invoke(command, values_split);
+                            OnCommandResponse?.Invoke(command, args_split, data);
                             continue;
                         }
                     }
@@ -244,7 +245,7 @@ namespace GsmAtWrapper
                 Action<bool> action_ok = (r) => tcs_ok.TrySetResult(r);
                 Action<string, int> action_me_err = (msg, code) => tcs_ok.TrySetException(new MEException(code, msg));
                 Action<string, int> action_ms_err = (msg, code) => tcs_ok.TrySetException(new MSException(code, msg));
-                Action<string, string[]> action_commandResponse = (name, args) => gsmCommandResult._CommandResponses.Add(name, args);
+                Action<string, string[], string> action_commandResponse = (cmd, args, data) => gsmCommandResult._CommandResponses.Add(cmd, new GsmCommand(args, data));
                 Action<string> action_unknow = (str) => gsmCommandResult._Datas.Add(str);
 
                 using var register = cancellationToken.Register(() => tcs_ok.TrySetCanceled());
@@ -323,7 +324,7 @@ namespace GsmAtWrapper
         /// <returns></returns>
         public Task<GsmCommandResult> Write(string command, string[] values, CancellationToken cancellationToken = default)
             => Write(command, string.Join(",", values), cancellationToken);
-        
+
         /// <summary>
         /// +&lt;command&gt;=[val1],[val2],....
         /// </summary>

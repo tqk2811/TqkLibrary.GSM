@@ -48,15 +48,15 @@ namespace GsmAtWrapper.Extensions
             var result = await gsmClient.Read("COPS").ConfigureAwait(false);
             if (result.IsSuccess && 
                 result.CommandResponses.ContainsKey("COPS") && 
-                result.CommandResponses["COPS"].Count() > 0)
+                result.CommandResponses["COPS"].Arguments.Count() > 0)
             {
-                if(int.TryParse(result.CommandResponses["COPS"].FirstOrDefault(),out int mode))
+                if(int.TryParse(result.CommandResponses["COPS"].Arguments.FirstOrDefault(),out int mode))
                 {
                     COPS_ReadResponse response = new COPS_ReadResponse();
                     response.Mode = (COPS_Mode)mode;
-                    if(int.TryParse(result.CommandResponses["COPS"].Skip(1).FirstOrDefault(),out int format)) 
+                    if(int.TryParse(result.CommandResponses["COPS"].Arguments.Skip(1).FirstOrDefault(),out int format)) 
                         response.Format = (COPS_Format)format;
-                    response.Operator = result.CommandResponses["COPS"].Skip(2).FirstOrDefault()?.Trim('"');
+                    response.Operator = result.CommandResponses["COPS"].Arguments.Skip(2).FirstOrDefault()?.Trim('"');
                     return response;
                 }
             }

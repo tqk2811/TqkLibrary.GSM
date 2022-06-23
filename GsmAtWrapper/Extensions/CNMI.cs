@@ -188,9 +188,9 @@ namespace GsmAtWrapper.Extensions
             CancellationToken cancellationToken = default)
         {
             var result = await gsmClient.Read("CNMI", cancellationToken).ConfigureAwait(false);
-            if (result.IsSuccess && result.CommandResponses.ContainsKey("CNMI") && result.CommandResponses["CNMI"].Count() == 5)
+            if (result.IsSuccess && result.CommandResponses.ContainsKey("CNMI") && result.CommandResponses["CNMI"].Arguments.Count() == 5)
             {
-                List<int?> nums = result.CommandResponses["CNMI"].Select(x =>
+                List<int?> nums = result.CommandResponses["CNMI"].Arguments.Select(x =>
                 {
                     int? result = null;
                     if (int.TryParse(x, out int num)) result = num;

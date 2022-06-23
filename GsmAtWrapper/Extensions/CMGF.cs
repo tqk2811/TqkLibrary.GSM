@@ -27,8 +27,8 @@ namespace GsmAtWrapper.Extensions
         {
             var result = await gsmClient.Read("CMGF").ConfigureAwait(false);
             if (result.CommandResponses.ContainsKey("CMGF") &&
-                result.CommandResponses["CMGF"].Count() > 0 &&
-                int.TryParse(result.CommandResponses["CMGF"].First(), out int val))
+                result.CommandResponses["CMGF"].Arguments.Count() > 0 &&
+                int.TryParse(result.CommandResponses["CMGF"].Arguments.First(), out int val))
             {
                 if (val == (int)MessageFormat.PduMode) return MessageFormat.PduMode;
                 if (val == (int)MessageFormat.TextMode) return MessageFormat.TextMode;
