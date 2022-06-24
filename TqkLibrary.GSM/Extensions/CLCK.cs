@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GsmAtWrapper.Extensions
+namespace TqkLibrary.GSM.Extensions
 {
     public enum CLCK_FAC
     {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace GsmAtWrapper
+namespace TqkLibrary.GSM
 {
     public class GsmCommandResult
     {

@@ -9,7 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace GsmAtWrapper
+namespace TqkLibrary.GSM
 {
     //https://www.emnify.com/developer-blog/at-commands-for-cellular-modules
     public class GsmClient : IDisposable
@@ -107,14 +107,16 @@ namespace GsmAtWrapper
 
         };
 
-
-        const int baudRate = 115200;
+        public event Action<string> LogCallback;
         readonly SerialPort serialPort;
         readonly AsyncLock asyncLockSend = new AsyncLock();
-        public GsmClient(string port)
+        public string Port { get; }
+        public GsmClient(string port, int baudRate = 115200)
         {
+            if (string.IsNullOrWhiteSpace(port)) throw new ArgumentNullException(nameof(port));
             serialPort = new SerialPort(port, baudRate, Parity.None, 8, StopBits.One);
             serialPort.DataReceived += SerialPort_DataReceived;
+            this.Port = port;
         }
         ~GsmClient()
         {
@@ -172,9 +174,12 @@ namespace GsmAtWrapper
                 foreach (Match match in matches)
                 {
                     var matchString = match.Groups[1].Value;
-#if DEBUG
-                    Console.WriteLine($">>{matchString.Trim()}");
-#endif
+
+                    if (LogCallback != null)
+                    {
+                        ThreadPool.QueueUserWorkItem((o) => LogCallback?.Invoke($"{Port} >> {matchString.Trim()}"));
+                    }
+
                     if (matchString.StartsWith("OK"))
                     {
                         OnCommandResult?.Invoke(true);
@@ -188,9 +193,10 @@ namespace GsmAtWrapper
 
                     if (matchString.StartsWith("+"))
                     {
-                        if (matchString.StartsWith("+CME ERROR:"))
+                        const string cme_err = "+CME ERROR:";
+                        if (matchString.StartsWith(cme_err))
                         {
-                            string num = matchString.Substring(11).Trim();
+                            string num = matchString.Substring(cme_err.Length).Trim();
                             if (int.TryParse(num, out int n))
                             {
                                 string err_msg = string.Empty;
@@ -200,9 +206,10 @@ namespace GsmAtWrapper
                             }
                         }
 
-                        if (matchString.StartsWith("+CMS ERROR:"))
+                        const string cms_err = "+CMS ERROR:";
+                        if (matchString.StartsWith(cms_err))
                         {
-                            string num = matchString.Substring(11).Trim();
+                            string num = matchString.Substring(cms_err.Length).Trim();
                             if (int.TryParse(num, out int n))
                             {
                                 string err_msg = string.Empty;
@@ -257,9 +264,11 @@ namespace GsmAtWrapper
                     OnCommandResponse += action_commandResponse;
                     OnUnknowReceived += action_unknow;
 
-#if DEBUG
-                    Console.WriteLine($"<<{command.Trim()}");
-#endif
+                    if (LogCallback != null)
+                    {
+                        ThreadPool.QueueUserWorkItem((o) => LogCallback?.Invoke($"{Port} << {command.Trim()}"));
+                    }
+
                     serialPort.Write(command);
 
                     await tcs_ok.Task.ConfigureAwait(false);

@@ -7,7 +7,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\GsmAtWrapper\GsmAtWrapper.csproj" />
+	  <ProjectReference Include="..\TqkLibrary.GSM\TqkLibrary.GSM.csproj" />
 	</ItemGroup>
 
 </Project>

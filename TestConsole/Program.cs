@@ -1,5 +1,5 @@
-﻿using GsmAtWrapper;
-using GsmAtWrapper.Extensions;
+﻿using TqkLibrary.GSM;
+using TqkLibrary.GSM.Extensions;
 using System;
 using System.IO.Ports;
 using System.Linq;
@@ -22,6 +22,8 @@ if (match.Success)
 string[] ports = SerialPort.GetPortNames();
 
 using GsmClient gsmClient = new GsmClient("COM6");
+gsmClient.LogCallback += GsmClient_LogCallback;
+
 gsmClient.OnCommandResponse += GsmClient_OnCommandReceived;
 
 gsmClient.Open();
@@ -79,4 +81,8 @@ void GsmClient_OnCommandReceived(string cmd, string[] args, string data)
         default:
             break;
     }
+}
+void GsmClient_LogCallback(string obj)
+{
+    Console.WriteLine(obj);
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GsmAtWrapper
+namespace TqkLibrary.GSM
 {
     public class GsmException : Exception
     {

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GsmAtWrapper.Extensions
+namespace TqkLibrary.GSM.Extensions
 {
     /// <summary>
     /// memory from which messages are read and deleted

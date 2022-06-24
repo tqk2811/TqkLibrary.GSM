@@ -1,15 +1,15 @@
-﻿namespace GsmAtWrapper
+﻿namespace TqkLibrary.GSM
 {
-    public class MEException : GsmException
+    public class MSException : GsmException
     {
         public int Code { get; }
         string _message;
-        public MEException(string message) : base(message)
+        public MSException(string message) : base(message)
         {
 
         }
 
-        public MEException(int code, string message) : base(message)
+        public MSException(int code, string message) : base(message)
         {
             this.Code = code;
             if (string.IsNullOrEmpty(message)) _message = $"error code {code}";
