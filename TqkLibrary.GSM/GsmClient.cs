@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace TqkLibrary.GSM
 {
@@ -107,15 +108,19 @@ namespace TqkLibrary.GSM
 
         };
 
+        public string Port { get; }
+        public bool IsOpen => serialPort.IsOpen;
         public event Action<string> LogCallback;
+
         readonly SerialPort serialPort;
         readonly AsyncLock asyncLockSend = new AsyncLock();
-        public string Port { get; }
         public GsmClient(string port, int baudRate = 115200)
         {
             if (string.IsNullOrWhiteSpace(port)) throw new ArgumentNullException(nameof(port));
             serialPort = new SerialPort(port, baudRate, Parity.None, 8, StopBits.One);
             serialPort.DataReceived += SerialPort_DataReceived;
+            serialPort.RtsEnable = true;
+            serialPort.DtrEnable = false;
             this.Port = port;
         }
         ~GsmClient()
@@ -141,7 +146,7 @@ namespace TqkLibrary.GSM
         /// <summary>
         /// +[Command]: [arg0],[arg1],[arg2],....\r\n[data]
         /// </summary>
-        public event Action<string, string[], string> OnCommandResponse;
+        public event Action<string, GsmCommandResponse> OnCommandResponse;
         /// <summary>
         /// raw text reponse
         /// </summary>
@@ -156,7 +161,7 @@ namespace TqkLibrary.GSM
         public event Action<string, int> OnMsError;
 
         private static readonly Regex regex_splitResponse = new Regex(@"(?<=^\r?\n|[\x01-\x7E]\r?\n\r?\n)([\x01-\x7E]*?)(?=\r?\n\r?\n[\x01-\x7E]|\r?\n$)");
-        private static readonly Regex regex_Command = new Regex("^\\+([A-z0-9]+):([\\x20-\\x7E]+)(|\\r\\n[\\x01-\\x7E]+)$", RegexOptions.Multiline);
+        private static readonly Regex regex_Command = new Regex("^\\+([A-z0-9]+):([\\x01-\\x7E]+)(|\\r\\n[\\x01-\\x7E]+)$", RegexOptions.Multiline);
         private static readonly Regex regex_csv_partent = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 
         private string temp = string.Empty;
@@ -175,9 +180,13 @@ namespace TqkLibrary.GSM
                 {
                     var matchString = match.Groups[1].Value;
 
+                    string log = $"{Port} >> {matchString.Trim()}";
+#if DEBUG
+                    Console.WriteLine(log);
+#endif
                     if (LogCallback != null)
                     {
-                        ThreadPool.QueueUserWorkItem((o) => LogCallback?.Invoke($"{Port} >> {matchString.Trim()}"));
+                        ThreadPool.QueueUserWorkItem((o) => LogCallback?.Invoke(log));
                     }
 
                     if (matchString.StartsWith("OK"))
@@ -219,15 +228,17 @@ namespace TqkLibrary.GSM
                             }
                         }
 
-                        Match match_cmd = regex_Command.Match(matchString);
-                        if (match_cmd.Success)
+                        GsmCommandResponse gsmCommandResponse = GsmCommandResponse.Parse(matchString);
+                        if (gsmCommandResponse != null)
                         {
-                            string command = match_cmd.Groups[1].Value;
-                            string args = match_cmd.Groups[2].Value.Trim();
-                            string data = match_cmd.Groups[3].Value.Trim();
-                            string[] args_split = regex_csv_partent.Split(args);
+#if DEBUG
+                            Console.WriteLine($"------\tCommand:{gsmCommandResponse.Command}");
+                            Console.WriteLine($"------\tArgs:[{string.Join(" , ", gsmCommandResponse.Arguments.Select(x => $"\"{x}\""))}]");
+                            Console.WriteLine($"------\tOptions:[{string.Join(" , ", gsmCommandResponse.Options.Select(x => $"[{string.Join(" , ", x.Select(y => $"\"{y}\""))}]"))}]");
+                            Console.WriteLine($"------\tData:{gsmCommandResponse.Data}");
+#endif
 
-                            OnCommandResponse?.Invoke(command, args_split, data);
+                            OnCommandResponse?.Invoke(gsmCommandResponse.Command, gsmCommandResponse);
                             continue;
                         }
                     }
@@ -252,7 +263,7 @@ namespace TqkLibrary.GSM
                 Action<bool> action_ok = (r) => tcs_ok.TrySetResult(r);
                 Action<string, int> action_me_err = (msg, code) => tcs_ok.TrySetException(new MEException(code, msg));
                 Action<string, int> action_ms_err = (msg, code) => tcs_ok.TrySetException(new MSException(code, msg));
-                Action<string, string[], string> action_commandResponse = (cmd, args, data) => gsmCommandResult._CommandResponses.Add(cmd, new GsmCommand(args, data));
+                Action<string, GsmCommandResponse> action_commandResponse = (cmd, commandData) => gsmCommandResult._CommandResponses.Add(cmd, commandData);
                 Action<string> action_unknow = (str) => gsmCommandResult._Datas.Add(str);
 
                 using var register = cancellationToken.Register(() => tcs_ok.TrySetCanceled());
@@ -264,9 +275,13 @@ namespace TqkLibrary.GSM
                     OnCommandResponse += action_commandResponse;
                     OnUnknowReceived += action_unknow;
 
+                    string log = $"{Port} << {command.Trim()}";
+#if DEBUG
+                    Console.WriteLine(log);
+#endif
                     if (LogCallback != null)
                     {
-                        ThreadPool.QueueUserWorkItem((o) => LogCallback?.Invoke($"{Port} << {command.Trim()}"));
+                        ThreadPool.QueueUserWorkItem((o) => LogCallback?.Invoke(log));
                     }
 
                     serialPort.Write(command);

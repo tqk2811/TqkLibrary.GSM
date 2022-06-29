@@ -2,38 +2,20 @@
 using TqkLibrary.GSM.Extensions;
 using System;
 using System.IO.Ports;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading;
-
-Regex regex_Command = new Regex("^\\+([A-z0-9]+):([\\x20-\\x7E]+)(|\\r\\n[\\x01-\\x7E]+)$", RegexOptions.Multiline);
-var test_str = "+CMGR: \"REC READ\",\"123\",\"\",\"2022/06/10 17:42:17+28\"";
-
-Match match = regex_Command.Match(test_str);
-if (match.Success)
-{
-
-}
-
-
-//var result = Regex.Split("\"test\" csv,\",2,32,\"some ,text\"", ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-
 
 string[] ports = SerialPort.GetPortNames();
 
 using GsmClient gsmClient = new GsmClient("COM6");
-gsmClient.LogCallback += GsmClient_LogCallback;
-
 gsmClient.OnCommandResponse += GsmClient_OnCommandReceived;
 
 gsmClient.Open();
 using var registerMsg = await gsmClient.RegisterMessage();
 
-var a = await gsmClient.WriteMessageFormat(MessageFormat.TextMode);
-var a1 = await gsmClient.ReadMessageFormat();
+var a = await gsmClient.WriteMessageFormat(MessageFormat.PduMode);
+//var a1 = await gsmClient.ReadMessageFormat();
 
 var b = await gsmClient.WriteNewMessageIndicationsToTerminalEquipment(CNMI_Mode.Class2, CNMI_MT.SmsDeliver);
-var b1 = await gsmClient.ReadWriteNewMessageIndicationsToTerminalEquipment();
+//var b1 = await gsmClient.ReadWriteNewMessageIndicationsToTerminalEquipment();
 
 var c = await gsmClient.WritePreferredMessageStorage(CPMS_MEMR.SM);
 
@@ -70,8 +52,7 @@ var e = await gsmClient.ReadOperatorSelection();
 //var write6 = await gsmClient.WriteGetResult("CUSD", "1,*163#");
 gsmClient.TestSend();
 
-
-void GsmClient_OnCommandReceived(string cmd, string[] args, string data)
+void GsmClient_OnCommandReceived(string cmd, GsmCommandResponse arg2)
 {
     switch (cmd)
     {
@@ -81,8 +62,4 @@ void GsmClient_OnCommandReceived(string cmd, string[] args, string data)
         default:
             break;
     }
-}
-void GsmClient_LogCallback(string obj)
-{
-    Console.WriteLine(obj);
 }
