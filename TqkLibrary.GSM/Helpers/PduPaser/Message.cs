@@ -25,7 +25,21 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         /// <summary>
         /// an address(number) of sms sender
         /// </summary>
-        public string SenderNumber => sevenBitDecoder.Decode(pdu.SenderNumber);
+        public string SenderNumber
+        {
+            get
+            {
+                if ((pdu.SenderType & AddressesType.ISDNTelephoneNumberingPlan) == AddressesType.ISDNTelephoneNumberingPlan)
+                {
+                    return GetDecimalSemiOctets(pdu.SenderNumber).TrimEnd('F');
+                }
+                else if ((pdu.SenderType & AddressesType.Alphanumeric) == AddressesType.Alphanumeric)
+                {
+                    return sevenBitDecoder.Decode(pdu.SenderNumber);
+                }
+                return string.Empty;
+            }
+        }
 
         /// <summary>
         /// timestamp of sms center, this value should be sms sent time of local timezone by default

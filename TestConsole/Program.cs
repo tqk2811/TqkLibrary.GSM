@@ -6,10 +6,13 @@ using System.IO.Ports;
 string[] ports = SerialPort.GetPortNames();
 
 using GsmClient gsmClient = new GsmClient("COM6");
-gsmClient.OnCommandResponse += GsmClient_OnCommandReceived;
 
 gsmClient.Open();
+
 using var registerMsg = await gsmClient.RegisterMessage();
+registerMsg.OnSmsReceived += RegisterMsg_OnSmsReceived;
+
+
 
 var a = await gsmClient.WriteMessageFormat(MessageFormat.PduMode);
 //var a1 = await gsmClient.ReadMessageFormat();
@@ -52,14 +55,8 @@ var e = await gsmClient.ReadOperatorSelection();
 //var write6 = await gsmClient.WriteGetResult("CUSD", "1,*163#");
 gsmClient.TestSend();
 
-void GsmClient_OnCommandReceived(string cmd, GsmCommandResponse arg2)
-{
-    switch (cmd)
-    {
-        case "CMT":
 
-            break;
-        default:
-            break;
-    }
+void RegisterMsg_OnSmsReceived(ISms obj)
+{
+    Console.WriteLine($"New message from {obj.From} at {obj.ArrivalTime:HH:mm:ss MM-dd-yyy}: {obj.Message}");
 }
