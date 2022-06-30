@@ -188,9 +188,10 @@ namespace TqkLibrary.GSM.Extensions
             CancellationToken cancellationToken = default)
         {
             var result = await gsmClient.Read("CNMI", cancellationToken).ConfigureAwait(false);
-            if (result.IsSuccess && result.CommandResponses.ContainsKey("CNMI") && result.CommandResponses["CNMI"].Arguments.Count() == 5)
+            var cnmi = result.GetCommandResponse("CNMI");
+            if (result.IsSuccess && cnmi != null && cnmi.Arguments.Count() == 5)
             {
-                List<int?> nums = result.CommandResponses["CNMI"].Arguments.Select(x =>
+                List<int?> nums = cnmi.Arguments.Select(x =>
                 {
                     int? result = null;
                     if (int.TryParse(x, out int num)) result = num;

@@ -46,17 +46,18 @@ namespace TqkLibrary.GSM.Extensions
         public static async Task<COPS_ReadResponse> ReadOperatorSelection(this GsmClient gsmClient)
         {
             var result = await gsmClient.Read("COPS").ConfigureAwait(false);
+            var cops = result.GetCommandResponse("COPS");
             if (result.IsSuccess && 
-                result.CommandResponses.ContainsKey("COPS") && 
-                result.CommandResponses["COPS"].Arguments.Count() > 0)
+                cops != null && 
+                cops.Arguments.Count() > 0)
             {
-                if(int.TryParse(result.CommandResponses["COPS"].Arguments.FirstOrDefault(),out int mode))
+                if(int.TryParse(cops.Arguments.FirstOrDefault(),out int mode))
                 {
                     COPS_ReadResponse response = new COPS_ReadResponse();
                     response.Mode = (COPS_Mode)mode;
-                    if(int.TryParse(result.CommandResponses["COPS"].Arguments.Skip(1).FirstOrDefault(),out int format)) 
+                    if(int.TryParse(cops.Arguments.Skip(1).FirstOrDefault(),out int format)) 
                         response.Format = (COPS_Format)format;
-                    response.Operator = result.CommandResponses["COPS"].Arguments.Skip(2).FirstOrDefault()?.Trim('"');
+                    response.Operator = cops.Arguments.Skip(2).FirstOrDefault()?.Trim('"');
                     return response;
                 }
             }

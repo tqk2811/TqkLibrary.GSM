@@ -146,7 +146,7 @@ namespace TqkLibrary.GSM
         /// <summary>
         /// +[Command]: [arg0],[arg1],[arg2],....\r\n[data]
         /// </summary>
-        public event Action<string, GsmCommandResponse> OnCommandResponse;
+        public event Action<GsmCommandResponse> OnCommandResponse;
         /// <summary>
         /// raw text reponse
         /// </summary>
@@ -238,7 +238,7 @@ namespace TqkLibrary.GSM
                             Console.WriteLine($"------\tData:{gsmCommandResponse.Data}");
 #endif
 
-                            OnCommandResponse?.Invoke(gsmCommandResponse.Command, gsmCommandResponse);
+                            OnCommandResponse?.Invoke(gsmCommandResponse);
                             continue;
                         }
                     }
@@ -263,7 +263,7 @@ namespace TqkLibrary.GSM
                 Action<bool> action_ok = (r) => tcs_ok.TrySetResult(r);
                 Action<string, int> action_me_err = (msg, code) => tcs_ok.TrySetException(new MEException(code, msg));
                 Action<string, int> action_ms_err = (msg, code) => tcs_ok.TrySetException(new MSException(code, msg));
-                Action<string, GsmCommandResponse> action_commandResponse = (cmd, commandData) => gsmCommandResult._CommandResponses.Add(cmd, commandData);
+                Action<GsmCommandResponse> action_commandResponse = (commandData) => gsmCommandResult._CommandResponses.Add(commandData);
                 Action<string> action_unknow = (str) => gsmCommandResult._Datas.Add(str);
 
                 using var register = cancellationToken.Register(() => tcs_ok.TrySetCanceled());

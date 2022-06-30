@@ -15,7 +15,7 @@ namespace TqkLibrary.GSM.Extensions
         /// <returns></returns>
         public static Task<string> ReadEnterPin(this GsmClient gsmClient, CancellationToken cancellationToken = default)
             => gsmClient.Read("CPIN", cancellationToken)
-            .GetTaskResult(x => x.CommandResponses.TryGetValue("CPIN")?.Arguments.FirstOrDefault());
+            .GetTaskResult(x => x.GetCommandResponse("CPIN")?.Arguments.FirstOrDefault());
 
         /// <summary>
         /// 3.5.2.4.3 +CPIN - Enter PIN

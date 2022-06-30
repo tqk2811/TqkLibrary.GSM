@@ -26,9 +26,10 @@ namespace TqkLibrary.GSM.Extensions
         public static async Task<MessageFormat?> ReadMessageFormat(this GsmClient gsmClient)
         {
             var result = await gsmClient.Read("CMGF").ConfigureAwait(false);
-            if (result.CommandResponses.ContainsKey("CMGF") &&
-                result.CommandResponses["CMGF"].Arguments.Count() > 0 &&
-                int.TryParse(result.CommandResponses["CMGF"].Arguments.First(), out int val))
+            var cmgf = result.GetCommandResponse("CMGF");
+            if (cmgf != null && 
+                cmgf.Arguments.Count() > 0 &&
+                int.TryParse(cmgf.Arguments.First(), out int val))
             {
                 if (val == (int)MessageFormat.PduMode) return MessageFormat.PduMode;
                 if (val == (int)MessageFormat.TextMode) return MessageFormat.TextMode;
