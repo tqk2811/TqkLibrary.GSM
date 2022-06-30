@@ -124,5 +124,22 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
             using (var ms = new MemoryStream(rawPdu)) return Parse(ms);
         }
         public static PDU Parse(Stream rawPdu) => new PDU()._Parse(rawPdu);
+
+
+        public static PDU TryParse(byte[] rawPdu)
+        {
+            using (var ms = new MemoryStream(rawPdu)) return TryParse(ms);
+        }
+        public static PDU TryParse(Stream rawPdu)
+        {
+            try
+            {
+                return new PDU()._Parse(rawPdu);
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }
