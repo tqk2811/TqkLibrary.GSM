@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TqkLibrary.GSM.Helpers.PduPaser.Decoders;
 
 namespace TqkLibrary.GSM.Helpers.PduPaser
 {
@@ -29,7 +30,8 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         public byte[] SenderNumber { get; private set; }
 
         public byte ProtocalId { get; private set; }
-        public byte EncodingScheme { get; private set; }
+        public byte DataCodingScheme { get; private set; }
+        public IDecoder Decoder { get; set; }
         public byte[] TimeStamp { get; private set; }
         public byte DataLength { get; private set; }
 
@@ -45,6 +47,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         public const TP SMS_DELIVER = TP.None;
         public const TP SMS_SUBMIT_REPORT = TP.MTI;
         public const TP SMS_STATUS_REPORT = TP.MTI2;
+
 
         PDU _Parse(Stream rawPdu)
         {
@@ -66,7 +69,29 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
                 SenderNumber = rawPdu.Read(SenderByteLength);
 
                 ProtocalId = (byte)rawPdu.ReadByte();
-                EncodingScheme = (byte)rawPdu.ReadByte();
+                DataCodingScheme = (byte)rawPdu.ReadByte();
+                //https://en.wikipedia.org/wiki/Data_Coding_Scheme
+                //bit 0,1 => class 
+                //bit 2,3 => 00 GSM7bit, 01 8bit data, 10 UCS2 (utf16), 11 reserved
+                //bit 5 => 0 default, 1 class
+                //bit 5,6,7,8 =>    0000 => ^
+                //                  0100->0111  Coding Group: Message Marked for Automatic Deletion
+                //                  1000->1011  Coding Group: Reserved
+                //                  1100        Coding Group: Message Waiting Info: Discard Message
+                //                  1101->1110  Coding Group: Message Waiting Info: Store Message
+                //                  1111        Coding Group: Data Coding/Message Class
+                switch ((DataCodingScheme & 0b00001100) >> 2)//bit 2,3
+                {
+                    case 0b00:
+                        Decoder = new SevenBitDecoder();
+                        break;
+                    case 0b10:
+                        Decoder = new UnicodeDecoder();
+                        break;
+
+                    default://8bit data or reserved
+                        break;
+                }
 
                 TimeStamp = rawPdu.Read(7);
 

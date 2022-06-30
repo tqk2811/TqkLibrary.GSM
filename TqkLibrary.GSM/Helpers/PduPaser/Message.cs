@@ -35,7 +35,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         /// <summary>
         /// sms content, maybe a part
         /// </summary>
-        public string Content => sevenBitDecoder.Decode(pdu.Data, pdu?.UDH?.Padding ?? 0);
+        public string Content => pdu.Decoder?.Decode(pdu.Data, pdu?.UDH?.Padding ?? 0);
 
         /// <summary>
         /// for long sms which be split, this value will be true

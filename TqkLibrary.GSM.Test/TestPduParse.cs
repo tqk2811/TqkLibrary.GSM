@@ -23,9 +23,9 @@ namespace TqkLibrary.GSM.Test
             var message = new Message(pdu);
             string text = message.Content;
             int l = text.Length;
-            SmsPdu.Parse(pdu1);
-            SmsPdu.Parse(pdu2);
-            SmsPdu.Parse(pdu3);
+            //SmsPdu.Parse(pdu1);
+            //SmsPdu.Parse(pdu2);
+            //SmsPdu.Parse(pdu3);
         }
     }
 }
