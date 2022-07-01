@@ -34,13 +34,20 @@ namespace TqkLibrary.GSM.Extensions
             this.gsmClient = gsmClient;
             gsmClient.OnCommandResponse += GsmClient_OnCommandResponse;
         }
-
-
-
         ~CMTMessage()
+        {
+            Dispose(false);
+        }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        private void Dispose(bool disposing)
         {
             gsmClient.OnCommandResponse -= GsmClient_OnCommandResponse;
         }
+
 
         private void GsmClient_OnCommandResponse(GsmCommandResponse commandData)
         {
@@ -102,12 +109,6 @@ namespace TqkLibrary.GSM.Extensions
                 default:
                     break;
             }
-        }
-
-        public void Dispose()
-        {
-            gsmClient.OnCommandResponse -= GsmClient_OnCommandResponse;
-            GC.SuppressFinalize(this);
         }
     }
 

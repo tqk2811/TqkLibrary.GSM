@@ -31,7 +31,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
 
         public byte ProtocalId { get; private set; }
         public byte DataCodingScheme { get; private set; }
-        public IDecoder Decoder { get; set; }
+        public IDecoder DataDecoder { get; set; }
         public byte[] TimeStamp { get; private set; }
         public byte DataLength { get; private set; }
 
@@ -83,10 +83,10 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
                 switch ((DataCodingScheme & 0b00001100) >> 2)//bit 2,3
                 {
                     case 0b00:
-                        Decoder = new SevenBitDecoder();
+                        DataDecoder = new SevenBitDecoder();
                         break;
                     case 0b10:
-                        Decoder = new UnicodeDecoder();
+                        DataDecoder = new UnicodeDecoder();
                         break;
 
                     default://8bit data or reserved
