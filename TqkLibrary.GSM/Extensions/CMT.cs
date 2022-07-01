@@ -12,7 +12,7 @@ namespace TqkLibrary.GSM.Extensions
 {
     public static partial class GsmExtensions
     {
-        public static async Task<CMTMessage> RegisterMessage(this GsmClient gsmClient, CancellationToken cancellationToken = default)
+        public static async Task<CMTMessage> RegisterMessageAsync(this GsmClient gsmClient, CancellationToken cancellationToken = default)
         {
             if (await gsmClient.WriteNewMessageIndicationsToTerminalEquipment(CNMI_Mode.Class2, CNMI_MT.SmsDeliver, cancellationToken).ConfigureAwait(false) &&
                 await gsmClient.WritePreferredMessageStorage(CPMS_MEMR.SM, cancellationToken).ConfigureAwait(false))
@@ -21,6 +21,9 @@ namespace TqkLibrary.GSM.Extensions
             }
             return null;
         }
+
+        public static CMTMessage RegisterMessage(this GsmClient gsmClient)
+            => new CMTMessage(gsmClient);
     }
 
     public class CMTMessage : IDisposable

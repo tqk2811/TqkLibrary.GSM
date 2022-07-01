@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 using System.Threading;
 namespace TqkLibrary.GSM.Extensions
 {
+    public static class SimEventUtilsExtension
+    {
+        public static SimEventUtils RegisterSimEventUtils(this GsmClient gsmClient) => new SimEventUtils(gsmClient);
+    }
     public class SimEventUtils : IDisposable
     {
         public event Action OnSimPlugIn;

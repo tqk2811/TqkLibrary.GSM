@@ -9,7 +9,7 @@ using GsmClient gsmClient = new GsmClient("COM6");
 
 gsmClient.Open();
 
-using var registerMsg = await gsmClient.RegisterMessage();
+using var registerMsg = await gsmClient.RegisterMessageAsync();
 registerMsg.OnSmsReceived += RegisterMsg_OnSmsReceived;
 
 
@@ -58,5 +58,5 @@ gsmClient.TestSend();
 
 void RegisterMsg_OnSmsReceived(ISms obj)
 {
-    Console.WriteLine($"New message from {obj.From} at {obj.ArrivalTime:HH:mm:ss MM-dd-yyy}: {obj.Message}");
+    Console.WriteLine($"New message from {obj.From} at {obj.ArrivalTime:HH:mm:ss MM-dd-yyyy}: {obj.Message}");
 }

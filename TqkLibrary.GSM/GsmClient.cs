@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
+using TqkLibrary.GSM.Exceptions;
 
 namespace TqkLibrary.GSM
 {
@@ -111,7 +112,10 @@ namespace TqkLibrary.GSM
         public string Port { get; }
         public bool IsOpen => serialPort.IsOpen;
         public event Action<string> LogCallback;
-
+        /// <summary>
+        /// default 20000ms
+        /// </summary>
+        public int CommandTimeout { get; set; } = 20000;
         readonly SerialPort serialPort;
         readonly AsyncLock asyncLockSend = new AsyncLock();
         public GsmClient(string port, int baudRate = 115200)
@@ -161,8 +165,6 @@ namespace TqkLibrary.GSM
         public event Action<string, int> OnMsError;
 
         private static readonly Regex regex_splitResponse = new Regex(@"(?<=^\r?\n|[\x01-\x7E]\r?\n\r?\n)([\x01-\x7E]*?)(?=\r?\n\r?\n[\x01-\x7E]|\r?\n$)");
-        private static readonly Regex regex_Command = new Regex("^\\+([A-z0-9]+):([\\x01-\\x7E]+)(|\\r\\n[\\x01-\\x7E]+)$", RegexOptions.Multiline);
-        private static readonly Regex regex_csv_partent = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 
         private string temp = string.Empty;
 
@@ -209,7 +211,8 @@ namespace TqkLibrary.GSM
                             if (int.TryParse(num, out int n))
                             {
                                 string err_msg = string.Empty;
-                                if (_CME_Error.ContainsKey(n)) err_msg = _CME_Error[n];
+                                if (_CME_Error.ContainsKey(n)) err_msg = $"{_CME_Error[n]} ({n})";
+                                else err_msg = n.ToString();
                                 OnMeError?.Invoke(err_msg, n);
                                 continue;
                             }
@@ -222,7 +225,8 @@ namespace TqkLibrary.GSM
                             if (int.TryParse(num, out int n))
                             {
                                 string err_msg = string.Empty;
-                                if (_CMS_Error.ContainsKey(n)) err_msg = _CMS_Error[n];
+                                if (_CMS_Error.ContainsKey(n)) err_msg = $"{_CMS_Error[n]} ({n})";
+                                else err_msg = n.ToString();
                                 OnMsError?.Invoke(err_msg, n);
                                 continue;
                             }
@@ -259,14 +263,16 @@ namespace TqkLibrary.GSM
             {
                 GsmCommandResult gsmCommandResult = new GsmCommandResult();
 
-                TaskCompletionSource<bool> tcs_ok = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-                Action<bool> action_ok = (r) => tcs_ok.TrySetResult(r);
-                Action<string, int> action_me_err = (msg, code) => tcs_ok.TrySetException(new MEException(code, msg));
-                Action<string, int> action_ms_err = (msg, code) => tcs_ok.TrySetException(new MSException(code, msg));
+                TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                Action<bool> action_ok = (r) => tcs.TrySetResult(r);
+                Action<string, int> action_me_err = (msg, code) => tcs.TrySetException(new MEException(code, msg));
+                Action<string, int> action_ms_err = (msg, code) => tcs.TrySetException(new MSException(code, msg));
                 Action<GsmCommandResponse> action_commandResponse = (commandData) => gsmCommandResult._CommandResponses.Add(commandData);
                 Action<string> action_unknow = (str) => gsmCommandResult._Datas.Add(str);
 
-                using var register = cancellationToken.Register(() => tcs_ok.TrySetCanceled());
+                using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(CommandTimeout);
+                using var register = cancellationToken.Register(() => tcs.TrySetCanceled());
+                using var register2 = cancellationTokenSource.Token.Register(() => tcs.TrySetException(new GsmCommandTimeoutException()));
                 try
                 {
                     OnCommandResult += action_ok;
@@ -286,8 +292,8 @@ namespace TqkLibrary.GSM
 
                     serialPort.Write(command);
 
-                    await tcs_ok.Task.ConfigureAwait(false);
-                    gsmCommandResult.IsSuccess = tcs_ok.Task.Result;
+                    await tcs.Task.ConfigureAwait(false);
+                    gsmCommandResult.IsSuccess = tcs.Task.Result;
                     return gsmCommandResult;
                 }
                 finally

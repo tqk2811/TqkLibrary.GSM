@@ -16,6 +16,7 @@ namespace TqkLibrary.GSM.Test
         const string pdu3 = "07914889200009F46412D0D664914A2D3223442B00002260428172038215050003BC0303DC20EA90063AD7D3A0582EE702";
         const string pdu4 = "07914889200026F5400B914883537892F10008226003614542828C05000309020100540069006E0020006E00681EAF006E0020007400691EBF006E00670020007600691EC70074002000540069006E0020006E00681EAF006E0020007400691EBF006E00670020007600691EC700540069006E0020006E00681EAF006E0020007400691EBF006E00670020007600691EC700740020002000540069006E0020006E00681EAF006E";
         const string pdu5 = "07914889200026F5640B914883537892F10008226003614542821E0500030902020020007400691EBF006E00670020007600691EC700740020";
+        const string pdu6 = "07914889200026F5240B914883537892F100002270107170058207D4021DE4FEBF01";
         [TestMethod]
         public void TestPdu1()
         {
@@ -31,6 +32,17 @@ namespace TqkLibrary.GSM.Test
         public void TestPdu4()
         {
             byte[] arr = pdu4.HexStringToByteArray();
+            var pdu = PDU.Parse(arr);
+            var message = new Message(pdu);
+            string text = message.Content;
+            string senderNumber = message.SenderNumber;
+            int l = text.Length;
+        }
+
+        [TestMethod]
+        public void TestPdu6()
+        {
+            byte[] arr = pdu6.HexStringToByteArray();
             var pdu = PDU.Parse(arr);
             var message = new Message(pdu);
             string text = message.Content;
