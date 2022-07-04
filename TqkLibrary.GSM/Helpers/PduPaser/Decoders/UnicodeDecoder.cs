@@ -1,12 +1,13 @@
-﻿using System.Text;
+﻿using System.Linq;
+using System.Text;
 
 namespace TqkLibrary.GSM.Helpers.PduPaser.Decoders
 {
     public class UnicodeDecoder : IDecoder
     {
-        public string Decode(byte[] raw, int padding = 0)
+        public string Decode(byte[] raw, int dataLength, int padding = 0)
         {
-            return Encoding.BigEndianUnicode.GetString(raw);
+            return new string(Encoding.BigEndianUnicode.GetString(raw).Take(dataLength / 2).ToArray());
         }
 
         public byte[] Encode(string str)

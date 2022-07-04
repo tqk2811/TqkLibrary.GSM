@@ -1,14 +1,16 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
-
 namespace TqkLibrary.GSM.Helpers.PduPaser.Decoders
 {
     public class SevenBitDecoder : IDecoder
     {
-        public string Decode(byte[] raw, int padding = 0)
+        public string Decode(byte[] raw, int dataLength, int padding = 0)
         {
-            var deRaw = this.decompress(raw, padding);
-            return Encoding.ASCII.GetString(deRaw);
+            var deRaw = this.decompress(raw, dataLength, padding);
+            return ReplaceBasicCharacterSet(Encoding.ASCII.GetString(deRaw));
         }
 
         public byte[] Encode(string str)
@@ -17,12 +19,13 @@ namespace TqkLibrary.GSM.Helpers.PduPaser.Decoders
             return this.compress(raw);
         }
 
-        protected byte[] decompress(byte[] raw, int padding)
+
+
+        protected byte[] decompress(byte[] raw, int dataLength, int padding)
         {
-            byte[] deBytes;
+            //int realLength = (int)Math.Ceiling(dataLength * 8.0 / 7);
             byte leftBitsLen = 0;
             byte leftBits = 0;
-            byte sevenBits = 0;
             using (MemoryStream ms = new MemoryStream())
             {
                 for (int i = 0; i < raw.Length; i++)
@@ -35,7 +38,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser.Decoders
                     }
                     else
                     {
-                        sevenBits = (byte)(((b << leftBitsLen) | leftBits) & 0x7F);
+                        byte sevenBits = (byte)(((b << leftBitsLen) | leftBits) & 0x7F);
                         ms.WriteByte(sevenBits);
                         leftBits = (byte)(b >> (7 - leftBitsLen));
                         leftBitsLen++;
@@ -47,11 +50,8 @@ namespace TqkLibrary.GSM.Helpers.PduPaser.Decoders
                         leftBitsLen = 0;
                     }
                 }
-                ms.Position = 0;
-                deBytes = new byte[ms.Length];
-                ms.Read(deBytes, 0, (int)ms.Length);
+                return ms.ToArray().Take(dataLength).ToArray();
             }
-            return deBytes;
         }
 
         protected byte[] compress(byte[] raw)
@@ -83,6 +83,35 @@ namespace TqkLibrary.GSM.Helpers.PduPaser.Decoders
                 ms.Read(enBytes, 0, (int)ms.Length);
             }
             return enBytes;
+        }
+
+
+
+        //https://en.wikipedia.org/wiki/GSM_03.38#cite_ref-3G-TS-23.038_2-0
+        static readonly Dictionary<byte, char> BasicCharacterSet_table = new Dictionary<byte, char>()
+        {
+            { 0x00, '@' }, { 0x01, '£' }, { 0x02, '$' }, { 0x03, '¥' }, { 0x04, 'è' }, { 0x05, 'é' }, { 0x06, 'ù' }, { 0x07, 'ì' },
+            { 0x08, 'ò' }, { 0x09, 'Ç' }, /*{ 0x0a, '\n' },*/ { 0x0b, 'Ø' }, { 0x0c, 'ø' }, /*{ 0x0d, '\r' },*/ { 0x0e, 'Å' }, { 0x0f, 'å' },
+
+            { 0x10, 'Δ' }, { 0x11, '_' }, { 0x12, 'Φ' }, { 0x13, 'Γ' }, { 0x14, 'Λ' }, { 0x15, 'Ω' }, { 0x16, 'Π' }, { 0x17, 'Ψ' },
+            { 0x18, 'Σ' }, { 0x19, 'Θ' }, { 0x1a, 'Ξ' }, /*{ 0x1b,ESC },*/ { 0x1c, 'Æ' }, { 0x1d, 'æ' }, { 0x1e, 'ß' }, { 0x1f, 'É' },
+
+            /*{ 0x20, SP },*/ { 0x21, '!' }, { 0x22, '"' }, { 0x23, '#' }, { 0x24, '¤' }, // ASCII
+
+            { 0x40, '¡' },  { 0x5b,'Ä' }, { 0x5c, 'Ö' }, { 0x5d, 'Ñ' }, { 0x5e, 'Ü' }, { 0x5f, '§' }, { 0x60,'¿'},
+                            { 0x7b,'ä' }, { 0x7c, 'ö' }, { 0x7d, 'ñ' }, { 0x7e, 'ü' }, { 0x7f, 'à' }
+        };
+        string ReplaceBasicCharacterSet(string raw)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            foreach (char c in raw)
+            {
+                if (BasicCharacterSet_table.ContainsKey((byte)c))
+                    stringBuilder.Append(BasicCharacterSet_table[(byte)c]);
+                else
+                    stringBuilder.Append(c);
+            }
+            return stringBuilder.ToString();
         }
     }
 }

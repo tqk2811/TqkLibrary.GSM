@@ -8,7 +8,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser.Decoders
 {
     public interface IDecoder
     {
-        string Decode(byte[] raw, int padding = 0);
+        string Decode(byte[] raw, int dataLength, int padding = 0);
 
     }
 }

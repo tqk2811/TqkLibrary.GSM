@@ -35,7 +35,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
                 }
                 else if ((pdu.SenderType & AddressesType.Alphanumeric) == AddressesType.Alphanumeric)
                 {
-                    return sevenBitDecoder.Decode(pdu.SenderNumber);
+                    return sevenBitDecoder.Decode(pdu.SenderNumber, pdu.SenderLength);
                 }
                 return string.Empty;
             }
@@ -49,7 +49,10 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         /// <summary>
         /// sms content, maybe a part
         /// </summary>
-        public string Content => pdu.DataDecoder?.Decode(pdu.Data, pdu?.UDH?.Padding ?? 0);
+        public string Content => pdu.DataDecoder?.Decode(
+            pdu.Data, 
+            (int)pdu.DataLength - (pdu.UDH?.HeaderLength ?? 0),
+            pdu?.UDH?.Padding ?? 0);
 
         /// <summary>
         /// for long sms which be split, this value will be true

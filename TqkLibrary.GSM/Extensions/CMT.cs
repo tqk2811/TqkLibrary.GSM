@@ -65,7 +65,7 @@ namespace TqkLibrary.GSM.Extensions
                 case MessageFormat.PduMode:
                     //[<alpha>],<length><CR><LF><pdu>
                     PDU pdu = PDU.TryParse(commandData.Data.HexStringToByteArray());
-                    if (pdu != null && (pdu.PduHeader & PDU.SMS_DELIVER) == PDU.SMS_DELIVER)
+                    if (pdu?.PduHeader?.Type == PduType.SmsDeliver)
                     {
                         Message message = new Message(pdu);
                         if (message.IsSplit)
