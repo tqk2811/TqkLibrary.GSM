@@ -7,11 +7,21 @@ using System.Threading.Tasks;
 
 namespace TqkLibrary.GSM.Extensions
 {
-    public static partial class GsmExtensions
+    public class CommandRequestCGMM : CommandRequest, IExecuteFirstData
     {
-        public static Task<string> GetModel(this GsmClient gsmClient, CancellationToken cancellationToken = default)
-            => gsmClient.Execute("CGMM", cancellationToken).GetTaskResult(x => x.Datas.FirstOrDefault());
-        public static Task<bool> TestModel(this GsmClient gsmClient, CancellationToken cancellationToken = default)
-            => gsmClient.Test("CGMM", cancellationToken).GetTaskResult(x => x.IsSuccess);
+        internal CommandRequestCGMM(GsmClient gsmClient) : base(gsmClient, "CGMM")
+        {
+
+        }
+    }
+
+    public static class CommandRequestCGMMExtension
+    {
+        /// <summary>
+        /// Request Model Identification
+        /// </summary>
+        /// <param name="gsmClient"></param>
+        /// <returns></returns>
+        public static CommandRequestCGMM CGMM(this GsmClient gsmClient) => new CommandRequestCGMM(gsmClient);
     }
 }

@@ -7,6 +7,70 @@ using System.Threading.Tasks;
 
 namespace TqkLibrary.GSM.Extensions
 {
+    public class CommandRequestCNMI : CommandRequest
+    {
+        internal CommandRequestCNMI(GsmClient gsmClient) : base(gsmClient, "CNMI")
+        {
+
+        }
+
+        public Task<bool> Write(CNMI_Mode mode, CancellationToken cancellationToken = default)
+            => base.Write(cancellationToken, (int)mode).GetTaskResult(x => x.IsSuccess);
+        public Task<bool> Write(CNMI_Mode mode, CNMI_MT mt, CancellationToken cancellationToken = default)
+            => base.Write(cancellationToken, (int)mode, (int)mt).GetTaskResult(x => x.IsSuccess);
+        public Task<bool> Write(CNMI_Mode mode, CNMI_MT mt, CNMI_BM bm, CancellationToken cancellationToken = default)
+            => base.Write(cancellationToken, (int)mode, (int)mt, (int)bm).GetTaskResult(x => x.IsSuccess);
+        public Task<bool> Write(CNMI_Mode mode, CNMI_MT mt, CNMI_BM bm, CNMI_DS ds, CancellationToken cancellationToken = default)
+            => base.Write(cancellationToken, (int)mode, (int)mt, (int)bm, (int)ds).GetTaskResult(x => x.IsSuccess);
+        public Task<bool> Write(CNMI_Mode mode, CNMI_MT mt, CNMI_BM bm, CNMI_DS ds, CNMI_BFR bfr, CancellationToken cancellationToken = default)
+            => base.Write(cancellationToken, (int)mode, (int)mt, (int)bm, (int)ds, (int)bfr).GetTaskResult(x => x.IsSuccess);
+
+        public new async Task<CNMI_ReadResult> Read(CancellationToken cancellationToken = default)
+        {
+            var result = await base.Read(cancellationToken).ConfigureAwait(false);
+            var cnmi = result.GetCommandResponse(Command);
+            if (result.IsSuccess && cnmi != null && cnmi.Arguments.Count() == 5)
+            {
+                List<int?> nums = cnmi.Arguments.Select(x =>
+                {
+                    int? result = null;
+                    if (int.TryParse(x, out int num)) result = num;
+                    return result;
+                }).Where(x => x != null).ToList();
+
+                if (nums.Count == 5)
+                {
+                    CNMI_ReadResult cNMI_ReadResult = new CNMI_ReadResult();
+                    cNMI_ReadResult.Mode = (CNMI_Mode)nums[0];
+                    cNMI_ReadResult.MT = (CNMI_MT)nums[1];
+                    cNMI_ReadResult.BM = (CNMI_BM)nums[2];
+                    cNMI_ReadResult.DS = (CNMI_DS)nums[3];
+                    cNMI_ReadResult.BFR = (CNMI_BFR)nums[4];
+                    return cNMI_ReadResult;
+                }
+
+            }
+            return null;
+        }
+    }
+
+    public static class CommandRequestCNMIExtension
+    {
+        /// <summary>
+        /// New Message Indications To Terminal Equipment
+        /// </summary>
+        /// <param name="gsmClient"></param>
+        /// <returns></returns>
+        public static CommandRequestCNMI CNMI(this GsmClient gsmClient) => new CommandRequestCNMI(gsmClient);
+    }
+    public class CNMI_ReadResult
+    {
+        public CNMI_Mode Mode { get; internal set; }
+        public CNMI_MT MT { get; internal set; }
+        public CNMI_BM BM { get; internal set; }
+        public CNMI_DS DS { get; internal set; }
+        public CNMI_BFR BFR { get; internal set; }
+    }    
     public enum CNMI_Mode
     {
         /// <summary>
@@ -116,110 +180,5 @@ namespace TqkLibrary.GSM.Extensions
         /// TA buffer of unsolicited result codes defined within this command is cleared when &lt;mode&gt;=1..3 is entered.
         /// </summary>
         Class1 = 1,
-    }
-    public static partial class GsmExtensions
-    {
-        /// <summary>
-        /// 3.5.3.3.1 +CNMI - New Message Indications To Terminal Equipment
-        /// </summary>
-        /// <returns></returns>
-        public static Task<bool> WriteNewMessageIndicationsToTerminalEquipment(this GsmClient gsmClient,
-            CNMI_Mode mode,
-            CancellationToken cancellationToken = default)
-            => gsmClient.Write("CNMI", cancellationToken, (int)mode)
-            .GetTaskResult(x => x.IsSuccess);
-
-        /// <summary>
-        /// 3.5.3.3.1 +CNMI - New Message Indications To Terminal Equipment
-        /// </summary>
-        /// <returns></returns>
-        public static Task<bool> WriteNewMessageIndicationsToTerminalEquipment(this GsmClient gsmClient,
-            CNMI_Mode mode,
-            CNMI_MT mt,
-            CancellationToken cancellationToken = default)
-            => gsmClient.Write("CNMI", cancellationToken, (int)mode, (int)mt)
-            .GetTaskResult(x => x.IsSuccess);
-
-        /// <summary>
-        /// 3.5.3.3.1 +CNMI - New Message Indications To Terminal Equipment
-        /// </summary>
-        /// <returns></returns>
-        public static Task<bool> WriteNewMessageIndicationsToTerminalEquipment(this GsmClient gsmClient,
-            CNMI_Mode mode,
-            CNMI_MT mt,
-            CNMI_BM bm,
-            CancellationToken cancellationToken = default)
-            => gsmClient.Write("CNMI", cancellationToken, (int)mode, (int)mt, (int)bm)
-            .GetTaskResult(x => x.IsSuccess);
-
-        /// <summary>
-        /// 3.5.3.3.1 +CNMI - New Message Indications To Terminal Equipment
-        /// </summary>
-        /// <returns></returns>
-        public static Task<bool> WriteNewMessageIndicationsToTerminalEquipment(this GsmClient gsmClient,
-            CNMI_Mode mode,
-            CNMI_MT mt,
-            CNMI_BM bm,
-            CNMI_DS ds,
-            CancellationToken cancellationToken = default)
-            => gsmClient.Write("CNMI", cancellationToken, (int)mode, (int)mt, (int)bm, (int)ds)
-            .GetTaskResult(x => x.IsSuccess);
-
-        /// <summary>
-        /// 3.5.3.3.1 +CNMI - New Message Indications To Terminal Equipment
-        /// </summary>
-        /// <returns></returns>
-        public static Task<bool> WriteNewMessageIndicationsToTerminalEquipment(this GsmClient gsmClient,
-            CNMI_Mode mode,
-            CNMI_MT mt,
-            CNMI_BM bm,
-            CNMI_DS ds,
-            CNMI_BFR bfr,
-            CancellationToken cancellationToken = default)
-            => gsmClient.Write("CNMI", cancellationToken, (int)mode, (int)mt, (int)bm, (int)ds, (int)bfr)
-            .GetTaskResult(x => x.IsSuccess);
-
-        public static Task<GsmCommandResult> TestWriteNewMessageIndicationsToTerminalEquipment(
-            this GsmClient gsmClient,
-            CancellationToken cancellationToken = default)
-            => gsmClient.Test("CNMI", cancellationToken);
-
-        public static async Task<CNMI_ReadResult> ReadWriteNewMessageIndicationsToTerminalEquipment(this GsmClient gsmClient,
-            CancellationToken cancellationToken = default)
-        {
-            var result = await gsmClient.Read("CNMI", cancellationToken).ConfigureAwait(false);
-            var cnmi = result.GetCommandResponse("CNMI");
-            if (result.IsSuccess && cnmi != null && cnmi.Arguments.Count() == 5)
-            {
-                List<int?> nums = cnmi.Arguments.Select(x =>
-                {
-                    int? result = null;
-                    if (int.TryParse(x, out int num)) result = num;
-                    return result;
-                }).Where(x => x != null).ToList();
-
-                if (nums.Count == 5)
-                {
-                    CNMI_ReadResult cNMI_ReadResult = new CNMI_ReadResult();
-                    cNMI_ReadResult.Mode = (CNMI_Mode)nums[0];
-                    cNMI_ReadResult.MT = (CNMI_MT)nums[1];
-                    cNMI_ReadResult.BM = (CNMI_BM)nums[2];
-                    cNMI_ReadResult.DS = (CNMI_DS)nums[3];
-                    cNMI_ReadResult.BFR = (CNMI_BFR)nums[4];
-                    return cNMI_ReadResult;
-                }
-
-            }
-            return null;
-        }
-    }
-
-    public class CNMI_ReadResult
-    {
-        public CNMI_Mode Mode { get; internal set; }
-        public CNMI_MT MT { get; internal set; }
-        public CNMI_BM BM { get; internal set; }
-        public CNMI_DS DS { get; internal set; }
-        public CNMI_BFR BFR { get; internal set; }
     }
 }

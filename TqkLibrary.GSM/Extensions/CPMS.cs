@@ -7,6 +7,30 @@ using System.Threading.Tasks;
 
 namespace TqkLibrary.GSM.Extensions
 {
+    public class CommandRequestCPMS : CommandRequest
+    {
+        internal CommandRequestCPMS(GsmClient gsmClient) : base(gsmClient, "CPMS")
+        {
+
+        }
+        public Task<bool> Write(CPMS_MEMR memr, CancellationToken cancellationToken = default)
+            => base.Write(cancellationToken, memr.ToAtString()).GetTaskResult(x => x.IsSuccess);
+        public Task<bool> Write(CPMS_MEMR memr, CPMS_MEMW memw, CancellationToken cancellationToken = default)
+            => base.Write(cancellationToken, memr.ToAtString(), memw.ToAtString()).GetTaskResult(x => x.IsSuccess);
+        public Task<bool> Write(CPMS_MEMR memr, CPMS_MEMW memw, CPMS_MEMS mems, CancellationToken cancellationToken = default)
+            => base.Write(cancellationToken, memr.ToAtString(), memw.ToAtString(), mems.ToAtString()).GetTaskResult(x => x.IsSuccess);
+    }
+
+    public static class CommandRequestCPMSExtension
+    {
+        /// <summary>
+        /// Preferred Message Storage
+        /// </summary>
+        /// <param name="gsmClient"></param>
+        /// <returns></returns>
+        public static CommandRequestCPMS CPMS(this GsmClient gsmClient) => new CommandRequestCPMS(gsmClient);
+    }
+
     /// <summary>
     /// memory from which messages are read and deleted
     /// </summary>
@@ -41,43 +65,5 @@ namespace TqkLibrary.GSM.Extensions
         /// SIM SMS memory storage
         /// </summary>
         SM,
-    }
-
-
-    public static partial class GsmExtensions
-    {
-        /// <summary>
-        /// Preferred Message Storage
-        /// </summary>
-        /// <returns></returns>
-        public static Task<bool> WritePreferredMessageStorage(this GsmClient gsmClient,
-            CPMS_MEMR memr,
-            CancellationToken cancellationToken = default)
-            => gsmClient.Write("CPMS", cancellationToken, memr.ToAtString())
-            .GetTaskResult(x => x.IsSuccess);
-
-        /// <summary>
-        /// Preferred Message Storage
-        /// </summary>
-        /// <returns></returns>
-        public static Task<bool> WritePreferredMessageStorage(this GsmClient gsmClient,
-            CPMS_MEMR memr,
-            CPMS_MEMW memw,
-            CancellationToken cancellationToken = default)
-            => gsmClient.Write("CPMS", cancellationToken, memr.ToAtString(), memw.ToAtString())
-            .GetTaskResult(x => x.IsSuccess);
-
-        /// <summary>
-        /// Preferred Message Storage
-        /// </summary>
-        /// <returns></returns>
-        public static Task<bool> WritePreferredMessageStorage(this GsmClient gsmClient,
-            CPMS_MEMR memr,
-            CPMS_MEMW memw,
-            CPMS_MEMS mems,
-            CancellationToken cancellationToken = default)
-            => gsmClient.Write("CPMS", cancellationToken, memr.ToAtString(), memw.ToAtString(), mems.ToAtString())
-            .GetTaskResult(x => x.IsSuccess);
-
     }
 }

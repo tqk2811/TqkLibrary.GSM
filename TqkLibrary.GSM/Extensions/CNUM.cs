@@ -7,9 +7,22 @@ using System.Threading.Tasks;
 
 namespace TqkLibrary.GSM.Extensions
 {
-    public static partial class GsmExtensions
+    public class CommandRequestCNUM : CommandRequest, IExecuteFirstData
     {
-        public static Task<string> GetMSISDN(this GsmClient gsmClient, CancellationToken cancellationToken = default)
-            => gsmClient.Execute("CNUM", cancellationToken).GetTaskResult(x => x.Datas.FirstOrDefault());
+        internal CommandRequestCNUM(GsmClient gsmClient) : base(gsmClient, "CNUM")
+        {
+
+        }
+
+    }
+
+    public static class CommandRequestCNUMExtension
+    {
+        /// <summary>
+        /// Subscriber Number
+        /// </summary>
+        /// <param name="gsmClient"></param>
+        /// <returns></returns>
+        public static CommandRequestCNUM CNUM(this GsmClient gsmClient) => new CommandRequestCNUM(gsmClient);
     }
 }

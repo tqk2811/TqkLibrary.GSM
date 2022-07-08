@@ -7,6 +7,51 @@ using System.Threading.Tasks;
 
 namespace TqkLibrary.GSM.Extensions
 {
+    public class CommandRequestCUSD : CommandRequest
+    {
+        internal CommandRequestCUSD(GsmClient gsmClient) : base(gsmClient, "CUSD")
+        {
+
+        }
+        public async Task<CUSD_Response> Write(CUSD_N n, string str, CancellationToken cancellationToken = default)
+        {
+            var result = await base.Write(cancellationToken, (int)n, str.ToAtString()).ConfigureAwait(false);
+            var cusd = result.GetCommandResponse(Command);
+            if (result.IsSuccess && cusd != null)
+            {
+                if (int.TryParse(cusd.Arguments.FirstOrDefault(), out int code))
+                {
+                    CUSD_Response response = new CUSD_Response();
+                    response.CUSD_M = (CUSD_M)code;
+                    response.Str = cusd.Arguments.Skip(1).FirstOrDefault();
+                    if (int.TryParse(cusd.Arguments.Skip(2).FirstOrDefault(), out int dcs)) response.DCS = dcs;
+                    return response;
+                }
+            }
+            return null;
+        }
+
+    }
+    public static class CommandRequestCUSDExtension
+    {
+        /// <summary>
+        /// Unstructured Supplementary Service Data 
+        /// </summary>
+        /// <param name="gsmClient"></param>
+        /// <returns></returns>
+        public static CommandRequestCUSD CUSD(this GsmClient gsmClient) => new CommandRequestCUSD(gsmClient);
+    }
+    public class CUSD_Response
+    {
+        public CUSD_M CUSD_M { get; internal set; }
+        public string Str { get; internal set; }
+        public int? DCS { get; internal set; }
+
+        public override string ToString()
+        {
+            return Str;
+        }
+    }
     public enum CUSD_N
     {
         Disable = 0,
@@ -38,45 +83,5 @@ namespace TqkLibrary.GSM.Extensions
         /// network time out
         /// </summary>
         NetworkTimeOut = 5,
-    }
-    public static partial class GsmExtensions
-    {
-        /// <summary>
-        /// 3.5.2.3.13 +CUSD - Unstructured Supplementary Service Data 
-        /// </summary>
-        /// <returns></returns>
-        public static async Task<CUSD_Response> WriteUnstructuredSupplementaryServiceData(
-            this GsmClient gsmClient,
-            CUSD_N n,
-            string str,
-            CancellationToken cancellationToken = default)
-        {
-            var result = await gsmClient.Write("CUSD", cancellationToken, (int)n, str.ToAtString()).ConfigureAwait(false);
-            var cusd = result.GetCommandResponse("CUSD");
-            if(result.IsSuccess && cusd != null)
-            {
-                if (int.TryParse(cusd.Arguments.FirstOrDefault(),out int code))
-                {
-                    CUSD_Response response = new CUSD_Response();
-                    response.CUSD_M = (CUSD_M)code;
-                    response.Str = cusd.Arguments.Skip(1).FirstOrDefault();
-                    if (int.TryParse(cusd.Arguments.Skip(2).FirstOrDefault(), out int dcs)) response.DCS = dcs;
-                    return response;
-                }
-            }
-            return null;
-        }
-    }
-
-    public class CUSD_Response
-    {
-        public CUSD_M CUSD_M { get; internal set; }
-        public string Str { get; internal set; }
-        public int? DCS { get; internal set; }
-
-        public override string ToString()
-        {
-            return Str;
-        }
     }
 }

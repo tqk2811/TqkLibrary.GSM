@@ -7,28 +7,30 @@ using System.Threading.Tasks;
 
 namespace TqkLibrary.GSM.Extensions
 {
-    public static partial class GsmExtensions
+    public class CommandRequestCPIN : CommandRequest
+    {
+        internal CommandRequestCPIN(GsmClient gsmClient) : base(gsmClient, "CPIN")
+        {
+
+        }
+
+
+        public new Task<string> Read(CancellationToken cancellationToken = default)
+            => base.Read(cancellationToken).GetTaskResult(x => x.GetCommandResponse("CPIN")?.Arguments.FirstOrDefault());
+
+        public new Task<GsmCommandResult> Write(string pin, CancellationToken cancellationToken = default)
+            => base.Write(cancellationToken, pin.ToAtString());
+        public Task<GsmCommandResult> Write(string pin, string newpin, CancellationToken cancellationToken = default)
+            => base.Write(cancellationToken, pin.ToAtString(), newpin.ToAtString());
+
+    }
+    public static class CommandRequestCPINExtension
     {
         /// <summary>
-        /// 3.5.2.4.3 +CPIN - Enter PIN
+        /// Enter PIN 
         /// </summary>
+        /// <param name="gsmClient"></param>
         /// <returns></returns>
-        public static Task<string> ReadEnterPin(this GsmClient gsmClient, CancellationToken cancellationToken = default)
-            => gsmClient.Read("CPIN", cancellationToken)
-            .GetTaskResult(x => x.GetCommandResponse("CPIN")?.Arguments.FirstOrDefault());
-
-        /// <summary>
-        /// 3.5.2.4.3 +CPIN - Enter PIN
-        /// </summary>
-        /// <returns></returns>
-        public static Task<GsmCommandResult> WriteEnterPin(this GsmClient gsmClient, string pin, CancellationToken cancellationToken = default)
-            => gsmClient.Write("CPIN", cancellationToken, pin.ToAtString());
-
-        /// <summary>
-        /// 3.5.2.4.3 +CPIN - Enter PIN
-        /// </summary>
-        /// <returns></returns>
-        public static Task<GsmCommandResult> WriteEnterPin(this GsmClient gsmClient, string pin, string newpin, CancellationToken cancellationToken = default)
-            => gsmClient.Write("CPIN", cancellationToken, pin.ToAtString(), newpin.ToAtString());
+        public static CommandRequestCPIN CPIN(this GsmClient gsmClient) => new CommandRequestCPIN(gsmClient);
     }
 }

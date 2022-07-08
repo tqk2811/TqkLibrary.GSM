@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using TqkLibrary.GSM.Helpers.PduPaser;
-using TqkLibrary.GSM.Helpers.PduPaser.Decoders;
 using Nito.AsyncEx;
-namespace TqkLibrary.GSM.Extensions
+using System.Threading.Tasks;
+
+namespace TqkLibrary.GSM.Extensions.Advances
 {
-    public static partial class GsmExtensions
+    public static class CMTMessageExtension
     {
         public static async Task<CMTMessage> RegisterMessageAsync(this GsmClient gsmClient, CancellationToken cancellationToken = default)
         {
-            if (await gsmClient.WriteNewMessageIndicationsToTerminalEquipment(CNMI_Mode.Class2, CNMI_MT.SmsDeliver, cancellationToken).ConfigureAwait(false) &&
-                await gsmClient.WritePreferredMessageStorage(CPMS_MEMR.SM, cancellationToken).ConfigureAwait(false))
+            if (await gsmClient.CNMI().Write(CNMI_Mode.Class2, CNMI_MT.SmsDeliver, cancellationToken).ConfigureAwait(false) &&
+                await gsmClient.CPMS().Write(CPMS_MEMR.SM, cancellationToken).ConfigureAwait(false))
             {
                 return new CMTMessage(gsmClient);
             }
@@ -25,6 +23,7 @@ namespace TqkLibrary.GSM.Extensions
         public static CMTMessage RegisterMessage(this GsmClient gsmClient)
             => new CMTMessage(gsmClient);
     }
+
 
     public class CMTMessage : IDisposable
     {
@@ -60,7 +59,7 @@ namespace TqkLibrary.GSM.Extensions
 
         private async void _GsmClient_OnCommandResponse(GsmCommandResponse commandData)
         {
-            switch (await gsmClient.ReadMessageFormat())
+            switch (await gsmClient.CMGF().Read())
             {
                 case MessageFormat.PduMode:
                     //[<alpha>],<length><CR><LF><pdu>
@@ -114,7 +113,6 @@ namespace TqkLibrary.GSM.Extensions
             }
         }
     }
-
     public interface ISms
     {
         string From { get; }

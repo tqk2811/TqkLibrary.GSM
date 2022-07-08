@@ -7,12 +7,21 @@ using System.Threading.Tasks;
 
 namespace TqkLibrary.GSM.Extensions
 {
-    public static partial class GsmExtensions
+    public class CommandRequestCIMI : CommandRequest, IExecuteFirstData
     {
-        public static Task<string> GetIMSI(this GsmClient gsmClient, CancellationToken cancellationToken = default)
-            => gsmClient.Execute("CIMI", cancellationToken).GetTaskResult(x => x.Datas.FirstOrDefault());
+        internal CommandRequestCIMI(GsmClient gsmClient) : base(gsmClient, "CIMI")
+        {
 
-        public static Task<bool> TestIMSI(this GsmClient gsmClient, CancellationToken cancellationToken = default)
-            => gsmClient.Test("CIMI", cancellationToken).GetTaskResult(x => x.IsSuccess);
+        }
+    }
+
+    public static class CommandRequestCIMIExtension
+    {
+        /// <summary>
+        /// Request International Mobile Subscriber Identity
+        /// </summary>
+        /// <param name="gsmClient"></param>
+        /// <returns></returns>
+        public static CommandRequestCIMI CIMI(this GsmClient gsmClient) => new CommandRequestCIMI(gsmClient);
     }
 }

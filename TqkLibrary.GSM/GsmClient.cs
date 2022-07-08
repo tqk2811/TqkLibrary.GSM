@@ -125,8 +125,6 @@ namespace TqkLibrary.GSM
             serialPort.DataReceived += SerialPort_DataReceived;
             serialPort.RtsEnable = true;
             serialPort.DtrEnable = false;
-            serialPort.PinChanged += SerialPort_PinChanged;
-            serialPort.ErrorReceived += SerialPort_ErrorReceived;
             this.Port = port;
         }
 
@@ -171,14 +169,6 @@ namespace TqkLibrary.GSM
 
         private string temp = string.Empty;
 
-        private void SerialPort_ErrorReceived(object sender, SerialErrorReceivedEventArgs e)
-        {
-
-        }
-        private void SerialPort_PinChanged(object sender, SerialPinChangedEventArgs e)
-        {
-            
-        }
 
         private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {

@@ -7,12 +7,20 @@ using System.Threading.Tasks;
 
 namespace TqkLibrary.GSM.Extensions
 {
-    public static partial class GsmExtensions
+    public class CommandRequestCCID : CommandRequest, IExecuteFirstData
     {
-        public static Task<string> GetICCID(this GsmClient gsmClient, CancellationToken cancellationToken = default)
-            => gsmClient.Execute("CCID", cancellationToken).GetTaskResult(x => x.Datas.FirstOrDefault());
+        internal CommandRequestCCID(GsmClient gsmClient) : base(gsmClient, "CCID")
+        {
 
-        public static Task<bool> TestICCID(this GsmClient gsmClient, CancellationToken cancellationToken = default)
-            => gsmClient.Test("CCID", cancellationToken).GetTaskResult(x => x.IsSuccess);
+        }
+    }
+
+    public static class CommandRequestCCIDExtension
+    {
+        /// <summary>
+        /// Integrated Circuit Card Identification
+        /// </summary>
+        /// <returns></returns>
+        public static CommandRequestCCID CCID(this GsmClient gsmClient) => new CommandRequestCCID(gsmClient);
     }
 }

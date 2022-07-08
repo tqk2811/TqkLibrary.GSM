@@ -2,10 +2,60 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TqkLibrary.GSM.Extensions
 {
+    public class CommandRequestCOPS : CommandRequest, IExecuteFirstData
+    {
+        internal CommandRequestCOPS(GsmClient gsmClient) : base(gsmClient, "COPS")
+        {
+
+        }
+
+        public new async Task<COPS_ReadResponse> Read(CancellationToken cancellationToken = default)
+        {
+            var result = await base.Read(cancellationToken).ConfigureAwait(false);
+            var cops = result.GetCommandResponse(Command);
+            if (result.IsSuccess &&
+                cops != null &&
+                cops.Arguments.Count() > 0)
+            {
+                if (int.TryParse(cops.Arguments.FirstOrDefault(), out int mode))
+                {
+                    COPS_ReadResponse response = new COPS_ReadResponse();
+                    response.Mode = (COPS_Mode)mode;
+                    if (int.TryParse(cops.Arguments.Skip(1).FirstOrDefault(), out int format))
+                        response.Format = (COPS_Format)format;
+                    response.Operator = cops.Arguments.Skip(2).FirstOrDefault()?.Trim('"');
+                    return response;
+                }
+            }
+            return null;
+        }
+    }
+    public static class CommandRequestCOPSExtension
+    {
+        /// <summary>
+        /// Operator Selection
+        /// </summary>
+        /// <param name="gsmClient"></param>
+        /// <returns></returns>
+        public static CommandRequestCOPS COPS(this GsmClient gsmClient) => new CommandRequestCOPS(gsmClient);
+    }
+
+    public class COPS_ReadResponse
+    {
+        public COPS_Mode Mode { get; internal set; }
+        public COPS_Format? Format { get; internal set; }
+        public string Operator { get; internal set; }
+
+        public override string ToString()
+        {
+            return $"Mode: {Mode}, Format: {Format}, Operator: {Operator}";
+        }
+    }
     public enum COPS_Mode
     {
         /// <summary>
@@ -39,41 +89,5 @@ namespace TqkLibrary.GSM.Extensions
         /// numeric 5 digits [country code (3) + network code (2)] 
         /// </summary>
         Numeric5Digits = 1,
-    }
-
-    public static partial class GsmExtensions
-    {
-        public static async Task<COPS_ReadResponse> ReadOperatorSelection(this GsmClient gsmClient)
-        {
-            var result = await gsmClient.Read("COPS").ConfigureAwait(false);
-            var cops = result.GetCommandResponse("COPS");
-            if (result.IsSuccess && 
-                cops != null && 
-                cops.Arguments.Count() > 0)
-            {
-                if(int.TryParse(cops.Arguments.FirstOrDefault(),out int mode))
-                {
-                    COPS_ReadResponse response = new COPS_ReadResponse();
-                    response.Mode = (COPS_Mode)mode;
-                    if(int.TryParse(cops.Arguments.Skip(1).FirstOrDefault(),out int format)) 
-                        response.Format = (COPS_Format)format;
-                    response.Operator = cops.Arguments.Skip(2).FirstOrDefault()?.Trim('"');
-                    return response;
-                }
-            }
-            return null;
-        }
-    }
-
-    public class COPS_ReadResponse
-    {
-        public COPS_Mode Mode { get; internal set; }
-        public COPS_Format? Format { get; internal set; }
-        public string Operator { get; internal set; }
-
-        public override string ToString()
-        {
-            return $"Mode: {Mode}, Format: {Format}, Operator: {Operator}";
-        }
     }
 }

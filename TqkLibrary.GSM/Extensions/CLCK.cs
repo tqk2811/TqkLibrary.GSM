@@ -77,43 +77,54 @@ namespace TqkLibrary.GSM.Extensions
         DedicatedPacketAccess = 64,
         Dedicated_PAD_Access = 128
     }
-    public static partial class GsmExtensions
+
+    public class CommandRequestCLCK : CommandRequest
     {
+        internal CommandRequestCLCK(GsmClient gsmClient) : base(gsmClient, "CLCK")
+        {
+
+        }
         /// <summary>
-        /// 3.6.2.3.5 +CLCK - Facility Lock/ Unlock <br></br>reboot needed
+        /// reboot needed
         /// </summary>
         /// <returns></returns>
-        public static Task<GsmCommandResult> WriteFacility(this GsmClient gsmClient,
+        public Task<GsmCommandResult> WriteFacility(
             CLCK_FAC fac,
             CLCK_Mode mode,
             CancellationToken cancellationToken = default)
-            => gsmClient.Write("CLCK", cancellationToken, fac.ToAtString(), (int)mode);
+            => GsmClient.Write("CLCK", cancellationToken, fac.ToAtString(), (int)mode);
 
         /// <summary>
-        /// 3.6.2.3.5 +CLCK - Facility Lock/ Unlock <br></br>reboot needed
+        /// reboot needed
         /// </summary>
         /// <returns></returns>
-        public static Task<GsmCommandResult> WriteFacility(this GsmClient gsmClient,
+        public Task<GsmCommandResult> WriteFacility(
             CLCK_FAC fac,
             CLCK_Mode mode,
             string pin,
             CancellationToken cancellationToken = default)
-            => gsmClient.Write("CLCK", cancellationToken, fac.ToAtString(), (int)mode, pin.ToAtString());
+            => GsmClient.Write("CLCK", cancellationToken, fac.ToAtString(), (int)mode, pin.ToAtString());
 
         /// <summary>
-        /// 3.6.2.3.5 +CLCK - Facility Lock/ Unlock <br></br>reboot needed
+        /// reboot needed
         /// </summary>
         /// <returns></returns>
-        public static Task<GsmCommandResult> WriteFacility(this GsmClient gsmClient,
+        public Task<GsmCommandResult> WriteFacility(
             CLCK_FAC fac,
             CLCK_Mode mode,
             string pin,
             CLCK_Class @class,
             CancellationToken cancellationToken = default)
-            => gsmClient.Write("CLCK", cancellationToken, fac.ToAtString(), (int)mode, pin.ToAtString(), (int)@class);
+            => GsmClient.Write("CLCK", cancellationToken, fac.ToAtString(), (int)mode, pin.ToAtString(), (int)@class);
+    }
 
-
-        public static Task<bool> TestFacility(this GsmClient gsmClient, CancellationToken cancellationToken = default)
-            => gsmClient.Test("CLCK", cancellationToken).GetTaskResult(x => x.IsSuccess);
+    public static class CommandRequestCLCKExtension
+    {
+        /// <summary>
+        /// Facility Lock/ Unlock
+        /// </summary>
+        /// <param name="gsmClient"></param>
+        /// <returns></returns>
+        public static CommandRequestCLCK CLCK(this GsmClient gsmClient) => new CommandRequestCLCK(gsmClient);
     }
 }

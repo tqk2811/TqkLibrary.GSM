@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
-namespace TqkLibrary.GSM.Extensions
+
+namespace TqkLibrary.GSM.Extensions.Advances
 {
     public static class SimEventUtilsExtension
     {
@@ -15,6 +16,10 @@ namespace TqkLibrary.GSM.Extensions
         public event Action OnSimPlugIn;
         public event Action OnSimPlugOut;
         public event Action OnProviderConnected;
+        public event Action OnCalling;
+
+
+
         readonly GsmClient gsmClient;
         public SimEventUtils(GsmClient gsmClient)
         {
@@ -46,14 +51,14 @@ namespace TqkLibrary.GSM.Extensions
             if ("CPIN".Equals(obj?.Command))
             {
                 var arg = obj.Arguments.FirstOrDefault()?.Trim('"');
-                switch(arg)
+                switch (arg)
                 {
                     case "NOT READY":
-                        ThreadPool.QueueUserWorkItem((o) => OnSimPlugOut?.Invoke());
+                        if (OnSimPlugOut != null) ThreadPool.QueueUserWorkItem((o) => OnSimPlugOut?.Invoke());
                         break;
 
                     case "READY":
-                        ThreadPool.QueueUserWorkItem((o) => OnSimPlugIn?.Invoke());
+                        if (OnSimPlugIn != null) ThreadPool.QueueUserWorkItem((o) => OnSimPlugIn?.Invoke());
                         break;
                 }
             }
@@ -64,7 +69,10 @@ namespace TqkLibrary.GSM.Extensions
             switch (obj)
             {
                 case "Call Ready":
-                    ThreadPool.QueueUserWorkItem((o) => OnProviderConnected?.Invoke());
+                    if (OnProviderConnected != null) ThreadPool.QueueUserWorkItem((o) => OnProviderConnected?.Invoke());
+                    break;
+                case "RING":
+                    if (OnCalling != null) ThreadPool.QueueUserWorkItem((o) => OnCalling?.Invoke());
                     break;
             }
         }

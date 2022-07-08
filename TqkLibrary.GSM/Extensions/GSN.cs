@@ -7,11 +7,21 @@ using System.Threading.Tasks;
 
 namespace TqkLibrary.GSM.Extensions
 {
-    public static partial class GsmExtensions
+    public class CommandRequestGSN : CommandRequest, IExecuteFirstData
     {
-        public static Task<string> GetIMEI(this GsmClient gsmClient, CancellationToken cancellationToken = default)
-            => gsmClient.Execute("GSN", cancellationToken).GetTaskResult(x => x.Datas.FirstOrDefault());
-        public static Task<bool> TestIMEI(this GsmClient gsmClient, CancellationToken cancellationToken = default)
-           => gsmClient.Test("GSN", cancellationToken).GetTaskResult(x => x.IsSuccess);
+        internal CommandRequestGSN(GsmClient gsmClient) : base(gsmClient, "GSN")
+        {
+
+        }
+
+    }
+    public static class CommandRequestGSNExtension
+    {
+        /// <summary>
+        /// Serial Number 
+        /// </summary>
+        /// <param name="gsmClient"></param>
+        /// <returns></returns>
+        public static CommandRequestGSN GSN(this GsmClient gsmClient) => new CommandRequestGSN(gsmClient);
     }
 }

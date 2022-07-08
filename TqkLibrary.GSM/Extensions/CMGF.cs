@@ -2,32 +2,37 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TqkLibrary.GSM.Extensions
 {
-    public enum MessageFormat
+    public class CommandRequestCMGF : CommandRequest
     {
-        PduMode = 0,
-        TextMode = 1
-    }
-    public static partial class GsmExtensions
-    {
+        internal CommandRequestCMGF(GsmClient gsmClient) : base(gsmClient, "CMGF")
+        {
+
+        }
+
         /// <summary>
         /// 3.5.3.1.3 +CMGF - Message Format
         /// </summary>
         /// <param name="gsmClient"></param>
         /// <param name="messageFormat"></param>
         /// <returns></returns>
-        public static Task<bool> WriteMessageFormat(this GsmClient gsmClient, MessageFormat messageFormat = MessageFormat.TextMode)
-            => gsmClient.Write("CMGF", ((int)messageFormat).ToString())
-            .GetTaskResult(x => x.IsSuccess);
+        public Task<bool> Write(MessageFormat messageFormat = MessageFormat.TextMode)
+            => GsmClient.Write(Command, ((int)messageFormat).ToString()).GetTaskResult(x => x.IsSuccess);
 
-        public static async Task<MessageFormat?> ReadMessageFormat(this GsmClient gsmClient)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public new async Task<MessageFormat?> Read(CancellationToken cancellationToken = default)
         {
-            var result = await gsmClient.Read("CMGF").ConfigureAwait(false);
-            var cmgf = result.GetCommandResponse("CMGF");
-            if (cmgf != null && 
+            var result = await base.Read(cancellationToken).ConfigureAwait(false);
+            var cmgf = result.GetCommandResponse(Command);
+            if (cmgf != null &&
                 cmgf.Arguments.Count() > 0 &&
                 int.TryParse(cmgf.Arguments.First(), out int val))
             {
@@ -36,9 +41,20 @@ namespace TqkLibrary.GSM.Extensions
             }
             return null;
         }
+    }
 
-        public static Task<bool> TestMessageFormat(this GsmClient gsmClient)
-            => gsmClient.Read("CMGF")
-            .GetTaskResult(x => x.IsSuccess);
+    public static class CommandRequestCMGFExtension
+    {
+        /// <summary>
+        /// Message Format
+        /// </summary>
+        /// <param name="gsmClient"></param>
+        /// <returns></returns>
+        public static CommandRequestCMGF CMGF(this GsmClient gsmClient) => new CommandRequestCMGF(gsmClient);
+    }
+    public enum MessageFormat
+    {
+        PduMode = 0,
+        TextMode = 1
     }
 }
