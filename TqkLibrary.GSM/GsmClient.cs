@@ -259,7 +259,7 @@ namespace TqkLibrary.GSM
         }
 
 
-        private async Task<GsmCommandResult> SendCommand(string command, CancellationToken cancellationToken = default)
+        private async Task<GsmCommandResult> SendCommandAsync(string command, CancellationToken cancellationToken = default)
         {
             using (await asyncLockSend.LockAsync(cancellationToken).ConfigureAwait(false))
             {
@@ -309,7 +309,7 @@ namespace TqkLibrary.GSM
             }
         }
 
-
+#if DEBUG
         public void TestSend()
         {
             while (true)
@@ -318,16 +318,16 @@ namespace TqkLibrary.GSM
                 serialPort.Write($"AT{command}\r\n");
             }
         }
-
+#endif
 
         /// <summary>
         /// &lt;command&gt;=?
         /// </summary>
         /// <returns></returns>
-        public async Task<GsmCommandResult> Test(string command, CancellationToken cancellationToken = default)
+        public Task<GsmCommandResult> TestAsync(string command, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(command)) throw new ArgumentNullException(nameof(command));
-            return await SendCommand($"AT{command}=?\r\n").ConfigureAwait(false);
+            return SendCommandAsync($"AT{command}=?\r\n", cancellationToken);
         }
 
 
@@ -336,10 +336,10 @@ namespace TqkLibrary.GSM
         /// </summary>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<GsmCommandResult> Read(string command, CancellationToken cancellationToken = default)
+        public Task<GsmCommandResult> ReadAsync(string command, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(command)) throw new ArgumentNullException(nameof(command));
-            return await SendCommand($"AT+{command}?\r\n").ConfigureAwait(false);
+            return SendCommandAsync($"AT+{command}?\r\n", cancellationToken);
         }
 
 
@@ -347,26 +347,26 @@ namespace TqkLibrary.GSM
         /// +&lt;command&gt;=[val1],[val2],....
         /// </summary>
         /// <returns></returns>
-        public Task<GsmCommandResult> Write(string command, CancellationToken cancellationToken = default, params object[] values)
-            => Write(command, string.Join(",", values), cancellationToken);
+        public Task<GsmCommandResult> WriteAsync(string command, CancellationToken cancellationToken = default, params object[] values)
+            => WriteAsync(command, string.Join(",", values), cancellationToken);
 
         /// <summary>
         /// +&lt;command&gt;=[val1],[val2],....
         /// </summary>
         /// <returns></returns>
-        public Task<GsmCommandResult> Write(string command, string[] values, CancellationToken cancellationToken = default)
-            => Write(command, string.Join(",", values), cancellationToken);
+        public Task<GsmCommandResult> WriteAsync(string command, string[] values, CancellationToken cancellationToken = default)
+            => WriteAsync(command, string.Join(",", values), cancellationToken);
 
         /// <summary>
         /// +&lt;command&gt;=[val1],[val2],....
         /// </summary>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<GsmCommandResult> Write(string command, string value, CancellationToken cancellationToken = default)
+        public Task<GsmCommandResult> WriteAsync(string command, string value, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(command)) throw new ArgumentNullException(nameof(command));
             if (string.IsNullOrWhiteSpace(value)) throw new ArgumentNullException(nameof(value));
-            return await SendCommand($"AT+{command}={value}\r\n").ConfigureAwait(false);
+            return SendCommandAsync($"AT+{command}={value}\r\n", cancellationToken);
         }
 
 
@@ -374,10 +374,10 @@ namespace TqkLibrary.GSM
         /// +&lt;command&gt;
         /// </summary>
         /// <returns></returns>
-        public async Task<GsmCommandResult> Execute(string command, CancellationToken cancellationToken = default)
+        public Task<GsmCommandResult> ExecuteAsync(string command, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(command)) throw new ArgumentNullException(nameof(command));
-            return await SendCommand($"AT+{command}\r\n").ConfigureAwait(false);
+            return SendCommandAsync($"AT+{command}\r\n", cancellationToken);
         }
 
     }

@@ -21,7 +21,7 @@ namespace TqkLibrary.GSM.Extensions
         /// <param name="messageFormat"></param>
         /// <returns></returns>
         public Task<bool> Write(MessageFormat messageFormat = MessageFormat.TextMode)
-            => GsmClient.Write(Command, ((int)messageFormat).ToString()).GetTaskResult(x => x.IsSuccess);
+            => GsmClient.WriteAsync(Command, ((int)messageFormat).ToString()).GetTaskResult(x => x.IsSuccess);
 
         /// <summary>
         /// 

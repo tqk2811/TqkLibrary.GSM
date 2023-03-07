@@ -92,7 +92,7 @@ namespace TqkLibrary.GSM.Extensions
             CLCK_FAC fac,
             CLCK_Mode mode,
             CancellationToken cancellationToken = default)
-            => GsmClient.Write("CLCK", cancellationToken, fac.ToAtString(), (int)mode);
+            => GsmClient.WriteAsync("CLCK", cancellationToken, fac.ToAtString(), (int)mode);
 
         /// <summary>
         /// reboot needed
@@ -103,7 +103,7 @@ namespace TqkLibrary.GSM.Extensions
             CLCK_Mode mode,
             string pin,
             CancellationToken cancellationToken = default)
-            => GsmClient.Write("CLCK", cancellationToken, fac.ToAtString(), (int)mode, pin.ToAtString());
+            => GsmClient.WriteAsync("CLCK", cancellationToken, fac.ToAtString(), (int)mode, pin.ToAtString());
 
         /// <summary>
         /// reboot needed
@@ -115,7 +115,7 @@ namespace TqkLibrary.GSM.Extensions
             string pin,
             CLCK_Class @class,
             CancellationToken cancellationToken = default)
-            => GsmClient.Write("CLCK", cancellationToken, fac.ToAtString(), (int)mode, pin.ToAtString(), (int)@class);
+            => GsmClient.WriteAsync("CLCK", cancellationToken, fac.ToAtString(), (int)mode, pin.ToAtString(), (int)@class);
     }
 
     public static class CommandRequestCLCKExtension
