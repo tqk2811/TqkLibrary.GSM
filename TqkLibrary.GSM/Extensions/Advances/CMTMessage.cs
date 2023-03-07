@@ -12,8 +12,8 @@ namespace TqkLibrary.GSM.Extensions.Advances
     {
         public static async Task<CMTMessage> RegisterMessageAsync(this GsmClient gsmClient, CancellationToken cancellationToken = default)
         {
-            if (await gsmClient.CNMI().Write(CNMI_Mode.Class2, CNMI_MT.SmsDeliver, cancellationToken).ConfigureAwait(false) &&
-                await gsmClient.CPMS().Write(CPMS_MEMR.SM, cancellationToken).ConfigureAwait(false))
+            if (await gsmClient.CNMI().WriteAsync(CNMI_Mode.Class2, CNMI_MT.SmsDeliver, cancellationToken).ConfigureAwait(false) &&
+                await gsmClient.CPMS().WriteAsync(CPMS_MEMR.SM, cancellationToken).ConfigureAwait(false))
             {
                 return new CMTMessage(gsmClient);
             }
@@ -59,7 +59,7 @@ namespace TqkLibrary.GSM.Extensions.Advances
 
         private async void _GsmClient_OnCommandResponse(GsmCommandResponse commandData)
         {
-            switch (await gsmClient.CMGF().Read())
+            switch (await gsmClient.CMGF().ReadAsync())
             {
                 case MessageFormat.PduMode:
                     //[<alpha>],<length><CR><LF><pdu>

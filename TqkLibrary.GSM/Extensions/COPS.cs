@@ -14,9 +14,9 @@ namespace TqkLibrary.GSM.Extensions
 
         }
 
-        public new async Task<COPS_ReadResponse> Read(CancellationToken cancellationToken = default)
+        public new async Task<COPS_ReadResponse> ReadAsync(CancellationToken cancellationToken = default)
         {
-            var result = await base.Read(cancellationToken).ConfigureAwait(false);
+            var result = await base.ReadAsync(cancellationToken).ConfigureAwait(false);
             var cops = result.GetCommandResponse(Command);
             if (result.IsSuccess &&
                 cops != null &&

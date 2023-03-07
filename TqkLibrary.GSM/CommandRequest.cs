@@ -22,19 +22,19 @@ namespace TqkLibrary.GSM
             this.Command = command;
         }
 
-        internal protected Task<GsmCommandResult> Write(CancellationToken cancellationToken = default, params object[] values)
+        internal protected Task<GsmCommandResult> WriteAsync(CancellationToken cancellationToken = default, params object[] values)
             => GsmClient.WriteAsync(Command, cancellationToken, values);
-        internal protected Task<GsmCommandResult> Write(string[] values, CancellationToken cancellationToken = default)
+        internal protected Task<GsmCommandResult> WriteAsync(string[] values, CancellationToken cancellationToken = default)
             => GsmClient.WriteAsync(Command, values, cancellationToken);
-        internal protected Task<GsmCommandResult> Write(string value, CancellationToken cancellationToken = default)
+        internal protected Task<GsmCommandResult> WriteAsync(string value, CancellationToken cancellationToken = default)
             => GsmClient.WriteAsync(Command, value, cancellationToken);
-        internal protected Task<GsmCommandResult> Read(CancellationToken cancellationToken = default)
+        internal protected Task<GsmCommandResult> ReadAsync(CancellationToken cancellationToken = default)
             => GsmClient.ReadAsync(Command, cancellationToken);
-        internal protected Task<GsmCommandResult> Execute(CancellationToken cancellationToken = default)
+        internal protected Task<GsmCommandResult> ExecuteAsync(CancellationToken cancellationToken = default)
             => GsmClient.ExecuteAsync(Command, cancellationToken);
 
 
-        public Task<bool> Test(CancellationToken cancellationToken = default)
+        public Task<bool> TestAsync(CancellationToken cancellationToken = default)
             => GsmClient.TestAsync(Command, cancellationToken).GetTaskResult(x => x.IsSuccess);
     }
 }

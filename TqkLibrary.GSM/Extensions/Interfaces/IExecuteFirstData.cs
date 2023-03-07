@@ -14,6 +14,6 @@ namespace TqkLibrary.GSM.Extensions
     public static class ExecuteFirstDataExtension
     {
         public static Task<string> Execute<T>(this T t, CancellationToken cancellationToken = default) where T : CommandRequest, IExecuteFirstData
-            => t.Execute(cancellationToken).GetTaskResult(x => x.Datas.FirstOrDefault());
+            => t.ExecuteAsync(cancellationToken).GetTaskResult(x => x.Datas.FirstOrDefault());
     }
 }

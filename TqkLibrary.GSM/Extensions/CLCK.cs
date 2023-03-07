@@ -88,7 +88,7 @@ namespace TqkLibrary.GSM.Extensions
         /// reboot needed
         /// </summary>
         /// <returns></returns>
-        public Task<GsmCommandResult> WriteFacility(
+        public Task<GsmCommandResult> WriteFacilityAsync(
             CLCK_FAC fac,
             CLCK_Mode mode,
             CancellationToken cancellationToken = default)
@@ -98,7 +98,7 @@ namespace TqkLibrary.GSM.Extensions
         /// reboot needed
         /// </summary>
         /// <returns></returns>
-        public Task<GsmCommandResult> WriteFacility(
+        public Task<GsmCommandResult> WriteFacilityAsync(
             CLCK_FAC fac,
             CLCK_Mode mode,
             string pin,
@@ -109,7 +109,7 @@ namespace TqkLibrary.GSM.Extensions
         /// reboot needed
         /// </summary>
         /// <returns></returns>
-        public Task<GsmCommandResult> WriteFacility(
+        public Task<GsmCommandResult> WriteFacilityAsync(
             CLCK_FAC fac,
             CLCK_Mode mode,
             string pin,

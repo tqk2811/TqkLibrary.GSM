@@ -15,13 +15,13 @@ namespace TqkLibrary.GSM.Extensions
         }
 
 
-        public new Task<string> Read(CancellationToken cancellationToken = default)
-            => base.Read(cancellationToken).GetTaskResult(x => x.GetCommandResponse("CPIN")?.Arguments.FirstOrDefault());
+        public new Task<string> ReadAsync(CancellationToken cancellationToken = default)
+            => base.ReadAsync(cancellationToken).GetTaskResult(x => x.GetCommandResponse("CPIN")?.Arguments.FirstOrDefault());
 
-        public new Task<GsmCommandResult> Write(string pin, CancellationToken cancellationToken = default)
-            => base.Write(cancellationToken, pin.ToAtString());
-        public Task<GsmCommandResult> Write(string pin, string newpin, CancellationToken cancellationToken = default)
-            => base.Write(cancellationToken, pin.ToAtString(), newpin.ToAtString());
+        public new Task<GsmCommandResult> WriteAsync(string pin, CancellationToken cancellationToken = default)
+            => base.WriteAsync(cancellationToken, pin.ToAtString());
+        public Task<GsmCommandResult> WriteAsync(string pin, string newpin, CancellationToken cancellationToken = default)
+            => base.WriteAsync(cancellationToken, pin.ToAtString(), newpin.ToAtString());
 
     }
     public static class CommandRequestCPINExtension

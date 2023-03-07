@@ -15,15 +15,15 @@ registerMsg.OnSmsReceived += RegisterMsg_OnSmsReceived;
 
 
 
-var a = await gsmClient.CMGF().Write(MessageFormat.PduMode);
+var a = await gsmClient.CMGF().WriteAsync(MessageFormat.PduMode);
 //var a1 = await gsmClient.CMGF().Read();
 
-var b = await gsmClient.CNMI().Write(CNMI_Mode.Class2, CNMI_MT.SmsDeliver);
+var b = await gsmClient.CNMI().WriteAsync(CNMI_Mode.Class2, CNMI_MT.SmsDeliver);
 //var b1 = await gsmClient.CNMI().Read();
 
-var c = await gsmClient.CPMS().Write(CPMS_MEMR.SM);
+var c = await gsmClient.CPMS().WriteAsync(CPMS_MEMR.SM);
 
-var e = await gsmClient.COPS().Read();
+var e = await gsmClient.COPS().ReadAsync();
 
 gsmClient.TestSend();
 

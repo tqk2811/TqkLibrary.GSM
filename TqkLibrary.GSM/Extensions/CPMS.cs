@@ -13,12 +13,12 @@ namespace TqkLibrary.GSM.Extensions
         {
 
         }
-        public Task<bool> Write(CPMS_MEMR memr, CancellationToken cancellationToken = default)
-            => base.Write(cancellationToken, memr.ToAtString()).GetTaskResult(x => x.IsSuccess);
-        public Task<bool> Write(CPMS_MEMR memr, CPMS_MEMW memw, CancellationToken cancellationToken = default)
-            => base.Write(cancellationToken, memr.ToAtString(), memw.ToAtString()).GetTaskResult(x => x.IsSuccess);
-        public Task<bool> Write(CPMS_MEMR memr, CPMS_MEMW memw, CPMS_MEMS mems, CancellationToken cancellationToken = default)
-            => base.Write(cancellationToken, memr.ToAtString(), memw.ToAtString(), mems.ToAtString()).GetTaskResult(x => x.IsSuccess);
+        public Task<bool> WriteAsync(CPMS_MEMR memr, CancellationToken cancellationToken = default)
+            => base.WriteAsync(cancellationToken, memr.ToAtString()).GetTaskResult(x => x.IsSuccess);
+        public Task<bool> WriteAsync(CPMS_MEMR memr, CPMS_MEMW memw, CancellationToken cancellationToken = default)
+            => base.WriteAsync(cancellationToken, memr.ToAtString(), memw.ToAtString()).GetTaskResult(x => x.IsSuccess);
+        public Task<bool> WriteAsync(CPMS_MEMR memr, CPMS_MEMW memw, CPMS_MEMS mems, CancellationToken cancellationToken = default)
+            => base.WriteAsync(cancellationToken, memr.ToAtString(), memw.ToAtString(), mems.ToAtString()).GetTaskResult(x => x.IsSuccess);
     }
 
     public static class CommandRequestCPMSExtension

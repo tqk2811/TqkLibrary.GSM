@@ -14,20 +14,20 @@ namespace TqkLibrary.GSM.Extensions
 
         }
 
-        public Task<bool> Write(CNMI_Mode mode, CancellationToken cancellationToken = default)
-            => base.Write(cancellationToken, (int)mode).GetTaskResult(x => x.IsSuccess);
-        public Task<bool> Write(CNMI_Mode mode, CNMI_MT mt, CancellationToken cancellationToken = default)
-            => base.Write(cancellationToken, (int)mode, (int)mt).GetTaskResult(x => x.IsSuccess);
-        public Task<bool> Write(CNMI_Mode mode, CNMI_MT mt, CNMI_BM bm, CancellationToken cancellationToken = default)
-            => base.Write(cancellationToken, (int)mode, (int)mt, (int)bm).GetTaskResult(x => x.IsSuccess);
-        public Task<bool> Write(CNMI_Mode mode, CNMI_MT mt, CNMI_BM bm, CNMI_DS ds, CancellationToken cancellationToken = default)
-            => base.Write(cancellationToken, (int)mode, (int)mt, (int)bm, (int)ds).GetTaskResult(x => x.IsSuccess);
-        public Task<bool> Write(CNMI_Mode mode, CNMI_MT mt, CNMI_BM bm, CNMI_DS ds, CNMI_BFR bfr, CancellationToken cancellationToken = default)
-            => base.Write(cancellationToken, (int)mode, (int)mt, (int)bm, (int)ds, (int)bfr).GetTaskResult(x => x.IsSuccess);
+        public Task<bool> WriteAsync(CNMI_Mode mode, CancellationToken cancellationToken = default)
+            => base.WriteAsync(cancellationToken, (int)mode).GetTaskResult(x => x.IsSuccess);
+        public Task<bool> WriteAsync(CNMI_Mode mode, CNMI_MT mt, CancellationToken cancellationToken = default)
+            => base.WriteAsync(cancellationToken, (int)mode, (int)mt).GetTaskResult(x => x.IsSuccess);
+        public Task<bool> WriteAsync(CNMI_Mode mode, CNMI_MT mt, CNMI_BM bm, CancellationToken cancellationToken = default)
+            => base.WriteAsync(cancellationToken, (int)mode, (int)mt, (int)bm).GetTaskResult(x => x.IsSuccess);
+        public Task<bool> WriteAsync(CNMI_Mode mode, CNMI_MT mt, CNMI_BM bm, CNMI_DS ds, CancellationToken cancellationToken = default)
+            => base.WriteAsync(cancellationToken, (int)mode, (int)mt, (int)bm, (int)ds).GetTaskResult(x => x.IsSuccess);
+        public Task<bool> WriteAsync(CNMI_Mode mode, CNMI_MT mt, CNMI_BM bm, CNMI_DS ds, CNMI_BFR bfr, CancellationToken cancellationToken = default)
+            => base.WriteAsync(cancellationToken, (int)mode, (int)mt, (int)bm, (int)ds, (int)bfr).GetTaskResult(x => x.IsSuccess);
 
-        public new async Task<CNMI_ReadResult> Read(CancellationToken cancellationToken = default)
+        public new async Task<CNMI_ReadResult> ReadAsync(CancellationToken cancellationToken = default)
         {
-            var result = await base.Read(cancellationToken).ConfigureAwait(false);
+            var result = await base.ReadAsync(cancellationToken).ConfigureAwait(false);
             var cnmi = result.GetCommandResponse(Command);
             if (result.IsSuccess && cnmi != null && cnmi.Arguments.Count() == 5)
             {

@@ -13,9 +13,9 @@ namespace TqkLibrary.GSM.Extensions
         {
 
         }
-        public async Task<CUSD_Response> Write(CUSD_N n, string str, CancellationToken cancellationToken = default)
+        public async Task<CUSD_Response> WriteAsync(CUSD_N n, string str, CancellationToken cancellationToken = default)
         {
-            var result = await base.Write(cancellationToken, (int)n, str.ToAtString()).ConfigureAwait(false);
+            var result = await base.WriteAsync(cancellationToken, (int)n, str.ToAtString()).ConfigureAwait(false);
             var cusd = result.GetCommandResponse(Command);
             if (result.IsSuccess && cusd != null)
             {

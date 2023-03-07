@@ -20,7 +20,7 @@ namespace TqkLibrary.GSM.Extensions
         /// <param name="gsmClient"></param>
         /// <param name="messageFormat"></param>
         /// <returns></returns>
-        public Task<bool> Write(MessageFormat messageFormat = MessageFormat.TextMode)
+        public Task<bool> WriteAsync(MessageFormat messageFormat = MessageFormat.TextMode)
             => GsmClient.WriteAsync(Command, ((int)messageFormat).ToString()).GetTaskResult(x => x.IsSuccess);
 
         /// <summary>
@@ -28,9 +28,9 @@ namespace TqkLibrary.GSM.Extensions
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public new async Task<MessageFormat?> Read(CancellationToken cancellationToken = default)
+        public new async Task<MessageFormat?> ReadAsync(CancellationToken cancellationToken = default)
         {
-            var result = await base.Read(cancellationToken).ConfigureAwait(false);
+            var result = await base.ReadAsync(cancellationToken).ConfigureAwait(false);
             var cmgf = result.GetCommandResponse(Command);
             if (cmgf != null &&
                 cmgf.Arguments.Count() > 0 &&
