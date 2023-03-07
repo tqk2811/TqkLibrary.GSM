@@ -108,6 +108,8 @@ namespace TqkLibrary.GSM
         {
 
         };
+        //CR
+        const string LineBreak = "\r";
 
         public string Port { get; }
         public bool IsOpen => serialPort.IsOpen;
@@ -315,7 +317,7 @@ namespace TqkLibrary.GSM
             while (true)
             {
                 string command = Console.ReadLine();
-                serialPort.Write($"AT{command}\r\n");
+                serialPort.Write($"AT{command}{LineBreak}");
             }
         }
 #endif
@@ -327,7 +329,7 @@ namespace TqkLibrary.GSM
         public Task<GsmCommandResult> TestAsync(string command, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(command)) throw new ArgumentNullException(nameof(command));
-            return SendCommandAsync($"AT{command}=?\r\n", cancellationToken);
+            return SendCommandAsync($"AT{command}=?{LineBreak}", cancellationToken);
         }
 
 
@@ -339,7 +341,7 @@ namespace TqkLibrary.GSM
         public Task<GsmCommandResult> ReadAsync(string command, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(command)) throw new ArgumentNullException(nameof(command));
-            return SendCommandAsync($"AT+{command}?\r\n", cancellationToken);
+            return SendCommandAsync($"AT+{command}?{LineBreak}", cancellationToken);
         }
 
 
@@ -366,7 +368,7 @@ namespace TqkLibrary.GSM
         {
             if (string.IsNullOrWhiteSpace(command)) throw new ArgumentNullException(nameof(command));
             if (string.IsNullOrWhiteSpace(value)) throw new ArgumentNullException(nameof(value));
-            return SendCommandAsync($"AT+{command}={value}\r\n", cancellationToken);
+            return SendCommandAsync($"AT+{command}={value}{LineBreak}", cancellationToken);
         }
 
 
@@ -377,7 +379,7 @@ namespace TqkLibrary.GSM
         public Task<GsmCommandResult> ExecuteAsync(string command, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(command)) throw new ArgumentNullException(nameof(command));
-            return SendCommandAsync($"AT+{command}\r\n", cancellationToken);
+            return SendCommandAsync($"AT+{command}{LineBreak}", cancellationToken);
         }
 
     }
