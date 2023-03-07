@@ -25,7 +25,11 @@ var c = await gsmClient.CPMS().WriteAsync(CPMS_MEMR.SM);
 
 var e = await gsmClient.COPS().ReadAsync();
 
-gsmClient.TestSend();
+while (true)
+{
+    string command = Console.ReadLine();
+    gsmClient.Debug(command);
+}
 
 
 void RegisterMsg_OnSmsReceived(ISms obj)

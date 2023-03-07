@@ -309,16 +309,16 @@ namespace TqkLibrary.GSM
             }
         }
 
-#if DEBUG
-        public void TestSend()
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="command"></param>
+        public void Debug(string command)
         {
-            while (true)
-            {
-                string command = Console.ReadLine();
-                serialPort.Write($"AT{command}\r\n");
-            }
+            serialPort.Write($"AT{command}\r\n");
         }
-#endif
+
 
         /// <summary>
         /// &lt;command&gt;=?
