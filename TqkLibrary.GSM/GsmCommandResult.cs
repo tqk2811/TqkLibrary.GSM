@@ -3,10 +3,22 @@ using System.Linq;
 using System;
 namespace TqkLibrary.GSM
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class GsmCommandResult
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsSuccess { get; internal set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public IEnumerable<GsmCommandResponse> CommandResponses => _CommandResponses;
+        /// <summary>
+        /// 
+        /// </summary>
         public IEnumerable<string> Datas => _Datas;
 
 
@@ -14,6 +26,12 @@ namespace TqkLibrary.GSM
         internal List<GsmCommandResponse> _CommandResponses { get; } = new List<GsmCommandResponse>();
         internal List<string> _Datas { get; } = new List<string>();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public GsmCommandResponse GetCommandResponse(string name)
         {
             if(string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));

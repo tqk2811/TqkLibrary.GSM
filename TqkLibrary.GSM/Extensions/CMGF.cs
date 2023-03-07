@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace TqkLibrary.GSM.Extensions
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class CommandRequestCMGF : CommandRequest
     {
         internal CommandRequestCMGF(GsmClient gsmClient) : base(gsmClient, "CMGF")
@@ -17,11 +20,9 @@ namespace TqkLibrary.GSM.Extensions
         /// <summary>
         /// 3.5.3.1.3 +CMGF - Message Format
         /// </summary>
-        /// <param name="gsmClient"></param>
-        /// <param name="messageFormat"></param>
         /// <returns></returns>
-        public Task<bool> WriteAsync(MessageFormat messageFormat = MessageFormat.TextMode)
-            => GsmClient.WriteAsync(Command, ((int)messageFormat).ToString()).GetTaskResult(x => x.IsSuccess);
+        public Task<bool> WriteAsync(MessageFormat messageFormat = MessageFormat.TextMode, CancellationToken cancellationToken = default)
+            => GsmClient.WriteAsync(Command, ((int)messageFormat).ToString(), cancellationToken).GetTaskResult(x => x.IsSuccess);
 
         /// <summary>
         /// 
@@ -42,7 +43,9 @@ namespace TqkLibrary.GSM.Extensions
             return null;
         }
     }
-
+    /// <summary>
+    /// 
+    /// </summary>
     public static class CommandRequestCMGFExtension
     {
         /// <summary>
@@ -52,9 +55,18 @@ namespace TqkLibrary.GSM.Extensions
         /// <returns></returns>
         public static CommandRequestCMGF CMGF(this GsmClient gsmClient) => new CommandRequestCMGF(gsmClient);
     }
+    /// <summary>
+    /// 
+    /// </summary>
     public enum MessageFormat
     {
+        /// <summary>
+        /// 
+        /// </summary>
         PduMode = 0,
+        /// <summary>
+        /// 
+        /// </summary>
         TextMode = 1
     }
 }

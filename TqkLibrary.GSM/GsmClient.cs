@@ -14,6 +14,9 @@ using TqkLibrary.GSM.Exceptions;
 namespace TqkLibrary.GSM
 {
     //https://www.emnify.com/developer-blog/at-commands-for-cellular-modules
+    /// <summary>
+    /// 
+    /// </summary>
     public class GsmClient : IDisposable
     {
         static readonly IDictionary<int, string> _CME_Error = new Dictionary<int, string>()
@@ -108,9 +111,17 @@ namespace TqkLibrary.GSM
         {
 
         };
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string Port { get; }
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsOpen => serialPort.IsOpen;
+        /// <summary>
+        /// 
+        /// </summary>
         public event Action<string> LogCallback;
         /// <summary>
         /// default 20000ms
@@ -118,6 +129,12 @@ namespace TqkLibrary.GSM
         public int CommandTimeout { get; set; } = 20000;
         readonly SerialPort serialPort;
         readonly AsyncLock asyncLockSend = new AsyncLock();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="port"></param>
+        /// <param name="baudRate"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public GsmClient(string port, int baudRate = 115200)
         {
             if (string.IsNullOrWhiteSpace(port)) throw new ArgumentNullException(nameof(port));
@@ -127,11 +144,16 @@ namespace TqkLibrary.GSM
             serialPort.DtrEnable = false;
             this.Port = port;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         ~GsmClient()
         {
             Dispose(false);
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
@@ -141,7 +163,9 @@ namespace TqkLibrary.GSM
         {
             serialPort.Dispose();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public void Open() => serialPort.Open();
 
         /// <summary>
@@ -310,6 +334,9 @@ namespace TqkLibrary.GSM
         }
 
 #if DEBUG
+        /// <summary>
+        /// 
+        /// </summary>
         public void TestSend()
         {
             while (true)

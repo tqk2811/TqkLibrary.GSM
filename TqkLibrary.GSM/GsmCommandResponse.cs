@@ -4,6 +4,9 @@ using System.Text.RegularExpressions;
 
 namespace TqkLibrary.GSM
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class GsmCommandResponse
     {
         private GsmCommandResponse(string command, string[] args, string data)
@@ -17,13 +20,27 @@ namespace TqkLibrary.GSM
             this.Command = command;
             this._Options.AddRange(options);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string Command { get; }
+        /// <summary>
+        /// 
+        /// </summary>
         public IEnumerable<string> Arguments => _Arguments;
+        /// <summary>
+        /// 
+        /// </summary>
         public IEnumerable<IEnumerable<string>> Options => _Options;
+        /// <summary>
+        /// 
+        /// </summary>
         public string Data { get; }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return $"Command: {Command}, Arguments: [{string.Join(";", Arguments)}], Data: {Data}";
