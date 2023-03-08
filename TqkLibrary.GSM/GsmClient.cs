@@ -207,9 +207,9 @@ namespace TqkLibrary.GSM
                 var matches = regex_splitResponse.Matches(received);
                 foreach (Match match in matches)
                 {
-                    var matchString = match.Groups[1].Value;
+                    var matchString = match.Groups[1].Value.Trim();
 
-                    string log = $"{Port} >> {matchString.Trim()}";
+                    string log = $"{Port} >> {matchString}";
 #if DEBUG
                     Console.WriteLine(log);
 #endif
