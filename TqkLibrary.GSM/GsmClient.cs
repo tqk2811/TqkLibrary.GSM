@@ -299,7 +299,7 @@ namespace TqkLibrary.GSM
 
                 using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(CommandTimeout);
                 using var register = cancellationToken.Register(() => tcs.TrySetCanceled());
-                using var register2 = cancellationTokenSource.Token.Register(() => tcs.TrySetException(new GsmCommandTimeoutException()));
+                using var register2 = cancellationTokenSource.Token.Register(() => tcs.TrySetException(new GsmCommandTimeoutException(command)));
                 try
                 {
                     OnCommandResult += action_ok;
