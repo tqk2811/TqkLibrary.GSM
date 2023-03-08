@@ -189,7 +189,8 @@ namespace TqkLibrary.GSM
         /// </summary>
         public event Action<string, int> OnMsError;
 
-        private static readonly Regex regex_splitResponse = new Regex(@"(?<=^\r?\n|[\x01-\x7E]\r?\n\r?\n)([\x01-\x7E]*?)(?=\r?\n\r?\n[\x01-\x7E]|\r?\n$)");
+        private static readonly Regex regex_splitResponse 
+            = new Regex(@"(?<=^\r?\n|^AT[\x01-\x7E]*?\r?\n|[\x01-\x7E]\r?\n\r?\n)([\x01-\x7E]*?)(?=\r?\n\r?\n[\x01-\x7E]|\r?\n$)");
 
         private string temp = string.Empty;
 
