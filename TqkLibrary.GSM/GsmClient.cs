@@ -288,8 +288,13 @@ namespace TqkLibrary.GSM
             }
         }
 
-
-        private async Task<GsmCommandResult> SendCommandAsync(string command, CancellationToken cancellationToken = default)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<GsmCommandResult> SendCommandAsync(string command, CancellationToken cancellationToken = default)
         {
             using (await asyncLockSend.LockAsync(cancellationToken).ConfigureAwait(false))
             {
