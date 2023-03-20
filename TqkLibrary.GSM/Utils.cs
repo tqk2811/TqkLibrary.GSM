@@ -52,5 +52,9 @@ namespace TqkLibrary.GSM
 
         public static int HexStringLengthToByteLength(this int hexStringLength)
             => (hexStringLength + hexStringLength % 2) / 2;
+
+#if DEBUG
+        internal static string PrintCRLFHepler(this string input) => input?.Replace("\r", "\\r").Replace("\n", "\\n");
+#endif
     }
 }

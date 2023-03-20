@@ -192,7 +192,7 @@ namespace TqkLibrary.GSM
         /// </summary>
         public event Action<string, int> OnMsError;
 
-        private static readonly Regex regex_splitResponse 
+        private static readonly Regex regex_splitResponse
             = new Regex(@"(?<=^\r?\n|^AT[\x01-\x7E]*?\r?\n|[\x01-\x7E]\r?\n\r?\n)([\x01-\x7E]*?)(?=\r?\n\r?\n[\x01-\x7E]|\r?\n$)");
 
         private string temp = string.Empty;
@@ -203,7 +203,9 @@ namespace TqkLibrary.GSM
             byte[] buffer = new byte[serialPort.ReadBufferSize];
             int byteRead = serialPort.Read(buffer, 0, buffer.Length);
             string received = temp + Encoding.UTF8.GetString(buffer, 0, byteRead);
-
+#if DEBUG
+            Console.WriteLine($"------\tReceived: {received.PrintCRLFHepler()}");
+#endif
             if (received.EndsWith("\r\n"))
             {
                 temp = string.Empty;
@@ -212,12 +214,12 @@ namespace TqkLibrary.GSM
                 {
                     var matchString = match.Groups[1].Value.Trim();
 
-                    string log = $"{Port} >> {matchString}";
 #if DEBUG
-                    Console.WriteLine(log);
+                    Console.WriteLine($"{Port} >> {matchString.PrintCRLFHepler()}");
 #endif
                     if (LogCallback != null)
                     {
+                        string log = $"{Port} >> {matchString}";
                         ThreadPool.QueueUserWorkItem((o) => LogCallback?.Invoke(log));
                     }
 
@@ -266,10 +268,10 @@ namespace TqkLibrary.GSM
                         if (gsmCommandResponse != null)
                         {
 #if DEBUG
-                            Console.WriteLine($"------\tCommand:{gsmCommandResponse.Command}");
-                            Console.WriteLine($"------\tArgs:[{string.Join(" , ", gsmCommandResponse.Arguments.Select(x => $"\"{x}\""))}]");
+                            Console.WriteLine($"------\tCommand:{gsmCommandResponse.Command.PrintCRLFHepler()}");
+                            Console.WriteLine($"------\tArgs:[{string.Join(" , ", gsmCommandResponse.Arguments.Select(x => $"{x.PrintCRLFHepler()}"))}]");
                             Console.WriteLine($"------\tOptions:[{string.Join(" , ", gsmCommandResponse.Options.Select(x => $"[{string.Join(" , ", x.Select(y => $"\"{y}\""))}]"))}]");
-                            Console.WriteLine($"------\tData:{gsmCommandResponse.Data}");
+                            Console.WriteLine($"------\tData:{gsmCommandResponse.Data.PrintCRLFHepler()}");
 #endif
 
                             OnCommandResponse?.Invoke(gsmCommandResponse);
@@ -311,12 +313,12 @@ namespace TqkLibrary.GSM
                     OnCommandResponse += action_commandResponse;
                     OnUnknowReceived += action_unknow;
 
-                    string log = $"{Port} << {command.Trim()}";
 #if DEBUG
-                    Console.WriteLine(log);
+                    Console.WriteLine($"{Port} << {command.PrintCRLFHepler()}");
 #endif
                     if (LogCallback != null)
                     {
+                        string log = $"{Port} << {command}";
                         ThreadPool.QueueUserWorkItem((o) => LogCallback?.Invoke(log));
                     }
 
