@@ -19,7 +19,7 @@ namespace TqkLibrary.GSM
     /// </summary>
     public class GsmClient : IDisposable
     {
-        static readonly IDictionary<int, string> _CME_Error = new Dictionary<int, string>()
+        static readonly IReadOnlyDictionary<int, string> _CME_Error = new Dictionary<int, string>()
         {
             { 0, "phone failure" },
             { 1, "no connection to phone" },
@@ -155,7 +155,7 @@ namespace TqkLibrary.GSM
             { 4016, "access denied" },
             { 4017, "File too large" },
         };
-        static readonly IDictionary<int, string> _CMS_Error = new Dictionary<int, string>()
+        static readonly IReadOnlyDictionary<int, string> _CMS_Error = new Dictionary<int, string>()
         {
 
         };
