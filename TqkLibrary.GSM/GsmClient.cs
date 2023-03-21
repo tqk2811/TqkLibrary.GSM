@@ -199,9 +199,10 @@ namespace TqkLibrary.GSM
         {
             if (string.IsNullOrWhiteSpace(port)) throw new ArgumentNullException(nameof(port));
             serialPort = new SerialPort(port, baudRate, Parity.None, 8, StopBits.One);
+            serialPort.Handshake = Handshake.RequestToSend;
             serialPort.DataReceived += SerialPort_DataReceived;
-            serialPort.RtsEnable = true;
-            serialPort.DtrEnable = false;
+            //serialPort.RtsEnable = true;
+            //serialPort.DtrEnable = false;
             this.Port = port;
         }
         /// <summary>
@@ -249,101 +250,145 @@ namespace TqkLibrary.GSM
         /// </summary>
         public event Action<string, int> OnMsError;
 
-        private static readonly Regex regex_splitResponse
-            = new Regex(@"(?<=^\r?\n|^AT[\x01-\x7E]*?\r?\n|[\x01-\x7E]\r?\n\r?\n)([\x01-\x7E]*?)(?=\r?\n\r?\n[\x01-\x7E]|\r?\n$)");
 
-        private string temp = string.Empty;
-
-
+        private byte[] temp = new byte[0];
+        private static readonly Regex regex_response
+            = new Regex("^(AT.*?\r)(\r\n[\\x00-\\xFF]*?\r\n|)\r\n(OK|ERROR|\\+CM. ERROR:.*?)\r\n$", RegexOptions.Multiline);
         private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             byte[] buffer = new byte[serialPort.ReadBufferSize];
             int byteRead = serialPort.Read(buffer, 0, buffer.Length);
-            string received = temp + Encoding.UTF8.GetString(buffer, 0, byteRead);
-#if DEBUG
-            Console.WriteLine($"------\tReceived: {received.PrintCRLFHepler()}");
-#endif
-            if (received.EndsWith("\r\n"))
+            temp = temp.Concat(buffer.Take(byteRead)).ToArray();
+
+            if (temp.EndWith("\r\n"))
             {
-                temp = string.Empty;
-                var matches = regex_splitResponse.Matches(received);
-                foreach (Match match in matches)
+                string received = Window1252.GetString(temp, 0, temp.Length);
+
+#if DEBUG
+                Console.WriteLine($"------\tReceived: {received.PrintCRLFHepler()}");
+#endif
+                if (temp.StartWith("\r\n"))
                 {
-                    var matchString = match.Groups[1].Value.Trim();
-
-#if DEBUG
-                    Console.WriteLine($"{Port} >> {matchString.PrintCRLFHepler()}");
-#endif
-                    if (LogCallback != null)
+                    // \r\n+CMT: ,33\r\n07914889200026F5240B914883537892F10008323012519243820E0053006D00730020006D1EAB0075\r\n
+                    // \r\nRING\r\n
+                    temp = new byte[0];
+                    if (received.StartsWith("\r\n+"))
                     {
-                        string log = $"{Port} >> {matchString}";
-                        ThreadPool.QueueUserWorkItem((o) => LogCallback?.Invoke(log));
+                        _BodyParse(received);
                     }
-
-                    if (matchString.StartsWith("OK"))
+                    else
                     {
-                        OnCommandResult?.Invoke(true);
-                        continue;
+                        OnUnknowReceived?.Invoke(received.Trim());
                     }
-                    if (matchString.StartsWith("ERROR"))
-                    {
-                        OnCommandResult?.Invoke(false);
-                        continue;
-                    }
-
-                    if (matchString.StartsWith("+"))
-                    {
-                        const string cme_err = "+CME ERROR:";
-                        if (matchString.StartsWith(cme_err))
-                        {
-                            string num = matchString.Substring(cme_err.Length).Trim();
-                            if (int.TryParse(num, out int n))
-                            {
-                                string err_msg = string.Empty;
-                                if (_CME_Error.ContainsKey(n)) err_msg = $"{_CME_Error[n]} ({n})";
-                                else err_msg = n.ToString();
-                                OnMeError?.Invoke(err_msg, n);
-                                continue;
-                            }
-                        }
-
-                        const string cms_err = "+CMS ERROR:";
-                        if (matchString.StartsWith(cms_err))
-                        {
-                            string num = matchString.Substring(cms_err.Length).Trim();
-                            if (int.TryParse(num, out int n))
-                            {
-                                string err_msg = string.Empty;
-                                if (_CMS_Error.ContainsKey(n)) err_msg = $"{_CMS_Error[n]} ({n})";
-                                else err_msg = n.ToString();
-                                OnMsError?.Invoke(err_msg, n);
-                                continue;
-                            }
-                        }
-
-                        GsmCommandResponse gsmCommandResponse = GsmCommandResponse.Parse(matchString);
-                        if (gsmCommandResponse != null)
-                        {
-#if DEBUG
-                            Console.WriteLine($"------\tCommand:{gsmCommandResponse.Command.PrintCRLFHepler()}");
-                            Console.WriteLine($"------\tArgs:[{string.Join(" , ", gsmCommandResponse.Arguments.Select(x => $"{x.PrintCRLFHepler()}"))}]");
-                            Console.WriteLine($"------\tOptions:[{string.Join(" , ", gsmCommandResponse.Options.Select(x => $"[{string.Join(" , ", x.Select(y => $"\"{y}\""))}]"))}]");
-                            Console.WriteLine($"------\tData:{gsmCommandResponse.Data.PrintCRLFHepler()}");
-#endif
-
-                            OnCommandResponse?.Invoke(gsmCommandResponse);
-                            continue;
-                        }
-                    }
-
-                    OnUnknowReceived?.Invoke(matchString);
                 }
-            }
-            else
-            {
-                temp = received;
+                else if (temp.StartWith("AT"))
+                {
+                    var match = regex_response.Match(received);
+                    if (match.Success)//Make sure match OK|ERROR|\+CM. ERROR:.*? at the end
+                    {
+                        // 3 group: head body footer
+                        //Head: AT+QFDWL=\"RAM:sound.wav\"\r     or      AT+COPS?\r
+                        //Body: <empty>     or   r\n+COPS: 0,0,\"VINAPHONE\"\r\n      or       \r\nCONNECT\r\n\xab\xff\x34...long binary data....\xac\r\n+QFDWL: 20,3\r\n
+                        //Footer: \r\nOK\r\n    or      \r\nERROR\r\n      or       \r\n+CME ERROR: 4010\r\n     or       \r\n+CMS ERROR: 123\r\n
+                        string head = match.Groups[1].Value;
+                        string body = match.Groups[2].Value;
+                        string footer = match.Groups[3].Value.Trim();
+
+                        if (!string.IsNullOrWhiteSpace(body.Trim()))
+                        {
+                            if (body.StartsWith("\r\n+") ||// +COPS:
+                                body.StartsWith("\r\nCONNECT\r\n"))//data mode     \r\nCONNECT\r\n
+                            {
+                                _BodyParse(body);
+                            }
+#if DEBUG
+                            else
+                            {
+                                Console.WriteLine($"------\tUnknow Body Type: {match.Value.PrintCRLFHepler()}");
+                            }
+#endif
+                        }
+
+                        switch (footer)
+                        {
+                            case "OK":
+                                OnCommandResult?.Invoke(true);
+                                break;
+
+                            case "ERROR":
+                                OnCommandResult?.Invoke(false);
+                                break;
+
+                            default:
+                                {
+                                    const string cme_err = "+CME ERROR:";
+                                    const string cms_err = "+CMS ERROR:";
+                                    if (footer.StartsWith(cme_err))
+                                    {
+                                        string num = footer.Substring(cme_err.Length).Trim();
+                                        if (int.TryParse(num, out int n))
+                                        {
+                                            string err_msg = string.Empty;
+                                            if (_CME_Error.ContainsKey(n)) err_msg = $"{_CME_Error[n]} ({n})";
+                                            else err_msg = n.ToString();
+                                            OnMeError?.Invoke(err_msg, n);
+                                        }
+                                    }
+                                    else if (footer.StartsWith(cms_err))
+                                    {
+                                        string num = footer.Substring(cms_err.Length).Trim();
+                                        if (int.TryParse(num, out int n))
+                                        {
+                                            string err_msg = string.Empty;
+                                            if (_CMS_Error.ContainsKey(n)) err_msg = $"{_CMS_Error[n]} ({n})";
+                                            else err_msg = n.ToString();
+                                            OnMsError?.Invoke(err_msg, n);
+                                        }
+                                    }
+                                }
+                                break;
+                        }
+                        temp = temp.Skip(match.Value.Length).ToArray();
+                    }
+#if DEBUG
+                    else
+                    {
+                        Console.WriteLine($"------\ttregex_response Match failed: {received.PrintCRLFHepler()}");
+                    }
+#endif
+                }
+#if DEBUG
+                else
+                {
+                    Console.WriteLine($"------\tUnknow tReceived Type: {received.PrintCRLFHepler()}");
+                }
+#endif
             }
         }
+
+        void _BodyParse(string body_text)
+        {
+            GsmCommandResponse gsmCommandResponse = GsmCommandResponse.Parse(body_text);
+            if (gsmCommandResponse != null)
+            {
+#if DEBUG
+                Console.WriteLine($"------\tCommand:{gsmCommandResponse.Command.PrintCRLFHepler()}");
+                Console.WriteLine($"------\tArgs:[{string.Join(" , ", gsmCommandResponse.Arguments.Select(x => $"{x.PrintCRLFHepler()}"))}]");
+                Console.WriteLine($"------\tOptions:[{string.Join(" , ", gsmCommandResponse.Options.Select(x => $"[{string.Join(" , ", x.Select(y => $"\"{y}\""))}]"))}]");
+                Console.WriteLine($"------\tData:{gsmCommandResponse.Data.PrintCRLFHepler()}");
+#endif
+                OnCommandResponse?.Invoke(gsmCommandResponse);
+            }
+#if DEBUG
+            else
+            {
+                Console.WriteLine($"------\tGsmCommandResponse.Parse Error: {body_text.PrintCRLFHepler()}");
+            }
+#endif
+        }
+
+
+
 
         /// <summary>
         /// 
