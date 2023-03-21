@@ -53,6 +53,26 @@ namespace TqkLibrary.GSM
         public static int HexStringLengthToByteLength(this int hexStringLength)
             => (hexStringLength + hexStringLength % 2) / 2;
 
+#if !NET5_0_OR_GREATER
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="input"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        /// <exception cref="IndexOutOfRangeException"></exception>
+        public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> input, int count)
+        {
+            if (count < 0) throw new IndexOutOfRangeException($"{nameof(count)}: {count} must be >= 0");
+            var arr = input.ToArray();
+            for (int i = 0; i < arr.Length + count; i++)
+            {
+                yield return arr[i];
+            }
+        }
+#endif
+
 #if DEBUG
         internal static string PrintCRLFHepler(this string input) => input?.Replace("\r", "\\r").Replace("\n", "\\n");
 #endif
