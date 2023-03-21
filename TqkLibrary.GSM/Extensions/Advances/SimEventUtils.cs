@@ -7,30 +7,68 @@ using System.Threading;
 
 namespace TqkLibrary.GSM.Extensions.Advances
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class SimEventUtilsExtension
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="gsmClient"></param>
+        /// <returns></returns>
         public static SimEventUtils RegisterSimEventUtils(this GsmClient gsmClient) => new SimEventUtils(gsmClient);
     }
+    /// <summary>
+    /// 
+    /// </summary>
     public class SimEventUtils : IDisposable
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public event Action OnSimPlugIn;
+        /// <summary>
+        /// 
+        /// </summary>
         public event Action OnSimPlugOut;
+        /// <summary>
+        /// 
+        /// </summary>
         public event Action OnProviderConnected;
-        public event Action OnCalling;
+        /// <summary>
+        /// 
+        /// </summary>
+        public event Action<CallingHelper> OnCalling;
+        /// <summary>
+        /// 
+        /// </summary>
+        public event Action OnEndCall;
 
 
 
         readonly GsmClient gsmClient;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="gsmClient"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public SimEventUtils(GsmClient gsmClient)
         {
             this.gsmClient = gsmClient ?? throw new ArgumentNullException(nameof(gsmClient));
             gsmClient.OnUnknowReceived += GsmClient_OnUnknowReceived;
             gsmClient.OnCommandResponse += GsmClient_OnCommandResponse;
         }
+        /// <summary>
+        /// 
+        /// </summary>
         ~SimEventUtils()
         {
             Dispose(false);
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
@@ -72,7 +110,10 @@ namespace TqkLibrary.GSM.Extensions.Advances
                     if (OnProviderConnected != null) ThreadPool.QueueUserWorkItem((o) => OnProviderConnected?.Invoke());
                     break;
                 case "RING":
-                    if (OnCalling != null) ThreadPool.QueueUserWorkItem((o) => OnCalling?.Invoke());
+                    if (OnCalling != null) ThreadPool.QueueUserWorkItem((o) => OnCalling?.Invoke(new CallingHelper(gsmClient, this)));
+                    break;
+                case "NO CARRIER":
+                    if (OnEndCall != null) ThreadPool.QueueUserWorkItem((o) => OnEndCall?.Invoke());
                     break;
             }
         }
