@@ -3,6 +3,10 @@ using TqkLibrary.GSM.Extensions;
 using System;
 using System.IO.Ports;
 using TqkLibrary.GSM.Extensions.Advances;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Linq;
+using System.IO;
 
 string[] ports = SerialPort.GetPortNames();
 Console.WriteLine("Select port:");
@@ -27,21 +31,31 @@ while (index == -1);
 
 
 using GsmClient gsmClient = new GsmClient(ports[index]);
-
 gsmClient.Open();
 
-//using var registerMsg = await gsmClient.RegisterMessageAsync();
-//registerMsg.OnSmsReceived += RegisterMsg_OnSmsReceived;
 
-//var a = await gsmClient.CMGF().WriteAsync(MessageFormat.PduMode);
-////var a1 = await gsmClient.CMGF().Read();
 
-//var b = await gsmClient.CNMI().WriteAsync(CNMI_Mode.Class2, CNMI_MT.SmsDeliver);
-////var b1 = await gsmClient.CNMI().Read();
+//await gsmClient.QFLST().ExecuteAsync().ConfigureAwait(false);
+var result = await gsmClient.QFDWL().WriteAsync("RAM:voice.wav").ConfigureAwait(false);
+byte[] buffer = result.GetCommandResponse("QFDWL")?.BinaryData?.ToArray();
+File.WriteAllBytes("test.wav", buffer);
 
-//var c = await gsmClient.CPMS().WriteAsync(CPMS_MEMR.SM);
+SimEventUtils simEventUtils = gsmClient.RegisterSimEventUtils();
+simEventUtils.OnCalling += SimEventUtils_OnCalling;
 
-//var e = await gsmClient.COPS().ReadAsync();
+
+using var registerMsg = await gsmClient.RegisterMessageAsync();
+registerMsg.OnSmsReceived += RegisterMsg_OnSmsReceived;
+
+var a = await gsmClient.CMGF().WriteAsync(MessageFormat.PduMode);
+var a1 = await gsmClient.CMGF().ReadAsync();
+
+var b = await gsmClient.CNMI().WriteAsync(CNMI_Mode.Class2, CNMI_MT.SmsDeliver);
+var b1 = await gsmClient.CNMI().ReadAsync();
+
+var c = await gsmClient.CPMS().WriteAsync(CPMS_MEMR.SM);
+
+var e = await gsmClient.COPS().ReadAsync();
 
 while (true)
 {
@@ -52,5 +66,9 @@ while (true)
 
 void RegisterMsg_OnSmsReceived(ISms obj)
 {
-    Console.WriteLine($"New message from {obj.From} at {obj.ArrivalTime:HH:mm:ss MM-dd-yyyy}: {obj.Message}");
+    Console.WriteLine($"New message from {obj.From} at {obj.ArrivalTime:HH:mm:ss MM-dd-yyyy}: { obj.Message}");
+}
+async void SimEventUtils_OnCalling(CallingHelper obj)
+{
+    await obj.Answer();
 }
