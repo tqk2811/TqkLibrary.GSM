@@ -49,21 +49,23 @@ namespace TqkLibrary.GSM.Test
         public void TestMethod4()
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            Encoding window1252 = Encoding.GetEncoding(1252);
+
             byte[] qfdwl_file = File.ReadAllBytes("QFDWL.file");
-            string str = Encoding.GetEncoding(1252).GetString(qfdwl_file);
+            string str_1252 = window1252.GetString(qfdwl_file);
+            string str_ascii = Encoding.ASCII.GetString(qfdwl_file);
             string[] test_arr = new string[] {
-                str,
+                str_ascii,
+                str_1252,
                 "AT+QFDWL=\"RAM:sound.wav\"\r\r\nCONNECT\r\n\xab\xff\0\0\0\x34\xac\r\n+QFDWL: 20,3\r\n\r\nOK\r\n",
                 "AT+COPS?\r\r\n+COPS: 0,0,\"VINAPHONE\"\r\n\r\nOK\r\n",
                 "AT+QFDWL=\"RAM:voicea.wav\"\r\r\n+CME ERROR: 4010\r\n",
-                "\r\n+CMT: ,26\r\n07914889200026F5240B914883537892F100003230124134428207D4021D346FCF01\r\n",
-                "\r\nRING\r\n",
-                "\r\nCall Ready\r\n"
             };
-            Regex regex = new Regex("^(AT.*?\r)(\r\n[\\x00-\\xFF]*?\r\n|)\r\n(OK|ERROR|\\+CM. ERROR:.*?)\r\n$");
+            Regex regex = new Regex("^(AT.*?\r)(\r\n[\\x00-\\xFF]*?\r\n|)\r\n(OK|ERROR|\\+CM. ERROR:.*?)\r\n$", RegexOptions.None);
             foreach (var test in test_arr)
             {
                 Match match = regex.Match(test);
+                Assert.IsTrue(match.Success);
             }
         }
 
