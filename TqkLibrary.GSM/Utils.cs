@@ -5,26 +5,53 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
 using System.IO;
+using System.Collections;
 
 namespace TqkLibrary.GSM
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class Utils
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public static string ToAtString(this object obj)
             => $"\"{obj}\"";
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TIn"></typeparam>
+        /// <typeparam name="TOut"></typeparam>
+        /// <param name="task"></param>
+        /// <param name="expression"></param>
+        /// <returns></returns>
         public static async Task<TOut> GetTaskResult<TIn, TOut>(this Task<TIn> task, Func<TIn, TOut> expression)
         {
             var result = await task.ConfigureAwait(false);
             return expression.Invoke(result);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="dict"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public static TValue TryGetValue<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key)
         {
             if (dict.ContainsKey(key)) return dict[key];
             else return default(TValue);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hex"></param>
+        /// <returns></returns>
         public static byte[] HexStringToByteArray(this string hex)
         {
             return Enumerable.Range(0, hex.Length)
@@ -32,7 +59,12 @@ namespace TqkLibrary.GSM
                              .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
                              .ToArray();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ms"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
         public static byte[] Read(this Stream ms, int length)
         {
             byte[] reult = new byte[length];
@@ -43,6 +75,11 @@ namespace TqkLibrary.GSM
             }
             return reult;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ms"></param>
+        /// <returns></returns>
         public static byte[] ReadToEnd(this Stream ms)
         {
             long length = ms.Length - ms.Position;
@@ -89,6 +126,11 @@ namespace TqkLibrary.GSM
             }
             return true;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hexStringLength"></param>
+        /// <returns></returns>
         public static int HexStringLengthToByteLength(this int hexStringLength)
             => (hexStringLength + hexStringLength % 2) / 2;
 
