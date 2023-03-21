@@ -147,7 +147,7 @@ namespace TqkLibrary.GSM
         {
             if (count < 0) throw new IndexOutOfRangeException($"{nameof(count)}: {count} must be >= 0");
             var arr = input.ToArray();
-            for (int i = 0; i < arr.Length + count; i++)
+            for (int i = 0; i < arr.Length - count; i++)
             {
                 yield return arr[i];
             }
