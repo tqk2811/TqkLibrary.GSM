@@ -19,6 +19,15 @@ namespace TqkLibrary.GSM
     /// </summary>
     public class GsmClient : IDisposable
     {
+        /// <summary>
+        /// for not break character >= 0x80 when convert back to byte
+        /// </summary>
+        internal static readonly Encoding Window1252;
+        static GsmClient()
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            Window1252 = Encoding.GetEncoding(1252);
+        }
         static readonly IReadOnlyDictionary<int, string> _CME_Error = new Dictionary<int, string>()
         {
             { 0, "phone failure" },
