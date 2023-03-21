@@ -49,7 +49,26 @@ namespace TqkLibrary.GSM
             return ms.Read((int)length);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="ascii_text"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static bool EndWith(this byte[] buffer, string ascii_text)
+        {
+            if (buffer is null) throw new ArgumentNullException(nameof(buffer));
+            if (ascii_text is null || ascii_text.Length == 0) throw new ArgumentNullException(nameof(ascii_text));
+            if (buffer.Length < ascii_text.Length) return false;
 
+            for (int i = ascii_text.Length - 1; i >= 0; i--)
+            {
+                if (buffer[buffer.Length - ascii_text.Length + i] == ascii_text[i]) continue;
+                else return false;
+            }
+            return true;
+        }
         public static int HexStringLengthToByteLength(this int hexStringLength)
             => (hexStringLength + hexStringLength % 2) / 2;
 
