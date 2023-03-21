@@ -48,12 +48,15 @@ namespace TqkLibrary.GSM.Test
         [TestMethod]
         public void TestMethod4()
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            Encoding window1252 = Encoding.GetEncoding(1252);
+            //Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            Encoding ISO_8859_1 = Encoding.GetEncoding("ISO-8859-1");
 
             byte[] qfdwl_file = File.ReadAllBytes("QFDWL.file");
-            string str_1252 = window1252.GetString(qfdwl_file);
+            string str_1252 = ISO_8859_1.GetString(qfdwl_file);
             string str_ascii = Encoding.ASCII.GetString(qfdwl_file);
+            Assert.AreEqual(str_1252.Length, str_ascii.Length);
+            Assert.IsTrue(qfdwl_file.SequenceEqual(ISO_8859_1.GetBytes(str_1252)));
+
             string[] test_arr = new string[] {
                 str_ascii,
                 str_1252,
