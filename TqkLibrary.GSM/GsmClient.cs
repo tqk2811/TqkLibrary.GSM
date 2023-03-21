@@ -22,11 +22,10 @@ namespace TqkLibrary.GSM
         /// <summary>
         /// for not break character >= 0x80 when convert back to byte
         /// </summary>
-        internal static readonly Encoding Window1252;
+        internal static readonly Encoding GsmEncoding;
         static GsmClient()
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            Window1252 = Encoding.GetEncoding(1252);
+            GsmEncoding = Encoding.GetEncoding("ISO-8859-1");
         }
         static readonly IReadOnlyDictionary<int, string> _CME_Error = new Dictionary<int, string>()
         {
@@ -262,7 +261,7 @@ namespace TqkLibrary.GSM
 
             if (temp.EndWith("\r\n"))
             {
-                string received = Window1252.GetString(temp, 0, temp.Length);
+                string received = GsmEncoding.GetString(temp, 0, temp.Length);
 
 #if DEBUG
                 Console.WriteLine($"------\tReceived: {received.PrintCRLFHepler()}");
@@ -283,6 +282,7 @@ namespace TqkLibrary.GSM
                 }
                 else if (temp.StartWith("AT"))
                 {
+                    //Window1252 match failed
                     var match = regex_response.Match(received);
                     if (match.Success)//Make sure match OK|ERROR|\+CM. ERROR:.*? at the end
                     {

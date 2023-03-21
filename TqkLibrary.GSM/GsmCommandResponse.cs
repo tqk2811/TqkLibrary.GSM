@@ -77,7 +77,7 @@ namespace TqkLibrary.GSM
                 byte[] binary = null;
                 if (!string.IsNullOrWhiteSpace(connect_binary_str))
                 {
-                    binary = GsmClient.Window1252.GetBytes(connect_binary_str)
+                    binary = GsmClient.GsmEncoding.GetBytes(connect_binary_str)
                         .Skip(9)// CONNECT\r\n    length
                         .SkipLast(2)//\r\n
                         .ToArray();
