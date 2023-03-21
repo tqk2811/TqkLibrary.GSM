@@ -56,6 +56,26 @@ namespace TqkLibrary.GSM
         /// <param name="ascii_text"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
+        public static bool StartWith(this byte[] buffer, string ascii_text)
+        {
+            if (buffer is null) throw new ArgumentNullException(nameof(buffer));
+            if (ascii_text is null || ascii_text.Length == 0) throw new ArgumentNullException(nameof(ascii_text));
+            if (buffer.Length < ascii_text.Length) return false;
+
+            for (int i = 0; i < ascii_text.Length; i++)
+            {
+                if (buffer[i] == ascii_text[i]) continue;
+                else return false;
+            }
+            return true;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="ascii_text"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static bool EndWith(this byte[] buffer, string ascii_text)
         {
             if (buffer is null) throw new ArgumentNullException(nameof(buffer));
