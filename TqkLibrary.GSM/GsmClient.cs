@@ -185,7 +185,13 @@ namespace TqkLibrary.GSM
         /// <summary>
         /// default 20000ms
         /// </summary>
-        public int CommandTimeout { get; set; } = 20000;
+        public int CommandTimeout { get; set; }
+#if DEBUG
+            = 20000000;
+#else
+            = 20000;
+#endif
+
         readonly SerialPort serialPort;
         readonly AsyncLock asyncLockSend = new AsyncLock();
         /// <summary>
