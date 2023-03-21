@@ -19,4 +19,10 @@
     <ProjectReference Include="..\TqkLibrary.GSM\TqkLibrary.GSM.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="QFDWL.file">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

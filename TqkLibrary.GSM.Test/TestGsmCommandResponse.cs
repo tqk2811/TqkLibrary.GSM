@@ -1,3 +1,8 @@
+using System;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+
 namespace TqkLibrary.GSM.Test
 {
     [TestClass]
@@ -24,6 +29,53 @@ namespace TqkLibrary.GSM.Test
             Assert.AreEqual("CMGR", gsmCommandResponse.Command);
             Assert.IsTrue(gsmCommandResponse.Options.Count() == 2);
             Assert.IsTrue(gsmCommandResponse.Options.Any(x => x.Any(y => y.Equals("\"ab c\""))));
+        }
+        [TestMethod]
+        public void TestMethod3()
+        {
+            //var test_str = "\r\nCONNECT\r\n\xab\xff\x34\xac\r\n+QFDWL: 20,3\r\n\r\n+QFDWL: 20,3\r\n"; //will bug here, but supper rate
+            var test_str = "\r\nCONNECT\r\n\xab\xff\x34\xac\r\n+QFDWL: 20,3\r\n\xff\r\n+QFDWL: 20,3\r\n";
+            GsmCommandResponse gsmCommandResponse = GsmCommandResponse.Parse(test_str);
+            Assert.IsNotNull(gsmCommandResponse);
+            Assert.AreEqual("QFDWL", gsmCommandResponse.Command);
+            Assert.IsTrue(gsmCommandResponse.Arguments.Count() == 2);
+            Assert.IsTrue(gsmCommandResponse.Arguments.Any(x => x.Equals("20")));
+            Assert.IsTrue(gsmCommandResponse.BinaryData.SequenceEqual(
+                new byte[] { 0xab, 0xff, 0x34, 0xac }.Concat(Encoding.GetEncoding(1252).GetBytes("\r\n+QFDWL: 20,3\r\n\xff"))));
+        }
+
+
+        [TestMethod]
+        public void TestMethod4()
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            byte[] qfdwl_file = File.ReadAllBytes("QFDWL.file");
+            string str = Encoding.GetEncoding(1252).GetString(qfdwl_file);
+            string[] test_arr = new string[] {
+                str,
+                "AT+QFDWL=\"RAM:sound.wav\"\r\r\nCONNECT\r\n\xab\xff\0\0\0\x34\xac\r\n+QFDWL: 20,3\r\n\r\nOK\r\n",
+                "AT+COPS?\r\r\n+COPS: 0,0,\"VINAPHONE\"\r\n\r\nOK\r\n",
+                "AT+QFDWL=\"RAM:voicea.wav\"\r\r\n+CME ERROR: 4010\r\n",
+                "\r\n+CMT: ,26\r\n07914889200026F5240B914883537892F100003230124134428207D4021D346FCF01\r\n",
+                "\r\nRING\r\n",
+                "\r\nCall Ready\r\n"
+            };
+            Regex regex = new Regex("^(AT.*?\r)(\r\n[\\x00-\\xFF]*?\r\n|)\r\n(OK|ERROR|\\+CM. ERROR:.*?)\r\n$");
+            foreach (var test in test_arr)
+            {
+                Match match = regex.Match(test);
+            }
+        }
+
+        [TestMethod]
+        public void TestMethod5()
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            byte[] buffer = new byte[] { 0xab, 0xff, 0x34, 0xac };
+            string str = Encoding.GetEncoding(1252).GetString(buffer);
+            Assert.IsTrue(str.Select(x => (byte)x).SequenceEqual(buffer));
+            Assert.IsTrue(Encoding.GetEncoding(1252).GetBytes(str).SequenceEqual(buffer));
         }
     }
 }
