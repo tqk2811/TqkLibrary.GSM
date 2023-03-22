@@ -42,14 +42,13 @@ namespace TqkLibrary.GSM.Test
             Assert.IsTrue(gsmCommandResponse.Arguments.Count() == 2);
             Assert.IsTrue(gsmCommandResponse.Arguments.Any(x => x.Equals("20")));
             Assert.IsTrue(gsmCommandResponse.BinaryData.SequenceEqual(
-                new byte[] { 0xab, 0xff, 0x34, 0xac }.Concat(Encoding.GetEncoding(1252).GetBytes("\r\n+QFDWL: 20,3\r\n\xff"))));
+                new byte[] { 0xab, 0xff, 0x34, 0xac }.Concat(Encoding.GetEncoding("ISO-8859-1").GetBytes("\r\n+QFDWL: 20,3\r\n\xff"))));
         }
 
 
         [TestMethod]
         public void TestParseAT()
         {
-            //Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             Encoding ISO_8859_1 = Encoding.GetEncoding("ISO-8859-1");
 
             byte[] qfdwl_file = File.ReadAllBytes("QFDWL.file");
