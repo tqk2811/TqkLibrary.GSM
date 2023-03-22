@@ -36,9 +36,9 @@ gsmClient.Open();
 
 
 //await gsmClient.QFLST().ExecuteAsync().ConfigureAwait(false);
-var result = await gsmClient.QFDWL().WriteAsync("RAM:voice.wav").ConfigureAwait(false);
-byte[] buffer = result.GetCommandResponse("QFDWL")?.BinaryData?.ToArray();
-File.WriteAllBytes("test.wav", buffer);
+//var result = await gsmClient.QFDWL().WriteAsync("RAM:voice.wav").ConfigureAwait(false);
+//byte[] buffer = result.GetCommandResponse("QFDWL")?.BinaryData?.ToArray();
+//File.WriteAllBytes("test.wav", buffer);
 
 SimEventUtils simEventUtils = gsmClient.RegisterSimEventUtils();
 simEventUtils.OnCalling += SimEventUtils_OnCalling;
@@ -66,9 +66,11 @@ while (true)
 
 void RegisterMsg_OnSmsReceived(ISms obj)
 {
-    Console.WriteLine($"New message from {obj.From} at {obj.ArrivalTime:HH:mm:ss MM-dd-yyyy}: { obj.Message}");
+    Console.WriteLine($"New message from {obj.From} at {obj.ArrivalTime:HH:mm:ss MM-dd-yyyy}: {obj.Message}");
 }
 async void SimEventUtils_OnCalling(CallingHelper obj)
 {
-    await obj.Answer();
+    var download = await obj.AnswerAsync();
+    var data = await download.DownloadAsync();
+    File.WriteAllBytes("test.wav", data.GetAndCheck());
 }
