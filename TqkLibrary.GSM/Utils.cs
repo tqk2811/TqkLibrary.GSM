@@ -173,8 +173,8 @@ namespace TqkLibrary.GSM
         public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> input, int count)
         {
             if (count < 0) throw new IndexOutOfRangeException($"{nameof(count)}: {count} must be >= 0");
-            var arr = input.ToArray();
-            for (int i = 0; i < arr.Length - count; i++)
+            var arr = input is IList<T> ? (IList<T>)input : input.ToArray();
+            for (int i = 0; i < arr.Count - count; i++)
             {
                 yield return arr[i];
             }
