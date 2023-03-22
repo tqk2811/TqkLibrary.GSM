@@ -23,8 +23,76 @@ namespace TqkLibrary.GSM.Extensions
         /// <param name="fileName"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public new Task<GsmCommandResult> WriteAsync(string fileName, CancellationToken cancellationToken = default)
-            => base.WriteAsync(cancellationToken, fileName.ToAtString());
+        public new async Task<FileData> WriteAsync(string fileName, CancellationToken cancellationToken = default)
+        {
+            var result = await base.WriteAsync(cancellationToken, fileName.ToAtString());
+            var qfdwl = result.GetCommandResponse(Command);
+            if (result.IsSuccess && qfdwl is not null && qfdwl.Arguments.Count() == 2 && int.TryParse(qfdwl.Arguments.First(), out int fileSize))
+            {
+                return new FileData(qfdwl.BinaryData, fileSize, qfdwl.Arguments.Last());
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public class FileData
+        {
+            internal FileData(IEnumerable<byte> bytes, int fileSize, string checksum)
+            {
+
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public IEnumerable<byte> BinaryData { get; }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public int BinarySize { get; }
+            /// <summary>
+            /// 
+            /// </summary>
+            public string CheckSum { get; }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <returns></returns>
+            /// <exception cref="DataCorruptedException"></exception>
+            public byte[] GetAndCheck()
+            {
+                byte[] buffer = BinaryData is byte[]? (byte[])BinaryData : BinaryData.ToArray();
+                if (buffer.Length != BinarySize)
+                    throw new DataCorruptedException($"Data is wrong size BinaryData.Length = {buffer.Length}, BinarySize: {BinarySize}");
+                if (!string.IsNullOrWhiteSpace(CheckSum))
+                {
+                    byte[] checksum = CheckSum.HexStringToByteArray();
+                    byte[] calcCheckSum = buffer.CheckSum();
+
+                    if (!calcCheckSum.SequenceEqual(checksum))
+                        throw new DataCorruptedException($"Data checksum failed CheckSum: {CheckSum}, CalcCheckSum: {BitConverter.ToString(calcCheckSum).Replace("-", string.Empty)}");
+                }
+                return buffer;
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public class DataCorruptedException : Exception
+        {
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="message"></param>
+            public DataCorruptedException(string message) : base(message)
+            {
+
+            }
+        }
     }
 
     /// <summary>
