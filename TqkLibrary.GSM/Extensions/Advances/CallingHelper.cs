@@ -16,7 +16,6 @@ namespace TqkLibrary.GSM.Extensions.Advances
         {
             this.gsmClient = gsmClient ?? throw new ArgumentNullException(nameof(gsmClient));
             this.simEventUtils = simEventUtils ?? throw new ArgumentNullException(nameof(simEventUtils));
-
         }
 
         const string fileName = "RAM:voice.wav";
@@ -25,7 +24,7 @@ namespace TqkLibrary.GSM.Extensions.Advances
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<byte[]> Answer(CancellationToken cancellationToken = default)
+        public async Task<FileDownloadHelper> AnswerAsync(CancellationToken cancellationToken = default)
         {
             await gsmClient.SendCommandAsync("ATA\r\n", cancellationToken).ConfigureAwait(false);
             try { await gsmClient.QFDEL().WriteAsync("RAM:*").ConfigureAwait(false); } catch { }
@@ -50,9 +49,7 @@ namespace TqkLibrary.GSM.Extensions.Advances
 
             await gsmClient.QAUDRD().WriteAsync(CommandRequestQAUDRD.RecordControl.Stop, cancellationToken).ConfigureAwait(false);
             await Task.Delay(100, cancellationToken);
-            var data = await gsmClient.QFDWL().WriteAsync(fileName, cancellationToken).ConfigureAwait(false);
-
-            return data.GetCommandResponse("QFDWL")?.BinaryData?.ToArray();
+            return new FileDownloadHelper(gsmClient, fileName);
         }
 
         /// <summary>
@@ -60,7 +57,7 @@ namespace TqkLibrary.GSM.Extensions.Advances
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task Hangup(CancellationToken cancellationToken = default)
+        public Task HangupAsync(CancellationToken cancellationToken = default)
         {
             return gsmClient.CVHU().ExecuteAsync(cancellationToken);
         }
