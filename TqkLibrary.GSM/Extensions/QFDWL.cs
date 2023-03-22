@@ -27,9 +27,9 @@ namespace TqkLibrary.GSM.Extensions
         {
             var result = await base.WriteAsync(cancellationToken, fileName.ToAtString());
             var qfdwl = result.GetCommandResponse(Command);
-            if (result.IsSuccess && qfdwl is not null && qfdwl.Arguments.Count() == 2 && int.TryParse(qfdwl.Arguments.First(), out int fileSize))
+            if (result.IsSuccess && qfdwl is not null && qfdwl.Arguments.Count() == 2 && int.TryParse(qfdwl.Arguments.First(), out int binarySize))
             {
-                return new FileData(qfdwl.BinaryData, fileSize, qfdwl.Arguments.Last());
+                return new FileData(qfdwl.BinaryData, binarySize, qfdwl.Arguments.Last());
             }
             return null;
         }
@@ -39,9 +39,12 @@ namespace TqkLibrary.GSM.Extensions
         /// </summary>
         public class FileData
         {
-            internal FileData(IEnumerable<byte> bytes, int fileSize, string checksum)
+            internal FileData(IEnumerable<byte> bytes, int binarySize, string checksum)
             {
-
+                if (string.IsNullOrWhiteSpace(checksum)) throw new ArgumentNullException(nameof(checksum));
+                this.BinaryData = bytes;
+                this.BinarySize = binarySize;
+                this.CheckSum = checksum;
             }
 
             /// <summary>
