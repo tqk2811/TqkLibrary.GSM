@@ -134,6 +134,33 @@ namespace TqkLibrary.GSM
         public static int HexStringLengthToByteLength(this int hexStringLength)
             => (hexStringLength + hexStringLength % 2) / 2;
 
+        /// <summary>
+        /// 16 bit checksum based on bitwise XOR<br></br>
+        /// If the number of the characters is odd, set the last character as the high 8 bit, and the low 8 bit as 0, and then use an XOR operator to calculate the checksum
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static byte[] CheckSum(this byte[] input)
+        {
+            byte[] result = new byte[2];
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    result[0] ^= input[i];
+                }
+                else
+                {
+                    result[1] ^= input[i];
+                }
+            }
+            return result;
+        }
+
+
+
+
+
 #if !NET5_0_OR_GREATER
         /// <summary>
         /// 
