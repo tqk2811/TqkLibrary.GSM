@@ -260,7 +260,7 @@ namespace TqkLibrary.GSM
         private static readonly Regex regex_response
             = new Regex("^(AT.*?\r)(\r\n[\\x00-\\xFF]*?\r\n|)\r\n(OK|ERROR|\\+CM. ERROR:.*?)\r\n$", RegexOptions.Multiline);
         private static readonly Regex regex_response2
-            = new Regex("(\r\n[\\x00-\\xFF]*?\r\n)");
+            = new Regex("(\r\n\\+[\\x00-\\xFF]*?\r\n$|\r\n[\\x00-\\xFF]*?\r\n)", RegexOptions.Multiline);
         private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             byte[] buffer = new byte[serialPort.ReadBufferSize];
