@@ -43,6 +43,10 @@ namespace TqkLibrary.GSM.Extensions.Advances
         /// <summary>
         /// 
         /// </summary>
+        public event Action<CallingHelper> OnCallingClip;
+        /// <summary>
+        /// 
+        /// </summary>
         public event Action OnEndCall;
 
 
@@ -81,24 +85,42 @@ namespace TqkLibrary.GSM.Extensions.Advances
             gsmClient.OnCommandResponse -= GsmClient_OnCommandResponse;
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task EnableClip(CancellationToken cancellationToken = default)
+        {
+            await gsmClient.CLIP().WriteAsync(CommandRequestCLIP.CliPresentation.Enable, cancellationToken);
+        }
 
 
         private void GsmClient_OnCommandResponse(GsmCommandResponse obj)
         {
-            if ("CPIN".Equals(obj?.Command))
+            switch (obj?.Command)
             {
-                var arg = obj.Arguments.FirstOrDefault()?.Trim('"');
-                switch (arg)
-                {
-                    case "NOT READY":
-                        if (OnSimPlugOut != null) ThreadPool.QueueUserWorkItem((o) => OnSimPlugOut?.Invoke());
-                        break;
+                case "CPIN":
+                    {
+                        var arg = obj.Arguments.FirstOrDefault()?.Trim('"');
+                        switch (arg)
+                        {
+                            case "NOT READY":
+                                if (OnSimPlugOut != null) ThreadPool.QueueUserWorkItem((o) => OnSimPlugOut?.Invoke());
+                                break;
 
-                    case "READY":
-                        if (OnSimPlugIn != null) ThreadPool.QueueUserWorkItem((o) => OnSimPlugIn?.Invoke());
+                            case "READY":
+                                if (OnSimPlugIn != null) ThreadPool.QueueUserWorkItem((o) => OnSimPlugIn?.Invoke());
+                                break;
+                        }
                         break;
-                }
+                    }
+
+                case "CLIP":
+                    {
+                        if (OnCallingClip != null) ThreadPool.QueueUserWorkItem((o) => OnCallingClip?.Invoke(new CallingHelper(gsmClient, this, obj.Arguments.FirstOrDefault())));
+                        break;
+                    }
             }
         }
 

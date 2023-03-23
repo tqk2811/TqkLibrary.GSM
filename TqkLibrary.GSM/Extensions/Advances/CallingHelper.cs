@@ -12,11 +12,16 @@ namespace TqkLibrary.GSM.Extensions.Advances
     {
         readonly GsmClient gsmClient;
         readonly SimEventUtils simEventUtils;
-        internal CallingHelper(GsmClient gsmClient, SimEventUtils simEventUtils)
+        internal CallingHelper(GsmClient gsmClient, SimEventUtils simEventUtils, string incommingPhoneNumber = null)
         {
             this.gsmClient = gsmClient ?? throw new ArgumentNullException(nameof(gsmClient));
             this.simEventUtils = simEventUtils ?? throw new ArgumentNullException(nameof(simEventUtils));
+            this.IncommingPhoneNumber = incommingPhoneNumber;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string IncommingPhoneNumber { get; }
 
         const string fileName = "RAM:voice.wav";
         /// <summary>
