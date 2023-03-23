@@ -259,6 +259,8 @@ namespace TqkLibrary.GSM
         private byte[] temp = new byte[0];
         private static readonly Regex regex_response
             = new Regex("^(AT.*?\r)(\r\n[\\x00-\\xFF]*?\r\n|)\r\n(OK|ERROR|\\+CM. ERROR:.*?)\r\n$", RegexOptions.Multiline);
+        private static readonly Regex regex_response2
+            = new Regex("(\r\n[\\x00-\\xFF]*?\r\n)");
         private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             byte[] buffer = new byte[serialPort.ReadBufferSize];
@@ -276,14 +278,20 @@ namespace TqkLibrary.GSM
                 {
                     // \r\n+CMT: ,33\r\n07914889200026F5240B914883537892F10008323012519243820E0053006D00730020006D1EAB0075\r\n
                     // \r\nRING\r\n
+                    // \r\nRING\r\n\r\n+CLIP: "0383587291",129,"",,"",0\r\n
                     temp = new byte[0];
-                    if (received.StartsWith("\r\n+"))
+                    var matches = regex_response2.Matches(received);
+                    foreach (Match match in matches)
                     {
-                        _BodyParse(received);
-                    }
-                    else
-                    {
-                        OnUnknowReceived?.Invoke(received.Trim());
+                        GsmCommandResponse gsmCommandResponse = GsmCommandResponse.Parse(match.Value);
+                        if (gsmCommandResponse is not null)
+                        {
+                            _BodyInvokeAndPrint(gsmCommandResponse);
+                        }
+                        else
+                        {
+                            OnUnknowReceived?.Invoke(received.Trim());
+                        }
                     }
                 }
                 else if (temp.StartWith("AT"))
@@ -377,13 +385,7 @@ namespace TqkLibrary.GSM
             GsmCommandResponse gsmCommandResponse = GsmCommandResponse.Parse(body_text);
             if (gsmCommandResponse != null)
             {
-#if DEBUG
-                Console.WriteLine($"------\tCommand:{gsmCommandResponse.Command.PrintCRLFHepler()}");
-                Console.WriteLine($"------\tArgs:[{string.Join(" , ", gsmCommandResponse.Arguments.Select(x => $"{x.PrintCRLFHepler()}"))}]");
-                Console.WriteLine($"------\tOptions:[{string.Join(" , ", gsmCommandResponse.Options.Select(x => $"[{string.Join(" , ", x.Select(y => $"\"{y}\""))}]"))}]");
-                Console.WriteLine($"------\tData:{gsmCommandResponse.Data.PrintCRLFHepler()}");
-#endif
-                OnCommandResponse?.Invoke(gsmCommandResponse);
+                _BodyInvokeAndPrint(gsmCommandResponse);
             }
 #if DEBUG
             else
@@ -392,7 +394,19 @@ namespace TqkLibrary.GSM
             }
 #endif
         }
-
+        void _BodyInvokeAndPrint(GsmCommandResponse gsmCommandResponse)
+        {
+            if (gsmCommandResponse != null)
+            {
+#if DEBUG
+                Console.WriteLine($"------\tCommand:{gsmCommandResponse.Command.PrintCRLFHepler()}");
+                Console.WriteLine($"------\tArgs:[{string.Join(" , ", gsmCommandResponse.Arguments.Select(x => $"{x.PrintCRLFHepler()}"))}]");
+                Console.WriteLine($"------\tOptions:[{string.Join(" , ", gsmCommandResponse.Options.Select(x => $"[{string.Join(" , ", x.Select(y => $"\"{y}\""))}]"))}]");
+                Console.WriteLine($"------\tData:{gsmCommandResponse.Data.PrintCRLFHepler()}");
+#endif
+                OnCommandResponse?.Invoke(gsmCommandResponse);
+            }
+        }
 
 
 
