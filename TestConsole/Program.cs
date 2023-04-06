@@ -41,8 +41,8 @@ gsmClient.Open();
 //File.WriteAllBytes("test.wav", buffer);
 
 SimEventUtils simEventUtils = gsmClient.RegisterSimEventUtils();
-simEventUtils.OnCalling += SimEventUtils_OnCalling;
-
+simEventUtils.OnCallingClip += SimEventUtils_OnCallingClip;
+await simEventUtils.EnableClip();
 
 using var registerMsg = await gsmClient.RegisterMessageAsync();
 registerMsg.OnSmsReceived += RegisterMsg_OnSmsReceived;
@@ -68,7 +68,7 @@ void RegisterMsg_OnSmsReceived(ISms obj)
 {
     Console.WriteLine($"New message from {obj.From} at {obj.ArrivalTime:HH:mm:ss MM-dd-yyyy}: {obj.Message}");
 }
-async void SimEventUtils_OnCalling(CallingHelper obj)
+async void SimEventUtils_OnCallingClip(CallingHelper obj)
 {
     var download = await obj.AnswerAsync();
     var data = await download.DownloadAsync();
