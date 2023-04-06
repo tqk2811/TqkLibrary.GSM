@@ -69,7 +69,7 @@ namespace TqkLibrary.GSM.Extensions
                         case >= 0 and <= 9: return ESignalLevel.Marginal;
                         case >= 10 and <= 14: return ESignalLevel.Ok;
                         case >= 15 and <= 19: return ESignalLevel.Good;
-                        case >= 20 and <= 31: return ESignalLevel.Marginal;
+                        case >= 20 and <= 31: return ESignalLevel.Excellent;
 
                         case 99:
                         default: return ESignalLevel.Disconnect;
