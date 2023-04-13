@@ -301,7 +301,6 @@ namespace TqkLibrary.GSM
                     var match = regex_response.Match(received);
                     if (match.Success)//Make sure match OK|ERROR|\+CM. ERROR:.*? at the end
                     {
-                        _WriteReceivedLog(match.Value);
                         // 3 group: head body footer
                         //Head: AT+QFDWL=\"RAM:sound.wav\"\r     or      AT+COPS?\r
                         //Body: <empty>     or   r\n+COPS: 0,0,\"VINAPHONE\"\r\n      or       \r\nCONNECT\r\n\xab\xff\x34...long binary data....\xac\r\n+QFDWL: 20,3\r\n
@@ -315,7 +314,18 @@ namespace TqkLibrary.GSM
                             if (body.StartsWith("\r\n+") ||// +COPS:
                                 body.StartsWith("\r\nCONNECT\r\n"))//data mode     \r\nCONNECT\r\n
                             {
-                                _BodyParse(body);
+                                GsmCommandResponse gsmCommandResponse = _BodyParse(body);
+                                if (gsmCommandResponse is not null && body.StartsWith("\r\nCONNECT\r\n"))
+                                {
+                                    _WriteReceivedLog(head);
+                                    string binary = string.Join(string.Empty, gsmCommandResponse.BinaryData.Select(x => $"0x{x.ToString("X2")}"));
+                                    _WriteReceivedLog($"CONNECT\r\n{binary}\r\n+{gsmCommandResponse.Command}: {string.Join(",", gsmCommandResponse.Arguments)}");
+                                    _WriteReceivedLog(footer);
+                                }
+                                else
+                                {
+                                    _WriteReceivedLog(match.Value);
+                                }
                             }
 #if DEBUG
                             else
@@ -323,6 +333,10 @@ namespace TqkLibrary.GSM
                                 Console.WriteLine($"------\tUnknow Body Type: {match.Value.PrintCRLFHepler()}");
                             }
 #endif
+                        }
+                        else
+                        {
+                            _WriteReceivedLog(match.Value);
                         }
 
                         switch (footer)
@@ -382,7 +396,7 @@ namespace TqkLibrary.GSM
             }
         }
 
-        void _BodyParse(string body_text)
+        GsmCommandResponse _BodyParse(string body_text)
         {
             GsmCommandResponse gsmCommandResponse = GsmCommandResponse.Parse(body_text);
             if (gsmCommandResponse != null)
@@ -395,6 +409,7 @@ namespace TqkLibrary.GSM
                 Console.WriteLine($"------\tGsmCommandResponse.Parse Error: {body_text.PrintCRLFHepler()}");
             }
 #endif
+            return gsmCommandResponse;
         }
         void _BodyInvokeAndPrint(GsmCommandResponse gsmCommandResponse)
         {
@@ -414,7 +429,7 @@ namespace TqkLibrary.GSM
         {
             if (LogCallback != null)
             {
-                string _log = $"{Port} >> {log}";
+                string _log = $"{Port} >> {log.Trim()}";
                 ThreadPool.QueueUserWorkItem((o) => LogCallback?.Invoke(_log));
             }
         }
