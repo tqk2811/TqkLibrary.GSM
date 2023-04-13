@@ -283,6 +283,7 @@ namespace TqkLibrary.GSM
                     var matches = regex_response2.Matches(received);
                     foreach (Match match in matches)
                     {
+                        _WriteReceivedLog(match.Value);
                         GsmCommandResponse gsmCommandResponse = GsmCommandResponse.Parse(match.Value);
                         if (gsmCommandResponse is not null)
                         {
@@ -300,6 +301,7 @@ namespace TqkLibrary.GSM
                     var match = regex_response.Match(received);
                     if (match.Success)//Make sure match OK|ERROR|\+CM. ERROR:.*? at the end
                     {
+                        _WriteReceivedLog(match.Value);
                         // 3 group: head body footer
                         //Head: AT+QFDWL=\"RAM:sound.wav\"\r     or      AT+COPS?\r
                         //Body: <empty>     or   r\n+COPS: 0,0,\"VINAPHONE\"\r\n      or       \r\nCONNECT\r\n\xab\xff\x34...long binary data....\xac\r\n+QFDWL: 20,3\r\n
@@ -408,6 +410,14 @@ namespace TqkLibrary.GSM
             }
         }
 
+        void _WriteReceivedLog(string log)
+        {
+            if (LogCallback != null)
+            {
+                string _log = $"{Port} >> {log}";
+                ThreadPool.QueueUserWorkItem((o) => LogCallback?.Invoke(_log));
+            }
+        }
 
 
         /// <summary>
