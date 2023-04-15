@@ -119,7 +119,7 @@ namespace TqkLibrary.GSM.Extensions.Advances
                 case "CLIP":
                     {
                         if (OnCallingClip != null)
-                            ThreadPool.QueueUserWorkItem((o) => OnCallingClip?.Invoke(new CallingHelper(gsmClient, this, obj.Arguments.FirstOrDefault().Trim('\"'))));
+                            ThreadPool.QueueUserWorkItem((o) => OnCallingClip?.Invoke(new CallingHelper(gsmClient, this, obj.Arguments.FirstOrDefault()?.Trim('\"'))));
                         break;
                     }
             }
