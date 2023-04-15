@@ -59,6 +59,8 @@ namespace TqkLibrary.GSM.Extensions.Advances
 
         private async void _GsmClient_OnCommandResponse(GsmCommandResponse commandData)
         {
+            try
+            {
             switch (await gsmClient.CMGF().ReadAsync())
             {
                 case MessageFormat.PduMode:
@@ -111,6 +113,12 @@ namespace TqkLibrary.GSM.Extensions.Advances
                 default:
                     break;
             }
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Console.WriteLine($"{ex.GetType().FullName}: {ex.Message}, {ex.StackTrace}");
+#endif
         }
     }
     public interface ISms
