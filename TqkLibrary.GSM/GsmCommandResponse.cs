@@ -69,6 +69,7 @@ namespace TqkLibrary.GSM
         /// <returns></returns>
         public static GsmCommandResponse Parse(string str)
         {
+            if (string.IsNullOrWhiteSpace(str)) return null;
             str = str.Trim();
             Match match = regex_Command.Match(str);
             if (match.Success)
