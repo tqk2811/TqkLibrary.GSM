@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Linq;
 using System.IO;
+using static TqkLibrary.GSM.Extensions.Advances.CMTMessage;
 
 string[] ports = SerialPort.GetPortNames();
 Console.WriteLine("Select port:");

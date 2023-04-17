@@ -92,5 +92,35 @@ namespace TqkLibrary.GSM.Test
             byte[] calcCheckSum = gsmCommandResponse.BinaryData.ToArray().CheckSum();
             Assert.IsTrue(calcCheckSum.SequenceEqual(checksum));
         }
+
+        private static readonly Regex regex_response2
+            = new Regex("(^\r\n\\+[\\x00-\\xFF]*?\r\n(?=\r\n)|\r\n\\+[\\x00-\\xFF]*?\r\n$|\r\n[\\x00-\\xFF]*?\r\n)", RegexOptions.Multiline);
+        [TestMethod]
+        public void TestParseEvent()
+        {
+            string received = "\r\n+CMT: ,33\r\n07914889200026F5240B914883537892F10008323012519243820E0053006D00730020006D1EAB0075\r\n";
+            var matches = regex_response2.Matches(received);
+            Assert.AreEqual(matches.Count, 1);
+            Assert.AreEqual(matches[0].Value, received);
+
+
+            received = "\r\nRING\r\n";
+            matches = regex_response2.Matches(received);
+            Assert.AreEqual(matches.Count, 1);
+            Assert.AreEqual(matches[0].Value, received);
+
+
+            received = "\r\nRING\r\n\r\n+CLIP: \"0383599999\",129,\"\",,\"\",0\r\n";
+            matches = regex_response2.Matches(received);
+            Assert.AreEqual(matches.Count, 2);
+            Assert.AreEqual(matches[0].Value, "\r\nRING\r\n");
+            Assert.AreEqual(matches[1].Value, "\r\n+CLIP: \"0383599999\",129,\"\",,\"\",0\r\n");
+
+            received = "\r\n+CRING: VOICE\r\n\r\n+CLIP: \"0383599999\",129,\"\",,\"\",0\r\n";
+            matches = regex_response2.Matches(received);
+            Assert.AreEqual(matches.Count, 2);
+            Assert.AreEqual(matches[0].Value, "\r\n+CRING: VOICE\r\n");
+            Assert.AreEqual(matches[1].Value, "\r\n+CLIP: \"0383599999\",129,\"\",,\"\",0\r\n");
+        }
     }
 }
