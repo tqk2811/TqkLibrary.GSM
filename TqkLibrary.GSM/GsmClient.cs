@@ -305,7 +305,6 @@ namespace TqkLibrary.GSM
                                     }
                                     else
                                     {
-                                        _WriteReceivedLog(footer);
                                         OnUnknowReceived?.Invoke(received.Trim());
                                     }
                                 }
