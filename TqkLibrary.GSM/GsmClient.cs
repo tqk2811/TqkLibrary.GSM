@@ -305,6 +305,7 @@ namespace TqkLibrary.GSM
                                     }
                                     else
                                     {
+                                        _WriteReceivedLog(footer);
                                         OnUnknowReceived?.Invoke(received.Trim());
                                     }
                                 }
@@ -396,10 +397,12 @@ namespace TqkLibrary.GSM
             {
                 case "OK":
                     OnCommandResult?.Invoke(true);
+                    _WriteReceivedLog(footer);
                     return true;
 
                 case "ERROR":
                     OnCommandResult?.Invoke(false);
+                    _WriteReceivedLog(footer);
                     return true;
 
                 default:
@@ -415,6 +418,7 @@ namespace TqkLibrary.GSM
                                 if (_CME_Error.ContainsKey(n)) err_msg = $"{_CME_Error[n]} ({n})";
                                 else err_msg = n.ToString();
                                 OnMeError?.Invoke(err_msg, n);
+                                _WriteReceivedLog(footer);
                                 return true;
                             }
                         }
@@ -427,6 +431,7 @@ namespace TqkLibrary.GSM
                                 if (_CMS_Error.ContainsKey(n)) err_msg = $"{_CMS_Error[n]} ({n})";
                                 else err_msg = n.ToString();
                                 OnMsError?.Invoke(err_msg, n);
+                                _WriteReceivedLog(footer);
                                 return true;
                             }
                         }
