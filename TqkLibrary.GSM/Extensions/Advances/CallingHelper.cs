@@ -23,7 +23,21 @@ namespace TqkLibrary.GSM.Extensions.Advances
         /// </summary>
         public string IncommingPhoneNumber { get; }
 
-        const string fileName = "RAM:voice.wav";
+        /// <summary>
+        /// 
+        /// </summary>
+        public string FilePath { get; set; } = $"RAM:{Guid.NewGuid().ToString().Trim('{', '}')}.wav";
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public Task<GsmCommandResult> DeleteFileAsync(string filePath = "RAM:*")
+        {
+            return gsmClient.QFDEL().WriteAsync(filePath);
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -33,20 +47,21 @@ namespace TqkLibrary.GSM.Extensions.Advances
         public async Task<FileDownloadHelper> AnswerAsync(int callTimeout = 0, CancellationToken cancellationToken = default)
         {
             await gsmClient.SendCommandAsync("ATA\r\n", cancellationToken).ConfigureAwait(false);
-            try { await gsmClient.QFDEL().WriteAsync("RAM:*").ConfigureAwait(false); } catch { }
             await gsmClient.QAUDRD().WriteAsync(
                 CommandRequestQAUDRD.RecordControl.Start,
-                fileName,
+                FilePath,
                 CommandRequestQAUDRD.RecordFormat.WAV_PCM16,
                 cancellationToken).ConfigureAwait(false);
 
             TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             using var register = cancellationToken.Register(() => tcs.TrySetCanceled());
             Action action = () => tcs.TrySetResult(true);
+
             using CancellationTokenSource callTimeout_cts = callTimeout > 0 ? new CancellationTokenSource(callTimeout) : null;
-            using var callTimeout_cts_register = callTimeout_cts?.Token.Register(() => HangupAsync());
+
             try
             {
+                using var callTimeout_cts_register = callTimeout_cts?.Token.Register(() => HangupAsync());
                 simEventUtils.OnEndCall += action;
                 await tcs.Task.ConfigureAwait(false);
             }
@@ -57,7 +72,7 @@ namespace TqkLibrary.GSM.Extensions.Advances
 
             await gsmClient.QAUDRD().WriteAsync(CommandRequestQAUDRD.RecordControl.Stop, cancellationToken).ConfigureAwait(false);
             await Task.Delay(100, cancellationToken);
-            return new FileDownloadHelper(gsmClient, fileName);
+            return new FileDownloadHelper(gsmClient, FilePath);
         }
 
         /// <summary>
