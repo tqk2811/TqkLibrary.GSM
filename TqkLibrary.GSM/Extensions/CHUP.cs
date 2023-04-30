@@ -18,7 +18,7 @@ namespace TqkLibrary.GSM.Extensions
         }
 
         /// <summary>
-        /// 
+        /// Execution command cancels all active and held calls, also if a multi-party session is running.
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
@@ -31,7 +31,7 @@ namespace TqkLibrary.GSM.Extensions
     public static class CommandRequestCHUPExtension
     {
         /// <summary>
-        /// Voice Hang Up Control
+        /// Hang Up Call
         /// </summary>
         /// <param name="gsmClient"></param>
         /// <returns></returns>
