@@ -42,10 +42,10 @@ namespace TqkLibrary.GSM.Extensions.Advances
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="callTimeout">timeout in milisecond</param>
+        /// <param name="listenTimeout">timeout in milisecond</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<FileDownloadHelper> AnswerAsync(int callTimeout = 0, CancellationToken cancellationToken = default)
+        public async Task<FileDownloadHelper> AnswerAsync(int listenTimeout = 0, CancellationToken cancellationToken = default)
         {
             await gsmClient.SendCommandAsync("ATA\r\n", cancellationToken).ConfigureAwait(false);
             await gsmClient.QAUDRD().WriteAsync(
@@ -58,11 +58,13 @@ namespace TqkLibrary.GSM.Extensions.Advances
             using var register = cancellationToken.Register(() => tcs.TrySetCanceled());
             Action action = () => tcs.TrySetResult(true);
 
-            using CancellationTokenSource callTimeout_cts = callTimeout > 0 ? new CancellationTokenSource(callTimeout) : null;
+            using CancellationTokenSource listenTimeout_cts = listenTimeout > 0 ? new CancellationTokenSource(listenTimeout) : null;
 
             try
             {
-                using var callTimeout_cts_register = callTimeout_cts?.Token.Register(() => HangupAsync());
+                using var listenTimeout_cts_register = listenTimeout_cts?.Token.Register(
+                    () => gsmClient.CHUP().ExecuteAsync()
+                    );
                 simEventUtils.OnEndCall += action;
                 await tcs.Task.ConfigureAwait(false);
             }
