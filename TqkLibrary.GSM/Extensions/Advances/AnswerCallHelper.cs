@@ -8,11 +8,11 @@ namespace TqkLibrary.GSM.Extensions.Advances
     /// <summary>
     /// 
     /// </summary>
-    public class CallingHelper
+    public class AnswerCallHelper
     {
         readonly GsmClient gsmClient;
         readonly SimEventUtils simEventUtils;
-        internal CallingHelper(GsmClient gsmClient, SimEventUtils simEventUtils, string incommingPhoneNumber = null)
+        internal AnswerCallHelper(GsmClient gsmClient, SimEventUtils simEventUtils, string incommingPhoneNumber = null)
         {
             this.gsmClient = gsmClient ?? throw new ArgumentNullException(nameof(gsmClient));
             this.simEventUtils = simEventUtils ?? throw new ArgumentNullException(nameof(simEventUtils));

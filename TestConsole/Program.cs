@@ -69,7 +69,7 @@ void RegisterMsg_OnSmsReceived(ISms obj)
 {
     Console.WriteLine($"New message from {obj.From} at {obj.ArrivalTime:HH:mm:ss MM-dd-yyyy}: {obj.Message}");
 }
-async void SimEventUtils_OnCallingClip(CallingHelper obj)
+async void SimEventUtils_OnCallingClip(AnswerCallHelper obj)
 {
     var download = await obj.AnswerAsync();
     var data = await download.DownloadAsync();

@@ -39,11 +39,11 @@ namespace TqkLibrary.GSM.Extensions.Advances
         /// <summary>
         /// 
         /// </summary>
-        public event Action<CallingHelper> OnCalling;
+        public event Action<AnswerCallHelper> OnCalling;
         /// <summary>
         /// 
         /// </summary>
-        public event Action<CallingHelper> OnCallingClip;
+        public event Action<AnswerCallHelper> OnCallingClip;
         /// <summary>
         /// 
         /// </summary>
@@ -119,7 +119,7 @@ namespace TqkLibrary.GSM.Extensions.Advances
                 case "CLIP":
                     {
                         if (OnCallingClip != null)
-                            ThreadPool.QueueUserWorkItem((o) => OnCallingClip?.Invoke(new CallingHelper(gsmClient, this, obj.Arguments.FirstOrDefault()?.Trim('\"'))));
+                            ThreadPool.QueueUserWorkItem((o) => OnCallingClip?.Invoke(new AnswerCallHelper(gsmClient, this, obj.Arguments.FirstOrDefault()?.Trim('\"'))));
                         break;
                     }
             }
@@ -133,7 +133,7 @@ namespace TqkLibrary.GSM.Extensions.Advances
                     if (OnProviderConnected != null) ThreadPool.QueueUserWorkItem((o) => OnProviderConnected?.Invoke());
                     break;
                 case "RING":
-                    if (OnCalling != null) ThreadPool.QueueUserWorkItem((o) => OnCalling?.Invoke(new CallingHelper(gsmClient, this)));
+                    if (OnCalling != null) ThreadPool.QueueUserWorkItem((o) => OnCalling?.Invoke(new AnswerCallHelper(gsmClient, this)));
                     break;
                 case "NO CARRIER":
                     if (OnEndCall != null) ThreadPool.QueueUserWorkItem((o) => OnEndCall?.Invoke());
