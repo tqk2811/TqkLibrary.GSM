@@ -32,10 +32,11 @@ namespace TqkLibrary.GSM.Extensions.Advances
         /// 
         /// </summary>
         /// <param name="filePath"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<GsmCommandResult> DeleteFileAsync(string filePath = "RAM:*")
+        public Task<GsmCommandResult> DeleteFileAsync(string filePath = "RAM:*", CancellationToken cancellationToken = default)
         {
-            return gsmClient.QFDEL().WriteAsync(filePath);
+            return gsmClient.QFDEL().WriteAsync(filePath, cancellationToken);
         }
 
         /// <summary>
