@@ -71,7 +71,7 @@ void RegisterMsg_OnSmsReceived(ISms obj)
 }
 async void SimEventUtils_OnCallingClip(AnswerCallHelper obj)
 {
-    var download = await obj.AnswerAsync();
+    var download = await obj.AnswerAsync(10000);
     var data = await download.DownloadAsync();
     File.WriteAllBytes("test.wav", data.GetAndCheck());
 }
