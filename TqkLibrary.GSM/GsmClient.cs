@@ -384,7 +384,7 @@ namespace TqkLibrary.GSM
 
                 if (_FooterCheck(footer, false))
                 {
-                    _WriteReceivedLog(string.Join("\r\n", logs).PrintCRLFHepler());
+                    _WriteReceivedLog(string.Join("\r\n", logs));
                 }
 #if DEBUG
                 else
