@@ -47,6 +47,10 @@ namespace TqkLibrary.GSM.Extensions.Advances
         /// <returns></returns>
         public async Task<FileDownloadHelper> AnswerAsync(int listenTimeout = 0, CancellationToken cancellationToken = default)
         {
+            //stop old 
+            try { await gsmClient.QAUDRD().WriteAsync(CommandRequestQAUDRD.RecordControl.Stop, cancellationToken).ConfigureAwait(false); } catch { }
+            try { await DeleteFileAsync(FilePath, cancellationToken).ConfigureAwait(false); } catch { }
+
             await gsmClient.SendCommandAsync("ATA\r\n", cancellationToken).ConfigureAwait(false);
             await gsmClient.QAUDRD().WriteAsync(
                 CommandRequestQAUDRD.RecordControl.Start,
@@ -63,7 +67,11 @@ namespace TqkLibrary.GSM.Extensions.Advances
             try
             {
                 using var listenTimeout_cts_register = listenTimeout_cts?.Token.Register(
-                    () => gsmClient.CHUP().ExecuteAsync()
+                    () =>
+                    {
+                        _ = gsmClient.CHUP().ExecuteAsync();
+                        tcs.TrySetResult(true);
+                    }
                     );
                 simEventUtils.OnEndCall += action;
                 await tcs.Task.ConfigureAwait(false);
