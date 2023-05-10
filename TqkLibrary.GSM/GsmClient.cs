@@ -297,7 +297,6 @@ namespace TqkLibrary.GSM
                                 var matches = regex_response2.Matches(received);
                                 foreach (Match item in matches)
                                 {
-                                    _WriteReceivedLog(item.Value);
                                     GsmCommandResponse gsmCommandResponse = GsmCommandResponse.Parse(item.Value);
                                     if (gsmCommandResponse is not null)
                                     {
@@ -308,6 +307,7 @@ namespace TqkLibrary.GSM
                                         OnUnknowReceived?.Invoke(received.Trim());
                                     }
                                 }
+                                _WriteReceivedLog(received);
                             }
                         }
                     }
@@ -345,12 +345,15 @@ namespace TqkLibrary.GSM
             if (match.Success)//Make sure match OK|ERROR|\+CM. ERROR:.*? at the end
             {
                 // 3 group: head body footer
-                //Head: AT+QFDWL=\"RAM:sound.wav\"\r     or      AT+COPS?\r
+                //Head: AT+QFDWL=\"RAM:sound.wav\"\r     or      AT+COPS?\r       or      <empty>
                 //Body: <empty>     or   \r\n+COPS: 0,0,\"VINAPHONE\"\r\n      or       \r\nCONNECT\r\n\xab\xff\x34...long binary data....\xac\r\n+QFDWL: 20,3\r\n
                 //Footer: \r\nOK\r\n    or      \r\nERROR\r\n      or       \r\n+CME ERROR: 4010\r\n     or       \r\n+CMS ERROR: 123\r\n
                 string head = match.Groups[1].Value;
                 string body = match.Groups[2].Value;
                 string footer = match.Groups[3].Value.Trim();
+                List<string> logs = new List<string>();
+
+                if (!string.IsNullOrWhiteSpace(head.Trim())) logs.Add(head.Trim());
 
                 if (!string.IsNullOrWhiteSpace(body.Trim()))
                 {
@@ -360,14 +363,12 @@ namespace TqkLibrary.GSM
                         GsmCommandResponse gsmCommandResponse = _BodyParse(body);
                         if (gsmCommandResponse is not null && body.StartsWith("\r\nCONNECT\r\n"))
                         {
-                            _WriteReceivedLog(head);
-                            string binary = string.Join(string.Empty, gsmCommandResponse.BinaryData.Select(x => $"0x{x.ToString("X2")}"));
-                            _WriteReceivedLog($"CONNECT\r\n{binary}\r\n+{gsmCommandResponse.Command}: {string.Join(",", gsmCommandResponse.Arguments)}");
-                            _WriteReceivedLog(footer);
+                            logs.Add($"CONNECT\r\n[binarySize={gsmCommandResponse.BinaryData?.Count()}]\r\n+{gsmCommandResponse.Command}: {string.Join(",", gsmCommandResponse.Arguments)}");
+
                         }
                         else
                         {
-                            _WriteReceivedLog(match.Value);
+                            logs.Add(body.Trim());
                         }
                     }
 #if DEBUG
@@ -377,31 +378,39 @@ namespace TqkLibrary.GSM
                     }
 #endif
                 }
+
+                logs.Add(footer.Trim());
+
+
+                if (_FooterCheck(footer, false))
+                {
+                    _WriteReceivedLog(string.Join("\r\n", logs).PrintCRLFHepler());
+                }
+#if DEBUG
                 else
                 {
-                    _WriteReceivedLog(match.Value);
+                    Console.WriteLine($"------\tUnknow _MatchResult Type: {match.Value.PrintCRLFHepler()}");
                 }
-
-                _FooterCheck(footer);
+#endif
 
                 temp = temp.Skip(match.Value.Length).ToArray();
             }
             return match.Success;
         }
 
-        bool _FooterCheck(string footer)
+        bool _FooterCheck(string footer, bool isWriteReceivedLog = true)
         {
             footer = footer.Trim();
             switch (footer)
             {
                 case "OK":
                     OnCommandResult?.Invoke(true);
-                    _WriteReceivedLog(footer);
+                    if (isWriteReceivedLog) _WriteReceivedLog(footer);
                     return true;
 
                 case "ERROR":
                     OnCommandResult?.Invoke(false);
-                    _WriteReceivedLog(footer);
+                    if (isWriteReceivedLog) _WriteReceivedLog(footer);
                     return true;
 
                 default:
@@ -417,7 +426,7 @@ namespace TqkLibrary.GSM
                                 if (_CME_Error.ContainsKey(n)) err_msg = $"{_CME_Error[n]} ({n})";
                                 else err_msg = n.ToString();
                                 OnMeError?.Invoke(err_msg, n);
-                                _WriteReceivedLog(footer);
+                                if (isWriteReceivedLog) _WriteReceivedLog(footer);
                                 return true;
                             }
                         }
@@ -430,7 +439,7 @@ namespace TqkLibrary.GSM
                                 if (_CMS_Error.ContainsKey(n)) err_msg = $"{_CMS_Error[n]} ({n})";
                                 else err_msg = n.ToString();
                                 OnMsError?.Invoke(err_msg, n);
-                                _WriteReceivedLog(footer);
+                                if (isWriteReceivedLog) _WriteReceivedLog(footer);
                                 return true;
                             }
                         }
