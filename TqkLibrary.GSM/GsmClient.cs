@@ -399,14 +399,12 @@ namespace TqkLibrary.GSM
                     {
                         Array.Copy(_buffer, i, _buffer, match.Value.Length + i, Math.Min(match.Value.Length, _bufferDataCount - match.Value.Length));
                     }
+                    _bufferDataCount -= match.Value.Length;
                 }
-                _bufferDataCount -= match.Value.Length;
-#if DEBUG
-                if (_bufferDataCount < 0)
-                    throw new InvalidProgramException();
-#else
-                _bufferDataCount = Math.Max(_bufferDataCount, 0);
-#endif
+                else
+                {
+                    _bufferDataCount = 0;
+                }
             }
             return match.Success;
         }
