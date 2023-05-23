@@ -238,23 +238,58 @@ namespace TqkLibrary.GSM
         /// true is OK, else false is ERROR
         /// </summary>
         public event Action<bool> OnCommandResult;
+        event Action<bool> _OnCommandResult;
         /// <summary>
         /// +[Command]: [arg0],[arg1],[arg2],....\r\n[data]
         /// </summary>
         public event Action<GsmCommandResponse> OnCommandResponse;
+        event Action<GsmCommandResponse> _OnCommandResponse;
         /// <summary>
         /// raw text reponse
         /// </summary>
         public event Action<string> OnUnknowReceived;
+        event Action<string> _OnUnknowReceived;
         /// <summary>
         /// +CME ERROR: - ME Error Result Code
         /// </summary>
         public event Action<string, int> OnMeError;
+        event Action<string, int> _OnMeError;
         /// <summary>
         /// +CMS ERROR - Message Service Failure Result Code
         /// </summary>
         public event Action<string, int> OnMsError;
+        event Action<string, int> _OnMsError;
 
+        void _FireCommandResult(bool result)
+        {
+            _OnCommandResult?.Invoke(result);
+            if (OnCommandResult is not null)
+                ThreadPool.QueueUserWorkItem((o) => OnCommandResult?.Invoke(result), null);
+        }
+        void _FireCommandResponse(GsmCommandResponse commandResponse)
+        {
+            _OnCommandResponse?.Invoke(commandResponse);
+            if (OnCommandResult is not null)
+                ThreadPool.QueueUserWorkItem((o) => OnCommandResponse?.Invoke(commandResponse), null);
+        }
+        void _FireUnknowReceived(string text)
+        {
+            _OnUnknowReceived?.Invoke(text);
+            if (OnCommandResult is not null)
+                ThreadPool.QueueUserWorkItem((o) => OnUnknowReceived?.Invoke(text), null);
+        }
+        void _FireMeError(string message, int code)
+        {
+            _OnMeError?.Invoke(message, code);
+            if (OnCommandResult is not null)
+                ThreadPool.QueueUserWorkItem((o) => OnMeError?.Invoke(message, code), null);
+        }
+        void _FireMsError(string message, int code)
+        {
+            _OnMsError?.Invoke(message, code);
+            if (OnCommandResult is not null)
+                ThreadPool.QueueUserWorkItem((o) => OnMsError?.Invoke(message, code), null);
+        }
 
         private readonly byte[] _buffer = new byte[5 * 1024 * 1024];
         private int _bufferDataCount = 0;
@@ -305,7 +340,7 @@ namespace TqkLibrary.GSM
                                     }
                                     else
                                     {
-                                        OnUnknowReceived?.Invoke(received.Trim());
+                                        _FireUnknowReceived(received.Trim());
                                     }
                                 }
                                 _WriteReceivedLog(received);
@@ -415,12 +450,12 @@ namespace TqkLibrary.GSM
             switch (footer)
             {
                 case "OK":
-                    OnCommandResult?.Invoke(true);
+                    _FireCommandResult(true);
                     if (isWriteReceivedLog) _WriteReceivedLog(footer);
                     return true;
 
                 case "ERROR":
-                    OnCommandResult?.Invoke(false);
+                    _FireCommandResult(false);
                     if (isWriteReceivedLog) _WriteReceivedLog(footer);
                     return true;
 
@@ -436,7 +471,7 @@ namespace TqkLibrary.GSM
                                 string err_msg = string.Empty;
                                 if (_CME_Error.ContainsKey(n)) err_msg = $"{_CME_Error[n]} ({n})";
                                 else err_msg = n.ToString();
-                                OnMeError?.Invoke(err_msg, n);
+                                _FireMeError(err_msg, n);
                                 if (isWriteReceivedLog) _WriteReceivedLog(footer);
                                 return true;
                             }
@@ -449,7 +484,7 @@ namespace TqkLibrary.GSM
                                 string err_msg = string.Empty;
                                 if (_CMS_Error.ContainsKey(n)) err_msg = $"{_CMS_Error[n]} ({n})";
                                 else err_msg = n.ToString();
-                                OnMsError?.Invoke(err_msg, n);
+                                _FireMsError(err_msg, n);
                                 if (isWriteReceivedLog) _WriteReceivedLog(footer);
                                 return true;
                             }
@@ -484,7 +519,7 @@ namespace TqkLibrary.GSM
                 Console.WriteLine($"------\tOptions:[{string.Join(" , ", gsmCommandResponse.Options.Select(x => $"[{string.Join(" , ", x.Select(y => $"\"{y}\""))}]"))}]");
                 Console.WriteLine($"------\tData:{gsmCommandResponse.Data.PrintCRLFHepler()}");
 #endif
-                OnCommandResponse?.Invoke(gsmCommandResponse);
+                _FireCommandResponse(gsmCommandResponse);
             }
         }
 
@@ -522,11 +557,11 @@ namespace TqkLibrary.GSM
                 using var register2 = cancellationTokenSource.Token.Register(() => tcs.TrySetException(new GsmCommandTimeoutException(command)));
                 try
                 {
-                    OnCommandResult += action_ok;
-                    OnMeError += action_me_err;
-                    OnMsError += action_ms_err;
-                    OnCommandResponse += action_commandResponse;
-                    OnUnknowReceived += action_unknow;
+                    _OnCommandResult += action_ok;
+                    _OnMeError += action_me_err;
+                    _OnMsError += action_ms_err;
+                    _OnCommandResponse += action_commandResponse;
+                    _OnUnknowReceived += action_unknow;
 
 #if DEBUG
                     Console.WriteLine($"{Port} << {command.PrintCRLFHepler()}");
@@ -545,11 +580,11 @@ namespace TqkLibrary.GSM
                 }
                 finally
                 {
-                    OnCommandResult -= action_ok;
-                    OnMeError -= action_me_err;
-                    OnMsError -= action_ms_err;
-                    OnCommandResponse -= action_commandResponse;
-                    OnUnknowReceived -= action_unknow;
+                    _OnCommandResult -= action_ok;
+                    _OnMeError -= action_me_err;
+                    _OnMsError -= action_ms_err;
+                    _OnCommandResponse -= action_commandResponse;
+                    _OnUnknowReceived -= action_unknow;
                 }
             }
         }
