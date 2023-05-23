@@ -194,13 +194,15 @@ namespace TqkLibrary.GSM
 
         readonly SerialPort serialPort;
         readonly AsyncLock asyncLockSend = new AsyncLock();
+        readonly SynchronizationContext _synchronizationContext;
         /// <summary>
         /// 
         /// </summary>
         /// <param name="port"></param>
         /// <param name="baudRate"></param>
+        /// <param name="synchronizationContext"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public GsmClient(string port, int baudRate = 115200)
+        public GsmClient(string port, int baudRate = 115200, SynchronizationContext synchronizationContext = null)
         {
             if (string.IsNullOrWhiteSpace(port)) throw new ArgumentNullException(nameof(port));
             serialPort = new SerialPort(port, baudRate, Parity.None, 8, StopBits.One);
@@ -209,6 +211,7 @@ namespace TqkLibrary.GSM
             //serialPort.RtsEnable = true;
             //serialPort.DtrEnable = false;
             this.Port = port;
+            this._synchronizationContext = synchronizationContext;
         }
         /// <summary>
         /// 
@@ -263,32 +266,62 @@ namespace TqkLibrary.GSM
         void _FireCommandResult(bool result)
         {
             _OnCommandResult?.Invoke(result);
-            if (OnCommandResult is not null)
+            if (_synchronizationContext is not null)
+            {
+                _synchronizationContext.Post((o) => OnCommandResult?.Invoke(result), null);
+            }
+            else if (OnCommandResult is not null)
+            {
                 ThreadPool.QueueUserWorkItem((o) => OnCommandResult?.Invoke(result), null);
+            }
         }
         void _FireCommandResponse(GsmCommandResponse commandResponse)
         {
             _OnCommandResponse?.Invoke(commandResponse);
-            if (OnCommandResult is not null)
+            if (_synchronizationContext is not null)
+            {
+                _synchronizationContext.Post((o) => OnCommandResponse?.Invoke(commandResponse), null);
+            }
+            else if (OnCommandResult is not null)
+            {
                 ThreadPool.QueueUserWorkItem((o) => OnCommandResponse?.Invoke(commandResponse), null);
+            }
         }
         void _FireUnknowReceived(string text)
         {
             _OnUnknowReceived?.Invoke(text);
-            if (OnCommandResult is not null)
+            if (_synchronizationContext is not null)
+            {
+                _synchronizationContext.Post((o) => OnUnknowReceived?.Invoke(text), null);
+            }
+            else if (OnCommandResult is not null)
+            {
                 ThreadPool.QueueUserWorkItem((o) => OnUnknowReceived?.Invoke(text), null);
+            }
         }
         void _FireMeError(string message, int code)
         {
             _OnMeError?.Invoke(message, code);
-            if (OnCommandResult is not null)
+            if (_synchronizationContext is not null)
+            {
+                _synchronizationContext.Post((o) => OnMeError?.Invoke(message, code), null);
+            }
+            else if (OnCommandResult is not null)
+            {
                 ThreadPool.QueueUserWorkItem((o) => OnMeError?.Invoke(message, code), null);
+            }
         }
         void _FireMsError(string message, int code)
         {
             _OnMsError?.Invoke(message, code);
-            if (OnCommandResult is not null)
+            if (_synchronizationContext is not null)
+            {
+                _synchronizationContext.Post((o) => OnMsError?.Invoke(message, code), null);
+            }
+            else if (OnCommandResult is not null)
+            {
                 ThreadPool.QueueUserWorkItem((o) => OnMsError?.Invoke(message, code), null);
+            }
         }
 
         private readonly byte[] _buffer = new byte[5 * 1024 * 1024];
