@@ -187,7 +187,7 @@ namespace TqkLibrary.GSM
         /// </summary>
         public int CommandTimeout { get; set; }
 #if DEBUG
-            = 20000;
+            = 20000000;
 #else
             = 20000;
 #endif
@@ -256,31 +256,32 @@ namespace TqkLibrary.GSM
         public event Action<string, int> OnMsError;
 
 
-        private byte[] temp = new byte[0];
+        private readonly byte[] _buffer = new byte[5 * 1024 * 1024];
+        private int _bufferDataCount = 0;
+
         private static readonly Regex regex_response2
             = new Regex("(^\r\n\\+[\\x00-\\xFF]*?\r\n(?=\r\n)|\r\n\\+[\\x00-\\xFF]*?\r\n$|\r\n[\\x00-\\xFF]*?\r\n)", RegexOptions.Multiline);
         private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             try
             {
-                byte[] buffer = new byte[serialPort.ReadBufferSize];
-                int byteRead = serialPort.Read(buffer, 0, buffer.Length);
-                temp = temp.Concat(buffer.Take(byteRead)).ToArray();
+                int byteRead = serialPort.Read(_buffer, _bufferDataCount, serialPort.ReadBufferSize);
+                _bufferDataCount += byteRead;
 
-                if (temp.EndWith("\r\n"))
+                if (_buffer.EndWith(_bufferDataCount, "\r\n"))
                 {
-                    string received = GsmEncoding.GetString(temp, 0, temp.Length);
+                    string received = GsmEncoding.GetString(_buffer, 0, _bufferDataCount);
 
 #if DEBUG
                     Console.WriteLine($"------\tReceived: {received.PrintCRLFHepler()}");
 #endif
-                    if (temp.StartWith("\r\n"))
+                    if (_buffer.StartWith("\r\n"))
                     {
                         //sone device not send StartWith AT<sender_command>
                         // \r\nOK\r\n    or      \r\nERROR\r\n      or       \r\n+CME ERROR: 4010\r\n     or       \r\n+CMS ERROR: 123\r\n
                         if (_FooterCheck(received))
                         {
-                            temp = new byte[0];//clear
+                            _bufferDataCount = 0;//clear
                         }
                         else
                         {
@@ -293,7 +294,7 @@ namespace TqkLibrary.GSM
                             // => some device not send AT+CPMS="SM"\r\r\n+CPMS: 0,40,0,10,0,10\r\n\r\nOK\r\n
                             if (!_MatchResult(received))
                             {
-                                temp = new byte[0];
+                                _bufferDataCount = 0;//clear
                                 var matches = regex_response2.Matches(received);
                                 foreach (Match item in matches)
                                 {
@@ -311,7 +312,7 @@ namespace TqkLibrary.GSM
                             }
                         }
                     }
-                    else if (temp.StartWith("AT"))
+                    else if (_buffer.StartWith("AT"))
                     {
                         //Window1252 match failed
                         if (!_MatchResult(received))
@@ -364,7 +365,6 @@ namespace TqkLibrary.GSM
                         if (gsmCommandResponse is not null && body.StartsWith("\r\nCONNECT\r\n"))
                         {
                             logs.Add($"CONNECT\r\n[binarySize={gsmCommandResponse.BinaryData?.Count()}]\r\n+{gsmCommandResponse.Command}: {string.Join(",", gsmCommandResponse.Arguments)}");
-
                         }
                         else
                         {
@@ -393,7 +393,20 @@ namespace TqkLibrary.GSM
                 }
 #endif
 
-                temp = temp.Skip(match.Value.Length).ToArray();
+                if (match.Value.Length < _bufferDataCount)
+                {
+                    for (int i = 0; i < _bufferDataCount - match.Value.Length; i += match.Value.Length)
+                    {
+                        Array.Copy(_buffer, i, _buffer, match.Value.Length + i, Math.Min(match.Value.Length, _bufferDataCount - match.Value.Length));
+                    }
+                }
+                _bufferDataCount -= match.Value.Length;
+#if DEBUG
+                if (_bufferDataCount < 0)
+                    throw new InvalidProgramException();
+#else
+                _bufferDataCount = Math.Max(_bufferDataCount, 0);
+#endif
             }
             return match.Success;
         }
