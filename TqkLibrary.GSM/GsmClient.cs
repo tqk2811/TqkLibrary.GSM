@@ -266,61 +266,77 @@ namespace TqkLibrary.GSM
         void _FireCommandResult(bool result)
         {
             _OnCommandResult?.Invoke(result);
-            if (_synchronizationContext is not null)
+            if (OnCommandResult is not null)
             {
-                _synchronizationContext.Post((o) => OnCommandResult?.Invoke(result), null);
+                if (_synchronizationContext is not null)
+                {
+                    _synchronizationContext.Post((o) => OnCommandResult?.Invoke(result), null);
+                }
+                else
+                {
+                    ThreadPool.QueueUserWorkItem((o) => OnCommandResult?.Invoke(result), null);
+                }
             }
-            else if (OnCommandResult is not null)
-            {
-                ThreadPool.QueueUserWorkItem((o) => OnCommandResult?.Invoke(result), null);
-            }
+
         }
         void _FireCommandResponse(GsmCommandResponse commandResponse)
         {
             _OnCommandResponse?.Invoke(commandResponse);
-            if (_synchronizationContext is not null)
+            if (OnCommandResponse is not null)
             {
-                _synchronizationContext.Post((o) => OnCommandResponse?.Invoke(commandResponse), null);
-            }
-            else if (OnCommandResult is not null)
-            {
-                ThreadPool.QueueUserWorkItem((o) => OnCommandResponse?.Invoke(commandResponse), null);
+                if (_synchronizationContext is not null)
+                {
+                    _synchronizationContext.Post((o) => OnCommandResponse?.Invoke(commandResponse), null);
+                }
+                else
+                {
+                    ThreadPool.QueueUserWorkItem((o) => OnCommandResponse?.Invoke(commandResponse), null);
+                }
             }
         }
         void _FireUnknowReceived(string text)
         {
             _OnUnknowReceived?.Invoke(text);
-            if (_synchronizationContext is not null)
+            if (OnUnknowReceived is not null)
             {
-                _synchronizationContext.Post((o) => OnUnknowReceived?.Invoke(text), null);
-            }
-            else if (OnCommandResult is not null)
-            {
-                ThreadPool.QueueUserWorkItem((o) => OnUnknowReceived?.Invoke(text), null);
+                if (_synchronizationContext is not null)
+                {
+                    _synchronizationContext.Post((o) => OnUnknowReceived?.Invoke(text), null);
+                }
+                else
+                {
+                    ThreadPool.QueueUserWorkItem((o) => OnUnknowReceived?.Invoke(text), null);
+                }
             }
         }
         void _FireMeError(string message, int code)
         {
             _OnMeError?.Invoke(message, code);
-            if (_synchronizationContext is not null)
+            if (OnMeError is not null)
             {
-                _synchronizationContext.Post((o) => OnMeError?.Invoke(message, code), null);
-            }
-            else if (OnCommandResult is not null)
-            {
-                ThreadPool.QueueUserWorkItem((o) => OnMeError?.Invoke(message, code), null);
+                if (_synchronizationContext is not null)
+                {
+                    _synchronizationContext.Post((o) => OnMeError?.Invoke(message, code), null);
+                }
+                else
+                {
+                    ThreadPool.QueueUserWorkItem((o) => OnMeError?.Invoke(message, code), null);
+                }
             }
         }
         void _FireMsError(string message, int code)
         {
             _OnMsError?.Invoke(message, code);
-            if (_synchronizationContext is not null)
+            if (OnMsError is not null)
             {
-                _synchronizationContext.Post((o) => OnMsError?.Invoke(message, code), null);
-            }
-            else if (OnCommandResult is not null)
-            {
-                ThreadPool.QueueUserWorkItem((o) => OnMsError?.Invoke(message, code), null);
+                if (_synchronizationContext is not null)
+                {
+                    _synchronizationContext.Post((o) => OnMsError?.Invoke(message, code), null);
+                }
+                else
+                {
+                    ThreadPool.QueueUserWorkItem((o) => OnMsError?.Invoke(message, code), null);
+                }
             }
         }
 
