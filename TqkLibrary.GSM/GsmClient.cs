@@ -446,9 +446,14 @@ namespace TqkLibrary.GSM
                         body.StartsWith("\r\nCONNECT\r\n"))//data mode     \r\nCONNECT\r\n
                     {
                         GsmCommandResponse gsmCommandResponse = _BodyParse(body);
-                        if (gsmCommandResponse is not null && body.StartsWith("\r\nCONNECT\r\n"))
+                        if (body.StartsWith("\r\nCONNECT\r\n"))
                         {
-                            logs.Add($"CONNECT\r\n[binarySize={gsmCommandResponse.BinaryData?.Count()}]\r\n+{gsmCommandResponse.Command}: {string.Join(",", gsmCommandResponse.Arguments)}");
+                            logs.Add($"CONNECT\r\n[binarySize={gsmCommandResponse?.BinaryData?.Count()}]\r\n+{gsmCommandResponse?.Command}: {string.Join(",", gsmCommandResponse?.Arguments ?? new string[0])}");
+
+                            if (gsmCommandResponse is null)
+                            {
+                                logs.Add($"[ParseBodyFailed]: \r\n\tFirst: {body.Substring(0, 30)}\r\n\tLast: {body.Substring(body.Length - 30)}");
+                            }
                         }
                         else
                         {
