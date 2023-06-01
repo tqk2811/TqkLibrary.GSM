@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
 using TqkLibrary.GSM.Exceptions;
+using System.Reflection;
 
 namespace TqkLibrary.GSM
 {
@@ -392,7 +393,7 @@ namespace TqkLibrary.GSM
                                         _FireUnknowReceived(received.Trim());
                                     }
                                 }
-                                _WriteReceivedLog(received);
+                                _WriteReceivedLog(received, "!_MatchResult");
                             }
                         }
                     }
@@ -473,7 +474,7 @@ namespace TqkLibrary.GSM
 
                 if (_FooterCheck(footer, false))
                 {
-                    _WriteReceivedLog(string.Join("\r\n", logs));
+                    _WriteReceivedLog(string.Join("\r\n", logs), nameof(_MatchResult).Trim('_'));
                 }
 #if DEBUG
                 else
@@ -505,12 +506,12 @@ namespace TqkLibrary.GSM
             {
                 case "OK":
                     _FireCommandResult(true);
-                    if (isWriteReceivedLog) _WriteReceivedLog(footer);
+                    if (isWriteReceivedLog) _WriteReceivedLog(footer, nameof(_FooterCheck).Trim('_'));
                     return true;
 
                 case "ERROR":
                     _FireCommandResult(false);
-                    if (isWriteReceivedLog) _WriteReceivedLog(footer);
+                    if (isWriteReceivedLog) _WriteReceivedLog(footer, nameof(_FooterCheck).Trim('_'));
                     return true;
 
                 default:
@@ -526,7 +527,7 @@ namespace TqkLibrary.GSM
                                 if (_CME_Error.ContainsKey(n)) err_msg = $"{_CME_Error[n]} ({n})";
                                 else err_msg = n.ToString();
                                 _FireMeError(err_msg, n);
-                                if (isWriteReceivedLog) _WriteReceivedLog(footer);
+                                if (isWriteReceivedLog) _WriteReceivedLog(footer, nameof(_FooterCheck).Trim('_'));
                                 return true;
                             }
                         }
@@ -539,7 +540,7 @@ namespace TqkLibrary.GSM
                                 if (_CMS_Error.ContainsKey(n)) err_msg = $"{_CMS_Error[n]} ({n})";
                                 else err_msg = n.ToString();
                                 _FireMsError(err_msg, n);
-                                if (isWriteReceivedLog) _WriteReceivedLog(footer);
+                                if (isWriteReceivedLog) _WriteReceivedLog(footer, nameof(_FooterCheck).Trim('_'));
                                 return true;
                             }
                         }
@@ -577,11 +578,12 @@ namespace TqkLibrary.GSM
             }
         }
 
-        void _WriteReceivedLog(string log)
+        void _WriteReceivedLog(string log, string name = "")
         {
             if (LogCallback != null)
             {
-                string _log = $"{Port} >> {log.Trim()}";
+                string _log = string.IsNullOrWhiteSpace(name) ? string.Empty : $"[{name}]";
+                _log += $"{Port} >> {log.Trim()}";
                 ThreadPool.QueueUserWorkItem((o) => LogCallback?.Invoke(_log));
             }
         }
