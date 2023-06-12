@@ -59,7 +59,7 @@ namespace TqkLibrary.GSM
         /// <exception cref="ArgumentNullException"></exception>
         public GsmClient(IAtClient atClient, SynchronizationContext synchronizationContext = null)
         {
-            atClient = atClient ?? throw new ArgumentNullException(nameof(atClient));
+            this.atClient = atClient ?? throw new ArgumentNullException(nameof(atClient));
             atClient.OnLogCallback += (l) => OnLogCallback?.Invoke(l);
             atClient.OnCommandResponse += _FireCommandResponse;
             atClient.OnUnknowReceived += _FireUnknowReceived;
