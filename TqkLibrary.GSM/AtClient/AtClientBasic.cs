@@ -33,6 +33,7 @@ namespace TqkLibrary.GSM.AtClient
         /// <param name="baudRate"></param>
         public AtClientBasic(string port, int baudRate = 115200)
         {
+            if (string.IsNullOrWhiteSpace(port)) throw new ArgumentNullException(nameof(port));
             serialPort = new SerialPort(port, baudRate, Parity.None, 8, StopBits.One);
             serialPort.Handshake = Handshake.RequestToSend;
             serialPort.DataReceived += SerialPort_DataReceived;

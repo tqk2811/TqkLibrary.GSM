@@ -8,6 +8,7 @@ using System.Threading;
 using System.Linq;
 using System.IO;
 using static TqkLibrary.GSM.Extensions.Advances.CMTMessage;
+using TqkLibrary.GSM.AtClient;
 
 string[] ports = SerialPort.GetPortNames();
 Console.WriteLine("Select port:");
@@ -31,7 +32,7 @@ do
 while (index == -1);
 
 
-using GsmClient gsmClient = new GsmClient(ports[index]);
+using GsmClient gsmClient = new GsmClient(new AtClientBasic(ports[index]));
 gsmClient.Open();
 
 

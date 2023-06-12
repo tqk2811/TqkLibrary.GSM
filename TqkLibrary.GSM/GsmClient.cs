@@ -54,14 +54,12 @@ namespace TqkLibrary.GSM
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="port"></param>
-        /// <param name="baudRate"></param>
+        /// <param name="atClient"></param>
         /// <param name="synchronizationContext"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public GsmClient(string port, int baudRate = 115200, SynchronizationContext synchronizationContext = null)
+        public GsmClient(IAtClient atClient, SynchronizationContext synchronizationContext = null)
         {
-            if (string.IsNullOrWhiteSpace(port)) throw new ArgumentNullException(nameof(port));
-            atClient = new AtClientBasic(port, baudRate);
+            atClient = atClient ?? throw new ArgumentNullException(nameof(atClient));
             atClient.OnLogCallback += (l) => OnLogCallback?.Invoke(l);
             atClient.OnCommandResponse += _FireCommandResponse;
             atClient.OnUnknowReceived += _FireUnknowReceived;
@@ -71,6 +69,16 @@ namespace TqkLibrary.GSM
 
             this._synchronizationContext = synchronizationContext;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="atClient"></param>
+        /// <param name="synchronizationContext"></param>
+        public GsmClient(AtClientBasic atClient, SynchronizationContext synchronizationContext = null) : this((IAtClient)atClient, synchronizationContext)
+        {
+
+        }
+
 
         /// <summary>
         /// 
