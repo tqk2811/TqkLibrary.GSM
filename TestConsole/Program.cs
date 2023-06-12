@@ -32,7 +32,7 @@ do
 while (index == -1);
 
 
-using GsmClient gsmClient = new GsmClient(new AtClientBasic(ports[index]));
+using GsmClient gsmClient = new GsmClient(new AtClientParse(ports[index]));
 gsmClient.Open();
 
 

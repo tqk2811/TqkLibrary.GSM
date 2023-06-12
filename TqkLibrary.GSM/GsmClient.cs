@@ -74,7 +74,7 @@ namespace TqkLibrary.GSM
         /// </summary>
         /// <param name="atClient"></param>
         /// <param name="synchronizationContext"></param>
-        public GsmClient(AtClientBasic atClient, SynchronizationContext synchronizationContext = null) : this((IAtClient)atClient, synchronizationContext)
+        public GsmClient(AtClientParse atClient, SynchronizationContext synchronizationContext = null) : this((IAtClient)atClient, synchronizationContext)
         {
 
         }
