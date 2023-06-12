@@ -2,17 +2,18 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using TqkLibrary.GSM.AtClient;
 
 namespace TqkLibrary.GSM.Test
 {
     [TestClass]
-    public class TestGsmCommandResponse
+    public class TestAtClientBasicParseGsmCommandResponse
     {
         [TestMethod]
         public void TestCommandResponse()
         {
             var test_str = "+CMGR: \"arg1\",arg2,\"\",\"2022/06/10 17:42:17+28\",\"arg ,with\nlinebreak\"\r\nthis is \r\ndataa";
-            GsmCommandResponse gsmCommandResponse = GsmCommandResponse.Parse(test_str);
+            GsmCommandResponse gsmCommandResponse = AtClientBasic.ParseGsmCommandResponse(test_str);
             Assert.IsNotNull(gsmCommandResponse);
             Assert.AreEqual("CMGR", gsmCommandResponse.Command);
             Assert.IsTrue(gsmCommandResponse.Arguments.Count() == 5);
@@ -24,7 +25,7 @@ namespace TqkLibrary.GSM.Test
         public void Test_TestResponse()
         {
             var test_str = "+CMGR: (\"ab c\",\"de f\", ghi),(0-5)";
-            GsmCommandResponse gsmCommandResponse = GsmCommandResponse.Parse(test_str);
+            GsmCommandResponse gsmCommandResponse = AtClientBasic.ParseGsmCommandResponse(test_str);
             Assert.IsNotNull(gsmCommandResponse);
             Assert.AreEqual("CMGR", gsmCommandResponse.Command);
             Assert.IsTrue(gsmCommandResponse.Options.Count() == 2);
@@ -36,7 +37,7 @@ namespace TqkLibrary.GSM.Test
         {
             //var test_str = "\r\nCONNECT\r\n\xab\xff\x34\xac\r\n+QFDWL: 20,3\r\n\r\n+QFDWL: 20,3\r\n"; //will bug here, but supper rate
             var test_str = "\r\nCONNECT\r\n\xab\xff\x34\xac\r\n+QFDWL: 20,3\r\n\xff\r\n+QFDWL: 20,3\r\n";
-            GsmCommandResponse gsmCommandResponse = GsmCommandResponse.Parse(test_str);
+            GsmCommandResponse gsmCommandResponse = AtClientBasic.ParseGsmCommandResponse(test_str);
             Assert.IsNotNull(gsmCommandResponse);
             Assert.AreEqual("QFDWL", gsmCommandResponse.Command);
             Assert.IsTrue(gsmCommandResponse.Arguments.Count() == 2);
@@ -82,7 +83,7 @@ namespace TqkLibrary.GSM.Test
             Match match = regex.Match(str_ISO_8859_1);
             Assert.IsTrue(match.Success);
 
-            GsmCommandResponse gsmCommandResponse = GsmCommandResponse.Parse(match.Groups[2].Value);
+            GsmCommandResponse gsmCommandResponse = AtClientBasic.ParseGsmCommandResponse(match.Groups[2].Value);
             Assert.IsNotNull(gsmCommandResponse);
             Assert.AreEqual(gsmCommandResponse.Arguments.Count(), 2);
             var binarySize = int.Parse(gsmCommandResponse.Arguments.First());
