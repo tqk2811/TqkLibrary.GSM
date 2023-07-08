@@ -5,14 +5,28 @@ using System.Linq;
 using System.Text;
 namespace TqkLibrary.GSM.Helpers.PduPaser.Decoders
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class SevenBitDecoder : IDecoder
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="raw"></param>
+        /// <param name="dataLength"></param>
+        /// <param name="padding"></param>
+        /// <returns></returns>
         public string Decode(byte[] raw, int dataLength, int padding = 0)
         {
             var deRaw = this.decompress(raw, dataLength, padding);
             return ReplaceBasicCharacterSet(Encoding.ASCII.GetString(deRaw));
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
         public byte[] Encode(string str)
         {
             var raw = Encoding.ASCII.GetBytes(str);
@@ -20,7 +34,13 @@ namespace TqkLibrary.GSM.Helpers.PduPaser.Decoders
         }
 
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="raw"></param>
+        /// <param name="dataLength"></param>
+        /// <param name="padding"></param>
+        /// <returns></returns>
         protected byte[] decompress(byte[] raw, int dataLength, int padding)
         {
             //int realLength = (int)Math.Ceiling(dataLength * 8.0 / 7);
@@ -53,7 +73,11 @@ namespace TqkLibrary.GSM.Helpers.PduPaser.Decoders
                 return ms.ToArray().Take(dataLength).ToArray();
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="raw"></param>
+        /// <returns></returns>
         protected byte[] compress(byte[] raw)
         {
             int i = 0;
@@ -88,7 +112,10 @@ namespace TqkLibrary.GSM.Helpers.PduPaser.Decoders
 
 
         //https://en.wikipedia.org/wiki/GSM_03.38#cite_ref-3G-TS-23.038_2-0
-        static readonly Dictionary<byte, char> BasicCharacterSet_table = new Dictionary<byte, char>()
+        /// <summary>
+        /// 
+        /// </summary>
+        public static readonly IReadOnlyDictionary<byte, char> BasicCharacterSet_table = new Dictionary<byte, char>()
         {
             { 0x00, '@' }, { 0x01, '£' }, { 0x02, '$' }, { 0x03, '¥' }, { 0x04, 'è' }, { 0x05, 'é' }, { 0x06, 'ù' }, { 0x07, 'ì' },
             { 0x08, 'ò' }, { 0x09, 'Ç' }, /*{ 0x0a, '\n' },*/ { 0x0b, 'Ø' }, { 0x0c, 'ø' }, /*{ 0x0d, '\r' },*/ { 0x0e, 'Å' }, { 0x0f, 'å' },
@@ -101,7 +128,12 @@ namespace TqkLibrary.GSM.Helpers.PduPaser.Decoders
             { 0x40, '¡' },  { 0x5b,'Ä' }, { 0x5c, 'Ö' }, { 0x5d, 'Ñ' }, { 0x5e, 'Ü' }, { 0x5f, '§' }, { 0x60,'¿'},
                             { 0x7b,'ä' }, { 0x7c, 'ö' }, { 0x7d, 'ñ' }, { 0x7e, 'ü' }, { 0x7f, 'à' }
         };
-        string ReplaceBasicCharacterSet(string raw)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="raw"></param>
+        /// <returns></returns>
+        public static string ReplaceBasicCharacterSet(string raw)
         {
             StringBuilder stringBuilder = new StringBuilder();
             foreach (char c in raw)
