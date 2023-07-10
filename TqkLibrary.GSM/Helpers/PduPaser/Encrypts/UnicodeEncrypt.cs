@@ -6,7 +6,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser.Encrypts
     /// <summary>
     /// 
     /// </summary>
-    public class UnicodeDecoder : IDecoder, IEncoder
+    public class UnicodeEncrypt : IEncodeDecode
     {
         /// <summary>
         /// 

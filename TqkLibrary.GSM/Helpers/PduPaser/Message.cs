@@ -10,7 +10,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
 {
     public class Message
     {
-        static readonly SevenBitDecoder sevenBitDecoder = new SevenBitDecoder();
+        static readonly SevenBitEncrypt sevenBitDecoder = new SevenBitEncrypt();
         readonly PDU pdu;
         public Message(PDU pdu)
         {

@@ -68,10 +68,10 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
                         switch (DataCodingScheme.CharacterSet)
                         {
                             case DCS_CharacterSet.GSM7Bit:
-                                DataDecoder = new SevenBitDecoder();
+                                DataDecoder = new SevenBitEncrypt();
                                 break;
                             case DCS_CharacterSet.UCS2:
-                                DataDecoder = new UnicodeDecoder();
+                                DataDecoder = new UnicodeEncrypt();
                                 break;
 
                             default://8bit data or reserved

@@ -8,7 +8,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser.Encrypts
     /// <summary>
     /// 
     /// </summary>
-    public class SevenBitDecoder : IDecoder, IEncoder
+    public class SevenBitEncrypt : IEncodeDecode
     {
         /// <summary>
         /// 

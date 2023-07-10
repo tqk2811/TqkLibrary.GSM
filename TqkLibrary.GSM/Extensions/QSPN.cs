@@ -42,8 +42,8 @@ namespace TqkLibrary.GSM.Extensions
                 {
                     case Alphabet.GSM7Bit://7bit string
                         {
-                            nameOfRegisteredNetwork.FullNetworkName = SevenBitDecoder.ReplaceBasicCharacterSet(FNN);
-                            nameOfRegisteredNetwork.ShortNetworkName = SevenBitDecoder.ReplaceBasicCharacterSet(SNN);
+                            nameOfRegisteredNetwork.FullNetworkName = SevenBitEncrypt.ReplaceBasicCharacterSet(FNN);
+                            nameOfRegisteredNetwork.ShortNetworkName = SevenBitEncrypt.ReplaceBasicCharacterSet(SNN);
                             nameOfRegisteredNetwork.RPLMN = RPLMN;
                             nameOfRegisteredNetwork.ServiceProviderName = SPN;
                             break;
@@ -51,7 +51,7 @@ namespace TqkLibrary.GSM.Extensions
 
                     case Alphabet.UCS2:
                         {
-                            IDecoder decoder = new UnicodeDecoder();
+                            IDecoder decoder = new UnicodeEncrypt();
                             var buff_fnn = FNN.HexStringToByteArray();
                             nameOfRegisteredNetwork.FullNetworkName = decoder.Decode(buff_fnn, buff_fnn.Length);
                             var buff_snn = FNN.HexStringToByteArray();
