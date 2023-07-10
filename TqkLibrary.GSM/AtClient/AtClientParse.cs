@@ -96,8 +96,6 @@ namespace TqkLibrary.GSM.AtClient
         private int _bufferDataCount = 0;
         private static readonly Regex regex_response2
             = new Regex("(^\r\n\\+[\\x00-\\xFF]*?\r\n(?=\r\n)|\r\n\\+[\\x00-\\xFF]*?\r\n$|\r\n[\\x00-\\xFF]*?\r\n)", RegexOptions.Multiline);
-        private static readonly Regex regex_response
-            = new Regex("^(AT.*?\r|)(\r\n[\\x00-\\xFF]*?\r\n|)\r\n(OK|ERROR|\\+CM. ERROR:.*?)\r\n$", RegexOptions.Multiline);
         private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             try
@@ -174,6 +172,8 @@ namespace TqkLibrary.GSM.AtClient
 #endif
             }
         }
+        private static readonly Regex regex_response
+            = new Regex("^(AT.*?\r|)(\r\n[\\x00-\\xFF]*?\r\n|[\\x00-\\xFF]*?\r\n|)\r\n(OK|ERROR|\\+CM. ERROR:.*?)\r\n$", RegexOptions.Multiline);
         bool _MatchResult(string received)
         {
             var match = regex_response.Match(received);
@@ -193,6 +193,7 @@ namespace TqkLibrary.GSM.AtClient
                 if (!string.IsNullOrWhiteSpace(body.Trim()))
                 {
                     if (body.StartsWith("\r\n+") ||// +COPS:
+                        body.StartsWith("+")||//AT+QSPN\r+QSPN: "","","VINAPHONE",0,"45202"\r\n\r\nOK\r\n
                         body.StartsWith("\r\nCONNECT\r\n"))//data mode     \r\nCONNECT\r\n
                     {
                         GsmCommandResponse gsmCommandResponse = _BodyParse(body);
