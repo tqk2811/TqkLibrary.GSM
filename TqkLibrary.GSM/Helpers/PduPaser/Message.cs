@@ -4,7 +4,7 @@ Edit: tqk2811
  */
 using System;
 using System.Linq;
-using TqkLibrary.GSM.Helpers.PduPaser.Decoders;
+using TqkLibrary.GSM.Helpers.PduPaser.Encrypts;
 
 namespace TqkLibrary.GSM.Helpers.PduPaser
 {

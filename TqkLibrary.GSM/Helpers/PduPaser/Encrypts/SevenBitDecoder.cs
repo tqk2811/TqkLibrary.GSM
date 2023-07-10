@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-namespace TqkLibrary.GSM.Helpers.PduPaser.Decoders
+namespace TqkLibrary.GSM.Helpers.PduPaser.Encrypts
 {
     /// <summary>
     /// 
     /// </summary>
-    public class SevenBitDecoder : IDecoder
+    public class SevenBitDecoder : IDecoder, IEncoder
     {
         /// <summary>
         /// 
