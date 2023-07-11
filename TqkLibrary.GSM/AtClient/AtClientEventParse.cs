@@ -13,13 +13,13 @@ namespace TqkLibrary.GSM.AtClient
     /// <summary>
     /// 
     /// </summary>
-    public class AtClientParse : IAtClient
+    public class AtClientEventParse : IAtClient
     {
         /// <summary>
         /// for not break character >= 0x80 when convert back to byte
         /// </summary>
         internal static readonly Encoding GsmEncoding;
-        static AtClientParse()
+        static AtClientEventParse()
         {
             GsmEncoding = Encoding.GetEncoding("ISO-8859-1");
         }
@@ -31,7 +31,7 @@ namespace TqkLibrary.GSM.AtClient
         /// </summary>
         /// <param name="port"></param>
         /// <param name="baudRate"></param>
-        public AtClientParse(string port, int baudRate = 115200)
+        public AtClientEventParse(string port, int baudRate = 115200)
         {
             if (string.IsNullOrWhiteSpace(port)) throw new ArgumentNullException(nameof(port));
             serialPort = new SerialPort(port, baudRate, Parity.None, 8, StopBits.One);
@@ -41,7 +41,7 @@ namespace TqkLibrary.GSM.AtClient
         /// <summary>
         /// 
         /// </summary>
-        ~AtClientParse()
+        ~AtClientEventParse()
         {
             Dispose(false);
         }
