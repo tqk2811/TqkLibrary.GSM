@@ -11,8 +11,8 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
     public class Message
     {
         static readonly SevenBitEncrypt sevenBitDecoder = new SevenBitEncrypt();
-        readonly PDU pdu;
-        public Message(PDU pdu)
+        readonly PDU_Received pdu;
+        public Message(PDU_Received pdu)
         {
             this.pdu = pdu ?? throw new ArgumentNullException(nameof(pdu));
         }
@@ -70,7 +70,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         public byte? SplitCount => pdu.UDH?.TotalNumberOfParts;
 
         /// <summary>
-        /// index of split long sms, when <see cref="isSplit"/> is true
+        /// index of split long sms, when <see cref="IsSplit"/> is true
         /// </summary>
         public byte? SplitIndex => pdu.UDH?.PartNumberInTheSequence;
 

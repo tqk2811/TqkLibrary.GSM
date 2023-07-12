@@ -13,6 +13,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
     public class PduHeader
     {
         readonly byte @byte;
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public PduHeader(byte @byte)
         {
             this.@byte = @byte;
@@ -54,12 +55,6 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
 
         public static explicit operator byte(PduHeader dcs) => dcs.@byte;
         public static implicit operator PduHeader(byte @byte) => new PduHeader(@byte);
-    }
-
-    public enum PduType
-    {
-        SmsDeliver,
-        SmsSubmitReport,
-        SmsStatusReport
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 }
