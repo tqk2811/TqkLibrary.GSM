@@ -189,7 +189,7 @@ namespace TqkLibrary.GSM.AtClient
                         GsmCommandResponse gsmCommandResponse = _BodyParse(body);
                         if (body.StartsWith("\r\nCONNECT\r\n"))
                         {
-                            logs.Add($"CONNECT\r\n[binarySize={gsmCommandResponse?.BinaryData?.Count()}]\r\n+{gsmCommandResponse?.Command}: {string.Join(",", gsmCommandResponse?.Arguments ?? new string[0])}");
+                            //logs.Add($"CONNECT\r\n[binarySize={gsmCommandResponse?.BinaryData?.Count()}]\r\n+{gsmCommandResponse?.Command}: {string.Join(",", gsmCommandResponse?.Arguments ?? new string[0])}");
 
                             if (gsmCommandResponse is null)
                             {
@@ -384,7 +384,7 @@ namespace TqkLibrary.GSM.AtClient
                 {
                     string data = match.Groups[4].Value.Trim();
                     string[] args_split = regex_csv_pattern.Split(args);
-                    return new GsmCommandResponse(command, args_split, data, binary);
+                    return new GsmCommandResponse(command, args_split, data);
                 }
             }
             return null;

@@ -10,12 +10,11 @@ namespace TqkLibrary.GSM
     /// </summary>
     public class GsmCommandResponse
     {
-        internal GsmCommandResponse(string command, string[] args, string data, byte[] binary)
+        internal GsmCommandResponse(string command, string[] args, string data)
         {
             this.Command = command;
             this._Arguments.AddRange(args);
             this.Data = data;
-            this.BinaryData = binary ?? new byte[0];
         }
         internal GsmCommandResponse(string command, IEnumerable<IEnumerable<string>> options)
         {
@@ -38,10 +37,6 @@ namespace TqkLibrary.GSM
         /// 
         /// </summary>
         public string Data { get; }
-        /// <summary>
-        /// for CONNECT response
-        /// </summary>
-        public IEnumerable<byte> BinaryData { get; private set; }
 
         /// <summary>
         /// 
