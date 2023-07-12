@@ -1,17 +1,18 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace TqkLibrary.GSM
 {
     /// <summary>
     /// 
     /// </summary>
-    public class PromptEvent
+    public class PromptEvent : ConnectDataEvent
     {
-        readonly Stream _stream;
-        internal PromptEvent(Stream stream)
+        internal PromptEvent(Stream stream) : base(stream)
         {
-            _stream = stream ?? throw new ArgumentNullException(nameof(stream));
+
         }
 
         /// <summary>

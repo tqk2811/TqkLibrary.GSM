@@ -10,7 +10,10 @@ namespace TqkLibrary.GSM
     /// </summary>
     public class ConnectDataEvent
     {
-        readonly Stream _stream;
+        /// <summary>
+        /// 
+        /// </summary>
+        protected readonly Stream _stream;
         internal ConnectDataEvent(Stream stream)
         {
             _stream = stream ?? throw new ArgumentNullException(nameof(stream));
