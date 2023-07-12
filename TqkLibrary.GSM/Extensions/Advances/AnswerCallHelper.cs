@@ -49,7 +49,7 @@ namespace TqkLibrary.GSM.Extensions.Advances
         {
             //stop old 
             try { await gsmClient.QAUDRD().WriteAsync(CommandRequestQAUDRD.RecordControl.Stop, cancellationToken).ConfigureAwait(false); } catch { }
-            try { await DeleteFileAsync(FilePath, cancellationToken).ConfigureAwait(false); } catch { }
+            //try { await DeleteFileAsync(FilePath, cancellationToken).ConfigureAwait(false); } catch { }
 
             await gsmClient.SendCommandAsync("ATA\r\n", cancellationToken).ConfigureAwait(false);
             await gsmClient.QAUDRD().WriteAsync(
