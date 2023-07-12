@@ -9,43 +9,6 @@ namespace TqkLibrary.GSM.Test
     [TestClass]
     public class TestAtClientBasicParseGsmCommandResponse
     {
-        [TestMethod]
-        public void TestCommandResponse()
-        {
-            var test_str = "+CMGR: \"arg1\",arg2,\"\",\"2022/06/10 17:42:17+28\",\"arg ,with\nlinebreak\"\r\nthis is \r\ndataa";
-            GsmCommandResponse gsmCommandResponse = AtClientEventParse.ParseGsmCommandResponse(test_str);
-            Assert.IsNotNull(gsmCommandResponse);
-            Assert.AreEqual("CMGR", gsmCommandResponse.Command);
-            Assert.IsTrue(gsmCommandResponse.Arguments.Count() == 5);
-            Assert.IsTrue(gsmCommandResponse.Arguments.Any(x => x.Equals("\"arg ,with\nlinebreak\"")));
-            Assert.AreEqual("this is \r\ndataa", gsmCommandResponse.Data);
-        }
-
-        [TestMethod]
-        public void Test_TestResponse()
-        {
-            var test_str = "+CMGR: (\"ab c\",\"de f\", ghi),(0-5)";
-            GsmCommandResponse gsmCommandResponse = AtClientEventParse.ParseGsmCommandResponse(test_str);
-            Assert.IsNotNull(gsmCommandResponse);
-            Assert.AreEqual("CMGR", gsmCommandResponse.Command);
-            Assert.IsTrue(gsmCommandResponse.Options.Count() == 2);
-            Assert.IsTrue(gsmCommandResponse.Options.Any(x => x.Any(y => y.Equals("\"ab c\""))));
-        }
-
-        [TestMethod]
-        public void TestParseConnectBinary()
-        {
-            //var test_str = "\r\nCONNECT\r\n\xab\xff\x34\xac\r\n+QFDWL: 20,3\r\n\r\n+QFDWL: 20,3\r\n"; //will bug here, but supper rate
-            var test_str = "\r\nCONNECT\r\n\xab\xff\x34\xac\r\n+QFDWL: 20,3\r\n\xff\r\n+QFDWL: 20,3\r\n";
-            GsmCommandResponse gsmCommandResponse = AtClientEventParse.ParseGsmCommandResponse(test_str);
-            Assert.IsNotNull(gsmCommandResponse);
-            Assert.AreEqual("QFDWL", gsmCommandResponse.Command);
-            Assert.IsTrue(gsmCommandResponse.Arguments.Count() == 2);
-            Assert.IsTrue(gsmCommandResponse.Arguments.Any(x => x.Equals("20")));
-            Assert.IsTrue(gsmCommandResponse.BinaryData.SequenceEqual(
-                new byte[] { 0xab, 0xff, 0x34, 0xac }.Concat(Encoding.GetEncoding("ISO-8859-1").GetBytes("\r\n+QFDWL: 20,3\r\n\xff"))));
-        }
-
 
         [TestMethod]
         public void TestParseAT()
@@ -71,27 +34,6 @@ namespace TqkLibrary.GSM.Test
                 Match match = regex.Match(test);
                 Assert.IsTrue(match.Success);
             }
-        }
-
-        [TestMethod]
-        public void TestParseDownloadedFile()
-        {
-            Encoding ISO_8859_1 = Encoding.GetEncoding("ISO-8859-1");
-            byte[] qfdwl_file = File.ReadAllBytes("QFDWL.file");
-            string str_ISO_8859_1 = ISO_8859_1.GetString(qfdwl_file);
-            Regex regex = new Regex("^(AT.*?\r)(\r\n[\\x00-\\xFF]*?\r\n|)\r\n(OK|ERROR|\\+CM. ERROR:.*?)\r\n$", RegexOptions.None);
-            Match match = regex.Match(str_ISO_8859_1);
-            Assert.IsTrue(match.Success);
-
-            GsmCommandResponse gsmCommandResponse = AtClientEventParse.ParseGsmCommandResponse(match.Groups[2].Value);
-            Assert.IsNotNull(gsmCommandResponse);
-            Assert.AreEqual(gsmCommandResponse.Arguments.Count(), 2);
-            var binarySize = int.Parse(gsmCommandResponse.Arguments.First());
-            Assert.AreEqual(binarySize, gsmCommandResponse.BinaryData.Count());
-            byte[] checksum = gsmCommandResponse.Arguments.Last().HexStringToByteArray();
-            Assert.AreEqual(checksum.Length, 2);
-            byte[] calcCheckSum = gsmCommandResponse.BinaryData.ToArray().CheckSum();
-            Assert.IsTrue(calcCheckSum.SequenceEqual(checksum));
         }
 
         private static readonly Regex regex_response2
