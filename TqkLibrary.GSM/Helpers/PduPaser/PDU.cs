@@ -12,17 +12,13 @@ using TqkLibrary.GSM.Helpers.PduPaser.Encrypts;
 
 namespace TqkLibrary.GSM.Helpers.PduPaser
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public class PDU_Received
+    public class PDU
     {
-        private PDU_Received()
+        private PDU()
         {
 
         }
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public byte SmscByteLength { get; private set; }
         public byte SmscType { get; private set; }
         public byte[] SmscNumber { get; private set; }
@@ -42,11 +38,10 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
 
         public byte[] Data { get; private set; }
         public UserDataHeader UDH { get; private set; }
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
         byte SenderByteLength => (byte)((SenderLength + SenderLength % 2) / 2);
 
-        PDU_Received _Parse(Stream rawPdu)
+        PDU _Parse(Stream rawPdu)
         {
             rawPdu.Position = 0;
 
@@ -110,48 +105,27 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
             return this;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="rawPdu"></param>
-        /// <returns></returns>
-        public static PDU_Received Parse(byte[] rawPdu)
+        public static PDU Parse(byte[] rawPdu)
         {
             using (var ms = new MemoryStream(rawPdu)) return Parse(ms);
         }
+        public static PDU Parse(Stream rawPdu) => new PDU()._Parse(rawPdu);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="rawPdu"></param>
-        /// <returns></returns>
-        public static PDU_Received Parse(Stream rawPdu) => new PDU_Received()._Parse(rawPdu);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="rawPdu"></param>
-        /// <returns></returns>
-        public static PDU_Received TryParse(byte[] rawPdu)
+        public static PDU TryParse(byte[] rawPdu)
         {
             using (var ms = new MemoryStream(rawPdu)) return TryParse(ms);
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="rawPdu"></param>
-        /// <returns></returns>
-        public static PDU_Received TryParse(Stream rawPdu)
+        public static PDU TryParse(Stream rawPdu)
         {
             try
             {
-                return new PDU_Received()._Parse(rawPdu);
+                return new PDU()._Parse(rawPdu);
             }
             catch
             {
                 return null;
             }
         }
-
     }
 }

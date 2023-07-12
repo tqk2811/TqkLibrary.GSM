@@ -12,7 +12,6 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
     [Flags]
     public enum AddressesType : byte
     {
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         //TON
         TON_Unknown = 0b10001111,
         InternationalNumber = 0b00010000,
@@ -34,6 +33,5 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         PrivateNumberingPlan = 0b00001001,
         ERMESNumberingPlan = 0b00001010,
         //Reserved for extension 0b00001111
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 }
