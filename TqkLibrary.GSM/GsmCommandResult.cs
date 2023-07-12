@@ -34,8 +34,19 @@ namespace TqkLibrary.GSM
         /// <exception cref="ArgumentNullException"></exception>
         public GsmCommandResponse GetCommandResponse(string name)
         {
-            if(string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
             return CommandResponses.FirstOrDefault(x => name.Equals(x.Command));
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public IEnumerable<GsmCommandResponse> GetCommandResponses(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
+            return CommandResponses.Where(x => name.Equals(x.Command));
         }
     }
 }
