@@ -6,6 +6,7 @@ using System;
 
 namespace TqkLibrary.GSM.Helpers.PduPaser
 {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     /// <summary>
     /// https://en.wikipedia.org/wiki/GSM_03.40
     /// </summary>
@@ -34,4 +35,5 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         ERMESNumberingPlan = 0b00001010,
         //Reserved for extension 0b00001111
     }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

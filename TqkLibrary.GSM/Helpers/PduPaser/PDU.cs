@@ -12,6 +12,10 @@ using TqkLibrary.GSM.Helpers.PduPaser.Encrypts;
 
 namespace TqkLibrary.GSM.Helpers.PduPaser
 {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+    /// <summary>
+    /// http://www.gsm-modem.de/sms-pdu-mode.html
+    /// </summary>
     public class PDU
     {
         private PDU()
@@ -39,7 +43,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         public byte[] Data { get; private set; }
         public UserDataHeader UDH { get; private set; }
 
-        byte SenderByteLength => (byte)((SenderLength + SenderLength % 2) / 2);
+        byte SenderByteLength => (byte)((SenderLength + SenderLength % 2) / 2);//make length even
 
         PDU _Parse(Stream rawPdu)
         {
@@ -99,11 +103,68 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
                         else Data = rawPdu.ReadToEnd();//length wrong??
                         break;
                     }
+                case PduType.SmsSubmitReport:
+                    {
 
-                default: throw new NotSupportedException(PduHeader.Type?.ToString());
+                        break;
+                    }
+
+                default: throw new NotSupportedException(PduHeader.Type.ToString());
             }
             return this;
         }
+
+        public static explicit operator byte[](PDU pdu) => pdu.GetBytes().ToArray();
+        IEnumerable<byte> GetBytes()
+        {
+            yield return SmscByteLength;
+            if (SmscByteLength > 0)
+            {
+                if(SmscNumber is null)
+                    throw new InvalidDataException($"{nameof(SmscNumber)} is null but {nameof(SmscByteLength)} have value");
+
+                if (SmscByteLength != SmscNumber.Length + 1)
+                    throw new InvalidDataException($"{nameof(SmscByteLength)} wrong value");
+
+                yield return SmscType;
+                foreach (var b in SmscNumber)
+                    yield return b;
+            }
+
+            yield return (byte)PduHeader;
+
+
+            yield return SenderLength;
+            yield return (byte)SenderType;
+            if (SenderLength > 0)
+            {
+                if (SenderNumber is null)
+                    throw new InvalidDataException($"{nameof(SenderNumber)} is null but {nameof(SenderLength)} have value");
+
+                if (SenderByteLength != SenderNumber.Length)
+                    throw new InvalidDataException($"{nameof(SenderLength)} wrong value");
+
+                foreach (var b in SenderNumber)
+                    yield return b;
+            }
+            yield return ProtocalId;
+            yield return (byte)DataCodingScheme;
+
+            if (TimeStamp is null)
+                throw new InvalidDataException($"{nameof(TimeStamp)} is null");
+            foreach (var b in TimeStamp)
+                yield return b;
+
+            yield return DataLength;
+            if (PduHeader.IsUserDataHeaderIndicator)
+            {
+                foreach (var b in (byte[])UDH)
+                    yield return b;
+            }
+            foreach (var b in Data)
+                yield return b;
+        }
+
 
         public static PDU Parse(byte[] rawPdu)
         {
@@ -127,5 +188,22 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
                 return null;
             }
         }
+
+        //public static PDU Create(
+        //    string desNumber, AddressesType desType,
+
+        //    )
+        //{
+        //    //http://www.gsm-modem.de/sms-pdu-mode.html
+        //    PDU pdu = new PDU();
+        //    pdu.SmscByteLength = 0;//just zero
+        //    pdu.PduHeader = new PduHeader(0x00);
+        //    pdu.PduHeader.Type = PduType.SmsSubmit;
+
+
+
+        //    return pdu;
+        //}
     }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }
