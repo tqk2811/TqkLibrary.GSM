@@ -8,6 +8,12 @@ namespace TqkLibrary.GSM
 {
     internal static class Consts
     {
+        internal const int CommandTimeout
+#if DEBUG
+            = 20000000;
+#else
+            = 20000;
+#endif
         internal static readonly IReadOnlyDictionary<int, string> CME_Error = new Dictionary<int, string>()
         {
             { 0, "phone failure" },
@@ -148,6 +154,7 @@ namespace TqkLibrary.GSM
         {
 
         };
+        internal const string LineBreak = "\r\n";
         /// <summary>
         /// for not break character >= 0x80 when convert back to byte
         /// </summary>
