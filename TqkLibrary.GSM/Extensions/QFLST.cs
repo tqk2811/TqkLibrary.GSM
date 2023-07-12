@@ -29,8 +29,33 @@ namespace TqkLibrary.GSM.Extensions
         /// </param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public new Task<GsmCommandResult> WriteAsync(string namePattern, CancellationToken cancellationToken = default)
-            => base.WriteAsync(cancellationToken, namePattern.ToAtString());
+        public new async Task<IReadOnlyList<FileInfo>> WriteAsync(string namePattern, CancellationToken cancellationToken = default)
+        {
+            var result = await base.WriteAsync(cancellationToken, namePattern.ToAtString());
+            var qflst = result.GetCommandResponses(Command);
+            List<FileInfo> list = new List<FileInfo>();
+            if (result.IsSuccess)
+            {
+                foreach (var item in qflst)
+                {
+                    if (item.Arguments.Count() >= 2)
+                    {
+                        string path = item.Arguments.First();
+                        string size = item.Arguments.Skip(1).First();
+
+                        if(long.TryParse(size,out long s))
+                        {
+                            list.Add(new FileInfo()
+                            {
+                                Path = path.Trim('"'),
+                                FileSize = s,
+                            });
+                        }
+                    }
+                }
+            }
+            return list;
+        }
 
         /// <summary>
         /// 
@@ -39,6 +64,22 @@ namespace TqkLibrary.GSM.Extensions
         /// <returns></returns>
         public new Task<GsmCommandResult> ExecuteAsync(CancellationToken cancellationToken = default)
             => base.ExecuteAsync(cancellationToken);
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public class FileInfo
+        {
+            /// <summary>
+            /// 
+            /// </summary>
+            public string Path { get; internal set; }
+            /// <summary>
+            /// 
+            /// </summary>
+            public long FileSize { get; internal set; }
+        }
     }
 
     /// <summary>
