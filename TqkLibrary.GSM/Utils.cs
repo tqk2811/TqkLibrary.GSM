@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Linq.Expressions;
 using System.IO;
 using System.Collections;
+using System.Threading;
 
 namespace TqkLibrary.GSM
 {
@@ -183,5 +184,47 @@ namespace TqkLibrary.GSM
 #if DEBUG
         internal static string PrintCRLFHepler(this string input) => input?.Replace("\r", "\\r").Replace("\n", "\\n");
 #endif
+
+        internal static async Task<string> ReadToAsync(this Stream stream, string value, CancellationToken cancellationToken = default)
+        {
+            byte[] val = Consts.ISO8859.GetBytes(value);
+            byte[] result = await ReadToAsync(stream, val, cancellationToken);
+            return Consts.ISO8859.GetString(result);
+        }
+        internal static async Task<byte[]> ReadToAsync(this Stream stream, byte[] value, CancellationToken cancellationToken = default)
+        {
+            byte[] buffer = new byte[1024];
+            bool isLoop = true;
+            int offset = 0;
+            while (isLoop)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (offset >= buffer.Length)//resize
+                {
+                    byte[] temp = new byte[buffer.Length + 1024];
+                    Array.Copy(buffer, temp, buffer.Length);
+                    buffer = temp;
+                }
+
+                int byte_read = await stream.ReadAsync(buffer, offset, offset == 0 ? value.Length : 1, cancellationToken);
+                offset += byte_read;
+                if (offset < value.Length) continue;
+
+                //check last only
+
+                bool isFound = true;
+                for (int i = 0; i < value.Length; i++)
+                {
+                    if (value[i] != buffer[offset - value.Length + i])
+                    {
+                        isFound = false;
+                        break;
+                    }
+                }
+                if (isFound)
+                    break;
+            }
+            return buffer.Take(Math.Max(offset - value.Length, 0)).ToArray();
+        }
     }
 }
