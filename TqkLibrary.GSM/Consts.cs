@@ -148,5 +148,9 @@ namespace TqkLibrary.GSM
         {
 
         };
+        /// <summary>
+        /// for not break character >= 0x80 when convert back to byte
+        /// </summary>
+        internal static readonly Encoding ISO8859 = Encoding.GetEncoding("ISO-8859-1");
     }
 }

@@ -22,9 +22,6 @@ namespace TqkLibrary.GSM
     /// </summary>
     public class GsmClient : IGsmClient
     {
-        //CR
-        const string LineBreak = "\r\n";
-
         /// <summary>
         /// 
         /// </summary>
@@ -40,12 +37,7 @@ namespace TqkLibrary.GSM
         /// <summary>
         /// default 20000ms
         /// </summary>
-        public int CommandTimeout { get; set; }
-#if DEBUG
-            = 20000000;
-#else
-            = 20000;
-#endif
+        public int CommandTimeout { get; set; } = Consts.CommandTimeout;
 
         readonly IAtClient atClient;
 
@@ -270,7 +262,7 @@ namespace TqkLibrary.GSM
         /// <param name="command"></param>
         public void Debug(string command)
         {
-            atClient.Write($"AT{command}{LineBreak}");
+            atClient.Write($"AT{command}{Consts.LineBreak}");
         }
 
 
@@ -281,7 +273,7 @@ namespace TqkLibrary.GSM
         public Task<GsmCommandResult> TestAsync(string command, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(command)) throw new ArgumentNullException(nameof(command));
-            return SendCommandAsync($"AT{command}=?{LineBreak}", cancellationToken);
+            return SendCommandAsync($"AT{command}=?{Consts.LineBreak}", cancellationToken);
         }
 
 
@@ -293,7 +285,7 @@ namespace TqkLibrary.GSM
         public Task<GsmCommandResult> ReadAsync(string command, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(command)) throw new ArgumentNullException(nameof(command));
-            return SendCommandAsync($"AT+{command}?{LineBreak}", cancellationToken);
+            return SendCommandAsync($"AT+{command}?{Consts.LineBreak}", cancellationToken);
         }
 
 
@@ -320,7 +312,7 @@ namespace TqkLibrary.GSM
         {
             if (string.IsNullOrWhiteSpace(command)) throw new ArgumentNullException(nameof(command));
             if (string.IsNullOrWhiteSpace(value)) throw new ArgumentNullException(nameof(value));
-            return SendCommandAsync($"AT+{command}={value}{LineBreak}", cancellationToken);
+            return SendCommandAsync($"AT+{command}={value}{Consts.LineBreak}", cancellationToken);
         }
 
 
@@ -331,7 +323,7 @@ namespace TqkLibrary.GSM
         public Task<GsmCommandResult> ExecuteAsync(string command, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(command)) throw new ArgumentNullException(nameof(command));
-            return SendCommandAsync($"AT+{command}{LineBreak}", cancellationToken);
+            return SendCommandAsync($"AT+{command}{Consts.LineBreak}", cancellationToken);
         }
 
     }

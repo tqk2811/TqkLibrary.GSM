@@ -15,16 +15,6 @@ namespace TqkLibrary.GSM.AtClient
     /// </summary>
     public class AtClientEventParse : IAtClient
     {
-        /// <summary>
-        /// for not break character >= 0x80 when convert back to byte
-        /// </summary>
-        internal static readonly Encoding GsmEncoding;
-        static AtClientEventParse()
-        {
-            GsmEncoding = Encoding.GetEncoding("ISO-8859-1");
-        }
-
-
         readonly SerialPort serialPort;
         /// <summary>
         /// 
@@ -105,7 +95,7 @@ namespace TqkLibrary.GSM.AtClient
 
                 if (_buffer.EndWith(_bufferDataCount, "\r\n"))
                 {
-                    string received = GsmEncoding.GetString(_buffer, 0, _bufferDataCount);
+                    string received = Consts.ISO8859.GetString(_buffer, 0, _bufferDataCount);
 
 #if DEBUG
                     Console.WriteLine($"------\tReceived: {received.PrintCRLFHepler()}");
@@ -377,7 +367,7 @@ namespace TqkLibrary.GSM.AtClient
                 byte[] binary = null;
                 if (!string.IsNullOrWhiteSpace(connect_binary_str))
                 {
-                    binary = GsmEncoding.GetBytes(connect_binary_str)
+                    binary = Consts.ISO8859.GetBytes(connect_binary_str)
                         .Skip(9)// CONNECT\r\n    length
                         .SkipLast(2)//\r\n
                         .ToArray();
