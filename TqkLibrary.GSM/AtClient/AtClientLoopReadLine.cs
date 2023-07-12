@@ -112,6 +112,33 @@ namespace TqkLibrary.GSM.AtClient
                         if (line.StartsWith("AT+") && line.EndsWith("\r")) //response for command AT+CLIP=1\r
                         {
                             _WriteReceivedLog(line);
+
+                            if (line.StartsWith("AT+CMGS"))
+                            {
+                                using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(1000);
+                                try
+                                {
+                                    await _serialPort.BaseStream.ReadToAsync("> ", cancellationTokenSource.Token);
+                                }
+                                catch(OperationCanceledException)
+                                {
+                                    ClearAvalableData();
+                                }
+
+                                PromptEvent promptEvent = new PromptEvent(_serialPort.BaseStream);
+                                OnPromptEvent?.Invoke(promptEvent);
+                                if (await promptEvent.WaitSomeOneTakeItAsync(2000))
+                                {
+                                    await promptEvent.WaitStreamDisposeAsync();
+                                }
+                                else
+                                {
+#if DEBUG
+                                    Console.WriteLine($"{PortName} << [ESC]");
+#endif
+                                    promptEvent.SendEsc();
+                                }
+                            }
                             continue;
                         }
 
@@ -137,6 +164,25 @@ namespace TqkLibrary.GSM.AtClient
                                 OnUnknowReceived?.Invoke(line);
                                 _WriteReceivedLog(line);
                                 break;
+
+                            case "> ":
+                                {
+                                    _WriteReceivedLog(line);
+                                    PromptEvent promptEvent = new PromptEvent(_serialPort.BaseStream);
+                                    OnPromptEvent?.Invoke(promptEvent);
+                                    if (await promptEvent.WaitSomeOneTakeItAsync(2000))
+                                    {
+                                        await promptEvent.WaitStreamDisposeAsync();
+                                    }
+                                    else
+                                    {
+#if DEBUG
+                                        Console.WriteLine($"{PortName} << [ESC]");
+#endif
+                                        promptEvent.SendEsc();
+                                    }
+                                    break;
+                                }
 
                             case "CONNECT":
                                 _WriteReceivedLog(line);
@@ -295,6 +341,7 @@ namespace TqkLibrary.GSM.AtClient
         /// </summary>
         public void ClearAvalableData()
         {
+            _serialPort.BaseStream.WriteByte(0x1b);
             byte[] buffer = new byte[1024];
             while (_serialPort.IsOpen && _serialPort.BytesToRead > 0)
             {
