@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -25,14 +26,56 @@ namespace TqkLibrary.GSM.Extensions
         /// <returns></returns>
         public new async Task<FileData> WriteAsync(string fileName, CancellationToken cancellationToken = default)
         {
-            var result = await base.WriteAsync(cancellationToken, fileName.ToAtString());
-            var qfdwl = result.GetCommandResponse(Command);
-            if (result.IsSuccess && qfdwl is not null && qfdwl.Arguments.Count() == 2 && int.TryParse(qfdwl.Arguments.First(), out int binarySize))
-            {
-                return new FileData(qfdwl.BinaryData, binarySize, qfdwl.Arguments.Last());
-            }
-            return null;
+            var qflst = await GsmClient.QFLST().WriteAsync(fileName, cancellationToken);
+            if (qflst.Count == 0)
+                return null;
+
+            return await WriteAsync(qflst.First(), cancellationToken);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileInfo"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<FileData> WriteAsync(CommandRequestQFLST.FileInfo fileInfo, CancellationToken cancellationToken = default)
+        {
+            byte[] buffer = new byte[fileInfo.FileSize];
+            int offset = 0;
+            Action<ConnectDataEvent> action = async (ConnectDataEvent connectDataEvent) =>
+            {
+                using Stream stream = connectDataEvent.GetStream();
+                while (offset < buffer.Length)
+                {
+                    int byteRead = await stream.ReadAsync(buffer, offset, buffer.Length - offset);
+                    if(offset == 0)
+                    {
+                        Console.WriteLine(Encoding.UTF8.GetString(buffer, 0, byteRead));
+                    }
+                    offset += byteRead;
+#if DEBUG
+                    Console.WriteLine($"--------\t\tDownload Connect: {offset}/{fileInfo.FileSize}");
+#endif
+                }
+            };
+            try
+            {
+                GsmClient.OnConnectDataEvent += action;
+                var result = await base.WriteAsync(cancellationToken, fileInfo.Path.ToAtString());
+                var qfdwl = result.GetCommandResponse(Command);
+                if (result.IsSuccess && qfdwl is not null && qfdwl.Arguments.Count() == 2 && int.TryParse(qfdwl.Arguments.First(), out int binarySize))
+                {
+                    return new FileData(buffer, binarySize, qfdwl.Arguments.Last());
+                }
+                return null;
+            }
+            finally
+            {
+                GsmClient.OnConnectDataEvent -= action;
+            }
+        }
+
 
         /// <summary>
         /// 
