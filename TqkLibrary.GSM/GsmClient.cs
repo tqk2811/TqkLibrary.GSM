@@ -58,6 +58,8 @@ namespace TqkLibrary.GSM
             atClient.OnCommandResult += _FireCommandResult;
             atClient.OnMsError += _FireMsError;
             atClient.OnMeError += _FireMeError;
+            atClient.OnConnectDataEvent += _FireConnectDataEvent;
+            atClient.OnPromptEvent += _FirePromptEvent;
 
             this._synchronizationContext = synchronizationContext;
         }
@@ -121,6 +123,16 @@ namespace TqkLibrary.GSM
         /// </summary>
         public event Action<string, int> OnMsError;
         event Action<string, int> _OnMsError;
+        /// <summary>
+        /// 
+        /// </summary>
+        public event Action<ConnectDataEvent> OnConnectDataEvent;
+        event Action<ConnectDataEvent> _OnConnectDataEvent;
+        /// <summary>
+        /// 
+        /// </summary>
+        public event Action<PromptEvent> OnPromptEvent;
+        event Action<PromptEvent> _OnPromptEvent;
 
         void _FireCommandResult(bool result)
         {
@@ -195,6 +207,36 @@ namespace TqkLibrary.GSM
                 else
                 {
                     ThreadPool.QueueUserWorkItem((o) => OnMsError?.Invoke(message, code), null);
+                }
+            }
+        }
+        void _FireConnectDataEvent(ConnectDataEvent connectDataEvent)
+        {
+            _OnConnectDataEvent?.Invoke(connectDataEvent);
+            if (OnConnectDataEvent is not null)
+            {
+                if (_synchronizationContext is not null)
+                {
+                    _synchronizationContext.Post((o) => OnConnectDataEvent?.Invoke(connectDataEvent), null);
+                }
+                else
+                {
+                    ThreadPool.QueueUserWorkItem((o) => OnConnectDataEvent?.Invoke(connectDataEvent), null);
+                }
+            }
+        }
+        void _FirePromptEvent(PromptEvent promptEvent)
+        {
+            _OnPromptEvent?.Invoke(promptEvent);
+            if (OnPromptEvent is not null)
+            {
+                if (_synchronizationContext is not null)
+                {
+                    _synchronizationContext.Post((o) => OnPromptEvent?.Invoke(promptEvent), null);
+                }
+                else
+                {
+                    ThreadPool.QueueUserWorkItem((o) => OnPromptEvent?.Invoke(promptEvent), null);
                 }
             }
         }

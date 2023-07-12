@@ -79,6 +79,14 @@ namespace TqkLibrary.GSM.AtClient
         /// <summary>
         /// 
         /// </summary>
+        public event Action<ConnectDataEvent> OnConnectDataEvent;
+        /// <summary>
+        /// 
+        /// </summary>
+        public event Action<PromptEvent> OnPromptEvent;
+        /// <summary>
+        /// 
+        /// </summary>
         public event Action<string> OnLogCallback;
 
 

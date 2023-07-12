@@ -42,7 +42,17 @@ namespace TqkLibrary.GSM.Interfaces
         /// <summary>
         /// 
         /// </summary>
+        event Action<ConnectDataEvent> OnConnectDataEvent;
+        /// <summary>
+        /// 
+        /// </summary>
+        event Action<PromptEvent> OnPromptEvent;
+
+        /// <summary>
+        /// 
+        /// </summary>
         event Action<string> OnLogCallback;
+
         /// <summary>
         /// 
         /// </summary>
