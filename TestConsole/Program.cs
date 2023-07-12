@@ -32,15 +32,15 @@ do
 while (index == -1);
 
 
-using GsmClient gsmClient = new GsmClient(new AtClientParse(ports[index]));
+using GsmClient gsmClient = new GsmClient(new AtClientLoopReadLine(ports[index]));
 gsmClient.Open();
 
 
 
-//await gsmClient.QFLST().ExecuteAsync().ConfigureAwait(false);
-//var result = await gsmClient.QFDWL().WriteAsync("RAM:voice.wav").ConfigureAwait(false);
-//byte[] buffer = result.GetCommandResponse("QFDWL")?.BinaryData?.ToArray();
-//File.WriteAllBytes("test.wav", buffer);
+//var qflst = await gsmClient.QFLST().WriteAsync("RAM:*").ConfigureAwait(false);
+//var qfdwl = await gsmClient.QFDWL().WriteAsync(qflst.First()).ConfigureAwait(false);
+//qfdwl.GetAndCheck();
+
 
 SimEventUtils simEventUtils = gsmClient.RegisterSimEventUtils();
 simEventUtils.OnCallingClip += SimEventUtils_OnCallingClip;
@@ -59,6 +59,11 @@ var c = await gsmClient.CPMS().WriteAsync(CPMS_MEMR.SM);
 
 var e = await gsmClient.COPS().ReadAsync();
 
+var qspn = await gsmClient.QSPN().ExecuteAsync();
+
+var cmgs = await gsmClient.CMGS().WriteAsync("+84383587291", "test msg");
+
+
 while (true)
 {
     string command = Console.ReadLine()?.Trim();
@@ -72,6 +77,7 @@ void RegisterMsg_OnSmsReceived(ISms obj)
 }
 async void SimEventUtils_OnCallingClip(AnswerCallHelper obj)
 {
+    await obj.DeleteFileAsync();
     var download = await obj.AnswerAsync(10000);
     var data = await download.DownloadAsync();
     File.WriteAllBytes("test.wav", data.GetAndCheck());
