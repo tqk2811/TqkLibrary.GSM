@@ -53,20 +53,27 @@ await simEventUtils.EnableClip();
 using var registerMsg = await gsmClient.RegisterMessageAsync();
 registerMsg.OnSmsReceived += RegisterMsg_OnSmsReceived;
 
-var a = await gsmClient.CMGF().WriteAsync(MessageFormat.PduMode);
-var a1 = await gsmClient.CMGF().ReadAsync();
+var cmgf_t = await gsmClient.CMGF().TestAsync();
+var cmgf_w = await gsmClient.CMGF().WriteAsync(MessageFormat.PduMode);
+var cmgf_r = await gsmClient.CMGF().ReadAsync();
 
-var b = await gsmClient.CNMI().WriteAsync(CNMI_Mode.Class2, CNMI_MT.SmsDeliver);
-var b1 = await gsmClient.CNMI().ReadAsync();
+var cmni_t = await gsmClient.CNMI().TestAsync();
+var cmni_w = await gsmClient.CNMI().WriteAsync(CNMI_Mode.Class2, CNMI_MT.SmsDeliver);
+var cmni_r = await gsmClient.CNMI().ReadAsync();
 
-var c = await gsmClient.CPMS().WriteAsync(CPMS_MEMR.SM);
+var cpms_t = await gsmClient.CPMS().TestAsync();
+var cpms_w = await gsmClient.CPMS().WriteAsync(CPMS_MEMR.SM);
 
-var e = await gsmClient.COPS().ReadAsync();
+var cops_t = await gsmClient.COPS().TestAsync();
+var cops_r = await gsmClient.COPS().ReadAsync();
 
-var qspn = await gsmClient.QSPN().ExecuteAsync();
+var qspn_t = await gsmClient.QSPN().TestAsync();
+var qspn_e = await gsmClient.QSPN().ExecuteAsync();
 
-var cmgs = await gsmClient.CMGS().WriteAsync("+84383587291", "test msg");
+//var cmgs = await gsmClient.CMGS().WriteAsync("+84383587291", "test msg");
 
+var cpin_t = await gsmClient.CPIN().TestAsync();
+var cpin_r = await gsmClient.CPIN().ReadAsync();
 
 while (true)
 {
