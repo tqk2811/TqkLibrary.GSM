@@ -46,7 +46,8 @@ namespace TqkLibrary.GSM.Extensions
             Action<ConnectDataEvent> action = async (ConnectDataEvent connectDataEvent) =>
             {
                 using Stream stream = connectDataEvent.GetStream();
-                while (offset < buffer.Length)
+                using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(GsmClient.CommandTimeout);
+                while (offset < buffer.Length && !cancellationTokenSource.IsCancellationRequested)
                 {
                     int byteRead = await stream.ReadAsync(buffer, offset, buffer.Length - offset);
 #if DEBUG
