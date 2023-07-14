@@ -1,14 +1,4 @@
 ﻿using Nito.AsyncEx;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Ports;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
-using TqkLibrary.GSM.Interfaces;
 
 namespace TqkLibrary.GSM.AtClient
 {
@@ -120,7 +110,7 @@ namespace TqkLibrary.GSM.AtClient
                                 {
                                     await _serialPort.BaseStream.ReadToAsync("> ", cancellationTokenSource.Token);
                                 }
-                                catch(OperationCanceledException)
+                                catch (OperationCanceledException)
                                 {
                                     ClearAvalableData();
                                 }

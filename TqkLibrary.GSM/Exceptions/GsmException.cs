@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TqkLibrary.GSM
+﻿namespace TqkLibrary.GSM
 {
     /// <summary>
     /// 

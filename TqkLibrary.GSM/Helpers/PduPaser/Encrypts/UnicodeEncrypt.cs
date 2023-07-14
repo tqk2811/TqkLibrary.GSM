@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using System.Text;
-using System;
-namespace TqkLibrary.GSM.Helpers.PduPaser.Encrypts
+﻿namespace TqkLibrary.GSM.Helpers.PduPaser.Encrypts
 {
     /// <summary>
     /// 

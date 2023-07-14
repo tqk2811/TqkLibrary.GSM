@@ -1,10 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Threading;
-using System.Linq;
-using TqkLibrary.GSM.Interfaces;
-
-namespace TqkLibrary.GSM.Extended.Advances
+﻿namespace TqkLibrary.GSM.Extended.Advances
 {
     /// <summary>
     /// 
@@ -17,7 +11,7 @@ namespace TqkLibrary.GSM.Extended.Advances
         {
             this.gsmClient = gsmClient ?? throw new ArgumentNullException(nameof(gsmClient));
             this.simEventUtils = simEventUtils ?? throw new ArgumentNullException(nameof(simEventUtils));
-            this.IncommingPhoneNumber = incommingPhoneNumber;
+            IncommingPhoneNumber = incommingPhoneNumber;
         }
         /// <summary>
         /// 

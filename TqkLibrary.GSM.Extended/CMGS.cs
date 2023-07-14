@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using TqkLibrary.GSM.Helpers.PduPaser.Encrypts;
-using static TqkLibrary.GSM.Extended.CommandRequestCMGF;
+﻿using static TqkLibrary.GSM.Extended.CommandRequestCMGF;
 
 namespace TqkLibrary.GSM.Extended
 {

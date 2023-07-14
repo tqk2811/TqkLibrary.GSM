@@ -2,8 +2,6 @@
 Original https://github.com/wi1dcard/sms-decoder
 Edit: tqk2811
  */
-using System.Collections.Generic;
-using System.Linq;
 
 namespace TqkLibrary.GSM.Helpers.PduPaser
 {
@@ -13,7 +11,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         readonly byte[] Data;
         internal UserDataHeader(byte[] data)
         {
-            this.Data = data;
+            Data = data;
         }
         public int HeaderLength => Data.Length;
         public byte UDHLength => Data.FirstOrDefault();

@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using TqkLibrary.GSM.AtClient;
-
-namespace TqkLibrary.GSM
+﻿namespace TqkLibrary.GSM
 {
     /// <summary>
     /// 
@@ -12,14 +7,14 @@ namespace TqkLibrary.GSM
     {
         internal GsmCommandResponse(string command, string[] args, string data)
         {
-            this.Command = command;
-            this._Arguments.AddRange(args);
-            this.Data = data;
+            Command = command;
+            _Arguments.AddRange(args);
+            Data = data;
         }
         internal GsmCommandResponse(string command, IEnumerable<IEnumerable<string>> options)
         {
-            this.Command = command;
-            this._Options.AddRange(options);
+            Command = command;
+            _Options.AddRange(options);
         }
         /// <summary>
         /// 

@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using TqkLibrary.GSM.Helpers.PduPaser.Encrypts;
-
-namespace TqkLibrary.GSM.Extended
+﻿namespace TqkLibrary.GSM.Extended
 {
     //https://www.manualslib.com/manual/1511434/Quectel-Ec25.html?page=88#manual
     /// <summary>

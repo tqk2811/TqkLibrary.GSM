@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using TqkLibrary.GSM.Helpers.PduPaser;
-using Nito.AsyncEx;
-using System.Threading.Tasks;
-using TqkLibrary.GSM.Interfaces;
-using static TqkLibrary.GSM.Extended.CommandRequestCNMI;
+﻿using Nito.AsyncEx;
 using static TqkLibrary.GSM.Extended.CommandRequestCMGF;
+using static TqkLibrary.GSM.Extended.CommandRequestCNMI;
 using static TqkLibrary.GSM.Extended.CommandRequestCPMS;
 
 namespace TqkLibrary.GSM.Extended.Advances

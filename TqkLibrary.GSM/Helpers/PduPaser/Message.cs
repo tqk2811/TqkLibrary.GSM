@@ -2,9 +2,6 @@
 Original https://github.com/wi1dcard/sms-decoder
 Edit: tqk2811
  */
-using System;
-using System.Linq;
-using TqkLibrary.GSM.Helpers.PduPaser.Encrypts;
 
 namespace TqkLibrary.GSM.Helpers.PduPaser
 {
@@ -58,7 +55,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         /// sms content, maybe a part
         /// </summary>
         public string Content => pdu.DataDecoder?.Decode(
-            pdu.Data, 
+            pdu.Data,
             (int)pdu.DataLength - (pdu.UDH?.HeaderLength ?? 0),
             pdu?.UDH?.Padding ?? 0);
 

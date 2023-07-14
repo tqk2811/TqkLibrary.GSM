@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-namespace TqkLibrary.GSM.Helpers.PduPaser.Encrypts
+﻿namespace TqkLibrary.GSM.Helpers.PduPaser.Encrypts
 {
     /// <summary>
     /// 
@@ -19,7 +14,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser.Encrypts
         /// <returns></returns>
         public string Decode(byte[] raw, int dataLength, int padding = 0)
         {
-            var deRaw = this.decompress(raw, dataLength, padding);
+            var deRaw = decompress(raw, dataLength, padding);
             return ReplaceBasicCharacterSet(Encoding.ASCII.GetString(deRaw));
         }
         /// <summary>
@@ -30,7 +25,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser.Encrypts
         public byte[] Encode(string str)
         {
             var raw = Encoding.ASCII.GetBytes(str);
-            return this.compress(raw);
+            return compress(raw);
         }
 
 

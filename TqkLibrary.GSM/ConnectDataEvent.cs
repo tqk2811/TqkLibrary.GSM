@@ -1,9 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace TqkLibrary.GSM
+﻿namespace TqkLibrary.GSM
 {
     /// <summary>
     /// 
@@ -97,8 +92,8 @@ namespace TqkLibrary.GSM
             readonly Action _onDispose;
             public ConnectStream(Stream stream, Action onDispose)
             {
-                this._stream = stream ?? throw new ArgumentNullException(nameof(stream));
-                this._onDispose = onDispose ?? throw new ArgumentNullException(nameof(stream));
+                _stream = stream ?? throw new ArgumentNullException(nameof(stream));
+                _onDispose = onDispose ?? throw new ArgumentNullException(nameof(stream));
             }
             public override bool CanRead => _stream.CanRead;
             public override bool CanSeek => _stream.CanSeek;

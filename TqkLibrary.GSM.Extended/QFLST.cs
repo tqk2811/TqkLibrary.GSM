@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace TqkLibrary.GSM.Extended
+﻿namespace TqkLibrary.GSM.Extended
 {
     /// <summary>
     /// 
@@ -43,7 +36,7 @@ namespace TqkLibrary.GSM.Extended
                         string path = item.Arguments.First();
                         string size = item.Arguments.Skip(1).First();
 
-                        if(long.TryParse(size,out long s))
+                        if (long.TryParse(size, out long s))
                         {
                             list.Add(new FileInfo()
                             {

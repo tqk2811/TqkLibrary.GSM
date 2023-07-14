@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace TqkLibrary.GSM.Extended
+﻿namespace TqkLibrary.GSM.Extended
 {
     /// <summary>
     /// 
@@ -86,9 +78,9 @@ namespace TqkLibrary.GSM.Extended
             internal FileData(IEnumerable<byte> bytes, int binarySize, string checksum)
             {
                 if (string.IsNullOrWhiteSpace(checksum)) throw new ArgumentNullException(nameof(checksum));
-                this.BinaryData = bytes;
-                this.BinarySize = binarySize;
-                this.CheckSum = checksum;
+                BinaryData = bytes;
+                BinarySize = binarySize;
+                CheckSum = checksum;
             }
 
             /// <summary>

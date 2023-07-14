@@ -2,7 +2,6 @@
 Original https://github.com/wi1dcard/sms-decoder
 Edit: tqk2811
  */
-using System;
 
 namespace TqkLibrary.GSM.Helpers.PduPaser
 {

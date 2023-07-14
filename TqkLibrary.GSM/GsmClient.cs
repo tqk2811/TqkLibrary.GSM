@@ -1,18 +1,4 @@
-﻿using System.IO.Ports;
-using System.IO;
-using Nito.AsyncEx;
-using System.Threading;
-using System.Text;
-using System;
-using System.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using System.Linq;
-using TqkLibrary.GSM.Exceptions;
-using System.Reflection;
-using TqkLibrary.GSM.AtClient;
-using TqkLibrary.GSM.Interfaces;
+﻿using Nito.AsyncEx;
 
 namespace TqkLibrary.GSM
 {
@@ -61,7 +47,7 @@ namespace TqkLibrary.GSM
             atClient.OnConnectDataEvent += _FireConnectDataEvent;
             atClient.OnPromptEvent += _FirePromptEvent;
 
-            this._synchronizationContext = synchronizationContext;
+            _synchronizationContext = synchronizationContext;
         }
 
 

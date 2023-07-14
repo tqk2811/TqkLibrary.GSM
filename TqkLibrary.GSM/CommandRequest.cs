@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using TqkLibrary.GSM.Extensions;
-using TqkLibrary.GSM.Interfaces;
-
-namespace TqkLibrary.GSM
+﻿namespace TqkLibrary.GSM
 {
     //gsmClient.ABC().Test();
     //gsmClient.ABC().Execute();
@@ -35,8 +26,8 @@ namespace TqkLibrary.GSM
         public CommandRequest(IGsmClient gsmClient, string command)
         {
             if (string.IsNullOrWhiteSpace(command)) throw new ArgumentNullException(nameof(command));
-            this.GsmClient = gsmClient ?? throw new ArgumentNullException(nameof(gsmClient));
-            this.Command = command;
+            GsmClient = gsmClient ?? throw new ArgumentNullException(nameof(gsmClient));
+            Command = command;
         }
         /// <summary>
         /// 

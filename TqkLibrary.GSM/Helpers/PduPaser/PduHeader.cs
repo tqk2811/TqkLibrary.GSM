@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TqkLibrary.GSM.Helpers.PduPaser
+﻿namespace TqkLibrary.GSM.Helpers.PduPaser
 {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     /// <summary>
@@ -16,7 +10,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         byte _byte;
         public PduHeader(byte @byte)
         {
-            this._byte = @byte;
+            _byte = @byte;
         }
 
         public PduType Type//bit 0 & 1
@@ -28,7 +22,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
             set
             {
                 //                      clear value at 0 & 1    set value
-                this._byte = (byte)((this._byte & 0b11111100) | (byte)value);//clear value at 0 & 1
+                _byte = (byte)((_byte & 0b11111100) | (byte)value);//clear value at 0 & 1
             }
         }
         public bool IsMoreMessagesToSend
@@ -36,7 +30,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
             get { return (_byte & 0b00000100) != 0; }//bit 2
             set
             {
-                this._byte = (byte)((this._byte & 0b11111011) | (value ? 0b00000100 : 0b00000000));
+                _byte = (byte)((_byte & 0b11111011) | (value ? 0b00000100 : 0b00000000));
             }
         }
         public bool IsLoopPrevention
@@ -44,7 +38,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
             get { return (_byte & 0b00001000) != 0; }//bit 3 and 4
             set
             {
-                this._byte = (byte)((this._byte & 0b11100111) | (value ? 0b00001000 : 0b00000000));
+                _byte = (byte)((_byte & 0b11100111) | (value ? 0b00001000 : 0b00000000));
             }
         }
         public bool IsStatusReportIndication
@@ -52,7 +46,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
             get { return (_byte & 0b00100000) != 0; }//bit 5
             set
             {
-                this._byte = (byte)((this._byte & 0b11011111) | (value ? 0b00100000 : 0b00000000));
+                _byte = (byte)((_byte & 0b11011111) | (value ? 0b00100000 : 0b00000000));
             }
         }
         public bool IsUserDataHeaderIndicator
@@ -60,7 +54,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
             get { return (_byte & 0b01000000) != 0; }//bit 6
             set
             {
-                this._byte = (byte)((this._byte & 0b10111111) | (value ? 0b01000000 : 0b00000000));
+                _byte = (byte)((_byte & 0b10111111) | (value ? 0b01000000 : 0b00000000));
             }
         }
         public bool IsReplyPath
@@ -68,7 +62,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
             get { return (_byte & 0b10000000) != 0; }//bit 7
             set
             {
-                this._byte = (byte)((this._byte & 0b01111111) | (value ? 0b10000000 : 0b00000000));
+                _byte = (byte)((_byte & 0b01111111) | (value ? 0b10000000 : 0b00000000));
             }
         }
 

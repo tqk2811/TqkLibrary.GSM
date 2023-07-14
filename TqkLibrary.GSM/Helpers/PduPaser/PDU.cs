@@ -2,13 +2,6 @@
 Original https://github.com/wi1dcard/sms-decoder
 Edit: tqk2811
  */
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TqkLibrary.GSM.Helpers.PduPaser.Encrypts;
 using static TqkLibrary.GSM.Helpers.PduPaser.DataCodingScheme;
 
 namespace TqkLibrary.GSM.Helpers.PduPaser
@@ -121,7 +114,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
             yield return SmscByteLength;
             if (SmscByteLength > 0)
             {
-                if(SmscNumber is null)
+                if (SmscNumber is null)
                     throw new InvalidDataException($"{nameof(SmscNumber)} is null but {nameof(SmscByteLength)} have value");
 
                 if (SmscByteLength != SmscNumber.Length + 1)
