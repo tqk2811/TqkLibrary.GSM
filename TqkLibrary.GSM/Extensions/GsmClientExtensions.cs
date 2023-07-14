@@ -12,7 +12,7 @@
         public static Task<GsmCommandResult> TestAsync(this IGsmClient gsmClient, string command, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(command)) throw new ArgumentNullException(nameof(command));
-            return gsmClient.SendCommandAsync($"AT{command}=?{Consts.LineBreak}", cancellationToken);
+            return gsmClient.SendCommandAsync($"AT+{command}=?{Consts.LineBreak}", cancellationToken);
         }
 
         /// <summary>
