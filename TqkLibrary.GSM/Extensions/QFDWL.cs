@@ -49,14 +49,14 @@ namespace TqkLibrary.GSM.Extensions
                 while (offset < buffer.Length)
                 {
                     int byteRead = await stream.ReadAsync(buffer, offset, buffer.Length - offset);
-                    if(offset == 0)
+#if DEBUG
+                    if (offset == 0)
                     {
                         Console.WriteLine(Encoding.UTF8.GetString(buffer, 0, byteRead));
                     }
-                    offset += byteRead;
-#if DEBUG
                     Console.WriteLine($"--------\t\tDownload Connect: {offset}/{fileInfo.FileSize}");
 #endif
+                    offset += byteRead;
                 }
             };
             try
