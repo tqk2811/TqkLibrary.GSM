@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TqkLibrary.GSM.Helpers.PduPaser.Encrypts;
+using static TqkLibrary.GSM.Helpers.PduPaser.DataCodingScheme;
 
 namespace TqkLibrary.GSM.Helpers.PduPaser
 {

@@ -6,9 +6,16 @@ using System.Threading.Tasks;
 
 namespace TqkLibrary.GSM.Helpers.PduPaser
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class DataCodingScheme
     {
         readonly byte @byte;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="byte"></param>
         public DataCodingScheme(byte @byte)
         {
             this.@byte = @byte;
@@ -25,6 +32,9 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         //                  1101->1110  Coding Group: Message Waiting Info: Store Message
         //                  1111        Coding Group: Data Coding/Message Class
 
+        /// <summary>
+        /// 
+        /// </summary>
         public DCS_Class Class
         {
             get
@@ -44,6 +54,9 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
                 }
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public DCS_CharacterSet? CharacterSet
         {
             get
@@ -58,7 +71,9 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
                 }
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public DCS_CodingGroup? CodingGroup
         {
             get
@@ -75,7 +90,9 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
                 }
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsCompressed
         {
 
@@ -85,42 +102,52 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
             }
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dcs"></param>
         public static explicit operator byte(DataCodingScheme dcs) => dcs.@byte;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="byte"></param>
         public static implicit operator DataCodingScheme(byte @byte) => new DataCodingScheme(@byte);
-    }
-    public enum DCS_CharacterSet
-    {
-        GSM7Bit,
-        Data,
-        UCS2
-    }
-    public enum DCS_CodingGroup
-    {
-        GeneralDataCoding,
-        MessageMarkedForAutomaticDeletion,
-        MessageWaitingInfo_DiscardMessage,
-        MessageWaitingInfo_StoreMessage,
-        DataCoding_Or_MessageClass,
-    }
-    public enum DCS_Class
-    {
-        Default,
-        /// <summary>
-        /// Class 0
-        /// </summary>
-        FlashMessage,
-        /// <summary>
-        /// Class 1
-        /// </summary>
-        ME_Specific,
-        /// <summary>
-        /// Class 2
-        /// </summary>
-        SIM_Or_USIM_Specific,
-        /// <summary>
-        /// Class 3
-        /// </summary>
-        TE_Specific
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        public enum DCS_CharacterSet
+        {
+            GSM7Bit,
+            Data,
+            UCS2
+        }
+        public enum DCS_CodingGroup
+        {
+            GeneralDataCoding,
+            MessageMarkedForAutomaticDeletion,
+            MessageWaitingInfo_DiscardMessage,
+            MessageWaitingInfo_StoreMessage,
+            DataCoding_Or_MessageClass,
+        }
+        public enum DCS_Class
+        {
+            Default,
+            /// <summary>
+            /// Class 0
+            /// </summary>
+            FlashMessage,
+            /// <summary>
+            /// Class 1
+            /// </summary>
+            ME_Specific,
+            /// <summary>
+            /// Class 2
+            /// </summary>
+            SIM_Or_USIM_Specific,
+            /// <summary>
+            /// Class 3
+            /// </summary>
+            TE_Specific
+        }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 }

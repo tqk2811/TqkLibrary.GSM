@@ -3,7 +3,7 @@
     /// <summary>
     /// 
     /// </summary>
-    public interface IAtClient : IGsmClient
+    public interface IAtClient : IBaseGsmClient
     {
         /// <summary>
         /// 

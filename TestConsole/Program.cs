@@ -36,7 +36,6 @@ using GsmClient gsmClient = new GsmClient(new AtClientLoopReadLine(ports[index])
 gsmClient.Open();
 
 
-
 //var qflst = await gsmClient.QFLST().WriteAsync("RAM:*").ConfigureAwait(false);
 //var qfdwl = await gsmClient.QFDWL().WriteAsync(qflst.First()).ConfigureAwait(false);
 //qfdwl.GetAndCheck();
