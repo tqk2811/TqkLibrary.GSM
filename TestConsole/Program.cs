@@ -1,14 +1,19 @@
-﻿using TqkLibrary.GSM;
-using TqkLibrary.GSM.Extensions;
-using System;
+﻿using System;
+using System.IO;
 using System.IO.Ports;
-using TqkLibrary.GSM.Extensions.Advances;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Linq;
-using System.IO;
-using static TqkLibrary.GSM.Extensions.Advances.CMTMessage;
+
+using TqkLibrary.GSM;
 using TqkLibrary.GSM.AtClient;
+using TqkLibrary.GSM.Extended;
+using TqkLibrary.GSM.Extended.Advances;
+using TqkLibrary.GSM.Extensions;
+using static TqkLibrary.GSM.Extended.Advances.CMTMessage;
+using static TqkLibrary.GSM.Extended.CommandRequestCMGF;
+using static TqkLibrary.GSM.Extended.CommandRequestCNMI;
+using static TqkLibrary.GSM.Extended.CommandRequestCPMS;
 
 string[] ports = SerialPort.GetPortNames();
 Console.WriteLine("Select port:");
