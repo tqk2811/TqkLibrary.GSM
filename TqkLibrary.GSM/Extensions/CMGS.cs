@@ -31,7 +31,7 @@ namespace TqkLibrary.GSM.Extensions
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
-        public async Task<bool> WriteAsync(string destPhoneNumber, string message, CancellationToken cancellationToken = default)
+        public async Task<GsmCommandResult> WriteAsync(string destPhoneNumber, string message, CancellationToken cancellationToken = default)
         {
             byte[] dataWrite = null;
             Action<PromptEvent> action = async (PromptEvent promptEvent) =>
@@ -89,13 +89,12 @@ namespace TqkLibrary.GSM.Extensions
 
                                 GsmClient.OnPromptEvent += action;
 
-                                await base.WriteAsync(cancellationToken, destPhoneNumber.ToAtString());
+                                return await base.WriteAsync(cancellationToken, destPhoneNumber.ToAtString());
                             }
                             finally
                             {
                                 GsmClient.OnPromptEvent -= action;
                             }
-                            break;
                         }
 
                     default:
@@ -109,7 +108,6 @@ namespace TqkLibrary.GSM.Extensions
                     await GsmClient.CMGF().WriteAsync(currentMessageFormat.Value);
                 }
             }
-            return false;
         }
     }
     /// <summary>
