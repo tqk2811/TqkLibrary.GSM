@@ -96,7 +96,7 @@ namespace TqkLibrary.GSM.Extended
             }
             finally
             {
-                if (currentMessageFormat.HasValue && ForceFormat.HasValue)
+                if (currentMessageFormat.HasValue && ForceFormat.HasValue && currentMessageFormat.Value != ForceFormat.Value)
                 {
                     await GsmClient.CMGF().WriteAsync(currentMessageFormat.Value);
                 }
