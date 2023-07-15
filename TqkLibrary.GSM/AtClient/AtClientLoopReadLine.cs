@@ -12,14 +12,19 @@ namespace TqkLibrary.GSM.AtClient
         /// <summary>
         /// 
         /// </summary>
-        public AtClientLoopReadLine(string port, int baudRate = 115200, SynchronizationContext synchronizationContext = null)
+        public AtClientLoopReadLine(
+            string port, 
+            int baudRate = 115200, 
+            Handshake handshake = Handshake.RequestToSendXOnXOff, 
+            SynchronizationContext synchronizationContext = null
+            )
         {
             if (string.IsNullOrWhiteSpace(port)) throw new ArgumentNullException(nameof(port));
             _synchronizationContext = synchronizationContext;
             _serialPort = new SerialPort(port, baudRate, Parity.None, 8, StopBits.One);
             _serialPort.Encoding = Consts.ISO8859;
             _serialPort.NewLine = Consts.LineBreak;
-            _serialPort.Handshake = Handshake.RequestToSend;
+            _serialPort.Handshake = handshake;
             //_serialPort.DataReceived += SerialPort_DataReceived;
         }
         /// <summary>
