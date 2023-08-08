@@ -5,7 +5,7 @@
     /// </summary>
     public class PromptEvent : ConnectDataEvent
     {
-        internal PromptEvent(Stream stream) : base(stream)
+        internal PromptEvent(Stream stream, Action<string> logCallback) : base(stream, logCallback)
         {
 
         }

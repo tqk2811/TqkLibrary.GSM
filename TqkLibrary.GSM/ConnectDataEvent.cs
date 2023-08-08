@@ -1,4 +1,7 @@
-﻿namespace TqkLibrary.GSM
+﻿using System.IO;
+using System.Threading;
+
+namespace TqkLibrary.GSM
 {
     /// <summary>
     /// 
@@ -9,21 +12,26 @@
         /// 
         /// </summary>
         protected readonly Stream _stream;
-        internal ConnectDataEvent(Stream stream)
+        /// <summary>
+        /// 
+        /// </summary>
+        protected readonly Action<string> _logCallback;
+        internal ConnectDataEvent(Stream stream, Action<string> logCallback)
         {
             _stream = stream ?? throw new ArgumentNullException(nameof(stream));
+            _logCallback = logCallback ?? throw new ArgumentNullException(nameof(logCallback));
         }
 
         /// <summary>
         /// Must dispose after used
         /// </summary>
         /// <returns></returns>
-        public Stream GetStream()
+        public DataStream GetStream()
         {
             if (isTaked) throw new InvalidOperationException($"Stream was taked");
             isTaked = true;
             onConnectStream?.Invoke();
-            return new ConnectStream(_stream, UnTake);
+            return new DataStream(_stream, UnTake, _logCallback);
         }
 
         void UnTake()
@@ -86,14 +94,18 @@
 
 
 
-        class ConnectStream : Stream
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        public class DataStream : Stream
         {
+            readonly Action<string> _logCallback;
             readonly Stream _stream;
             readonly Action _onDispose;
-            public ConnectStream(Stream stream, Action onDispose)
+            bool isWriteLog = true;
+            internal DataStream(Stream stream, Action onDispose, Action<string> logCallback)
             {
                 _stream = stream ?? throw new ArgumentNullException(nameof(stream));
                 _onDispose = onDispose ?? throw new ArgumentNullException(nameof(stream));
+                _logCallback = logCallback ?? throw new ArgumentNullException(nameof(logCallback));
             }
 
 
@@ -107,7 +119,9 @@
             public override int Read(byte[] buffer, int offset, int count)
             {
                 //must handle escape
-                return _stream.Read(buffer, offset, count);
+                int byte_read = _stream.Read(buffer, offset, count);
+                if (isWriteLog) _logCallback?.Invoke($"DataStream_Read({byte_read})");
+                return byte_read;
             }
             public override long Seek(long offset, SeekOrigin origin) => _stream.Seek(offset, origin);
             public override void SetLength(long value) => _stream.SetLength(value);
@@ -115,6 +129,7 @@
             {
                 //must handle escape
                 _stream.Write(buffer, offset, count);
+                if (isWriteLog) _logCallback?.Invoke($"DataStream_Write({count})");
             }
             protected override void Dispose(bool disposing)
             {
@@ -144,21 +159,27 @@
                 return _stream.CopyToAsync(destination, bufferSize, cancellationToken);
             }
 
-            public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
             {
-                return _stream.ReadAsync(buffer, offset, count, cancellationToken);
+                int byte_read = await _stream.ReadAsync(buffer, offset, count, cancellationToken);
+                if (isWriteLog) _logCallback?.Invoke($"DataStream_ReadAsync({byte_read})");
+                return byte_read;
             }
-            public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
             {
-                return _stream.WriteAsync(buffer, offset, count, cancellationToken);
+                await _stream.WriteAsync(buffer, offset, count, cancellationToken);
+                if (isWriteLog) _logCallback?.Invoke($"DataStream_WriteAsync({count})");
             }
             public override void WriteByte(byte value)
             {
                 _stream.WriteByte(value);
+                if (isWriteLog) _logCallback?.Invoke($"DataStream_Write(1)");
             }
             public override int ReadByte()
             {
-                return _stream.ReadByte();
+                int val = _stream.ReadByte();
+                if (isWriteLog) _logCallback?.Invoke($"DataStream_Read(1)");
+                return val;
             }
             public override Task FlushAsync(CancellationToken cancellationToken)
             {
@@ -167,10 +188,27 @@
             #endregion
 
 
-            public async Task DownloadAsync(int size, CancellationToken cancellationToken = default)
+            public async Task<byte[]> DownloadAsync(int size, CancellationToken cancellationToken = default)
             {
-
+                try
+                {
+                    byte[] buffer = new byte[size];
+                    int offset = 0;
+                    isWriteLog = false;
+                    while (offset < buffer.Length)
+                    {
+                        int byteRead = await this.ReadAsync(buffer, offset, buffer.Length - offset, cancellationToken);
+                        offset += byteRead;
+                        _logCallback?.Invoke($"DataStream_ReadAsync({byteRead},{offset}/{size})");
+                    }
+                    return buffer;
+                }
+                finally
+                {
+                    isWriteLog = true;
+                }
             }
         }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 }

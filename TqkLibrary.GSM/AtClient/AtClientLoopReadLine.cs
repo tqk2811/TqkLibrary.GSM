@@ -139,7 +139,7 @@ namespace TqkLibrary.GSM.AtClient
                         ClearAvalableData();
                     }
 
-                    PromptEvent promptEvent = new PromptEvent(_serialPort.BaseStream);
+                    PromptEvent promptEvent = new PromptEvent(_serialPort.BaseStream, _WriteReceivedLog);
                     OnPromptEvent?.Invoke(promptEvent);
                     if (await promptEvent.WaitSomeOneTakeItAsync(2000))
                     {
@@ -182,7 +182,7 @@ namespace TqkLibrary.GSM.AtClient
                 case "> ":
                     {
                         _WriteReceivedLog(line);
-                        PromptEvent promptEvent = new PromptEvent(_serialPort.BaseStream);
+                        PromptEvent promptEvent = new PromptEvent(_serialPort.BaseStream, _WriteReceivedLog);
                         OnPromptEvent?.Invoke(promptEvent);
                         if (await promptEvent.WaitSomeOneTakeItAsync(2000))
                         {
@@ -200,7 +200,7 @@ namespace TqkLibrary.GSM.AtClient
 
                 case "CONNECT":
                     _WriteReceivedLog(line);
-                    ConnectDataEvent connectDataEvent = new ConnectDataEvent(_serialPort.BaseStream);
+                    ConnectDataEvent connectDataEvent = new ConnectDataEvent(_serialPort.BaseStream, _WriteReceivedLog);
                     OnConnectDataEvent?.Invoke(connectDataEvent);
                     if (await connectDataEvent.WaitSomeOneTakeItAsync(2000))
                     {
@@ -291,7 +291,11 @@ namespace TqkLibrary.GSM.AtClient
             }
         }
 
-        void _WriteReceivedLog(string log, string name = "")
+        void _WriteReceivedLog(string log)
+        {
+            _WriteReceivedLog(log, string.Empty);
+        }
+        void _WriteReceivedLog(string log, string name)
         {
 #if DEBUG
             Console.WriteLine($"{PortName} >> {log.PrintCRLFHepler()}");

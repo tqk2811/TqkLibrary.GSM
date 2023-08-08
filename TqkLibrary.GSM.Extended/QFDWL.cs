@@ -33,23 +33,19 @@
         /// <returns></returns>
         public async Task<FileData> WriteAsync(CommandRequestQFLST.FileInfo fileInfo, CancellationToken cancellationToken = default)
         {
-            byte[] buffer = new byte[fileInfo.FileSize];
-            int offset = 0;
+            byte[] buffer = null;
             Action<ConnectDataEvent> action = async (ConnectDataEvent connectDataEvent) =>
             {
-                using Stream stream = connectDataEvent.GetStream();
+                using var stream = connectDataEvent.GetStream();
                 using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(GsmClient.CommandTimeout);
-                while (offset < buffer.Length && !cancellationTokenSource.IsCancellationRequested)
+                using var register = cancellationToken.Register(() => cancellationTokenSource.Cancel());
+                try
                 {
-                    int byteRead = await stream.ReadAsync(buffer, offset, buffer.Length - offset);
-#if DEBUG
-                    if (offset == 0)
-                    {
-                        Console.WriteLine(Encoding.UTF8.GetString(buffer, 0, byteRead));
-                    }
-                    Console.WriteLine($"--------\t\tDownload Connect: {offset}/{fileInfo.FileSize}");
-#endif
-                    offset += byteRead;
+                    buffer = await stream.DownloadAsync((int)fileInfo.FileSize, cancellationTokenSource.Token);
+                }
+                catch
+                {
+
                 }
             };
             try
@@ -57,7 +53,11 @@
                 GsmClient.OnConnectDataEvent += action;
                 var result = await base.WriteAsync(cancellationToken, fileInfo.Path.ToAtString());
                 var qfdwl = result.GetCommandResponse(Command);
-                if (result.IsSuccess && qfdwl is not null && qfdwl.Arguments.Count() == 2 && int.TryParse(qfdwl.Arguments.First(), out int binarySize))
+                if (buffer is not null &&
+                    result.IsSuccess &&
+                    qfdwl is not null &&
+                    qfdwl.Arguments.Count() == 2 &&
+                    int.TryParse(qfdwl.Arguments.First(), out int binarySize))
                 {
                     return new FileData(buffer, binarySize, qfdwl.Arguments.Last());
                 }
@@ -78,7 +78,7 @@
             internal FileData(IEnumerable<byte> bytes, int binarySize, string checksum)
             {
                 if (string.IsNullOrWhiteSpace(checksum)) throw new ArgumentNullException(nameof(checksum));
-                BinaryData = bytes;
+                BinaryData = bytes ?? throw new ArgumentNullException(nameof(bytes));
                 BinarySize = binarySize;
                 CheckSum = checksum;
             }
