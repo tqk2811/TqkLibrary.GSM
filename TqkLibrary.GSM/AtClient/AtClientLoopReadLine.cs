@@ -13,9 +13,9 @@ namespace TqkLibrary.GSM.AtClient
         /// 
         /// </summary>
         public AtClientLoopReadLine(
-            string port, 
-            int baudRate = 115200, 
-            Handshake handshake = Handshake.RequestToSendXOnXOff, 
+            string port,
+            int baudRate = 115200,
+            Handshake handshake = Handshake.RequestToSendXOnXOff,
             SynchronizationContext synchronizationContext = null
             )
         {
@@ -104,95 +104,7 @@ namespace TqkLibrary.GSM.AtClient
                             continue;
                         }
 
-                        if (line.StartsWith("AT+") && line.EndsWith("\r")) //response for command AT+CLIP=1\r
-                        {
-                            _WriteReceivedLog(line);
-
-                            if (line.StartsWith("AT+CMGS"))
-                            {
-                                using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(1000);
-                                try
-                                {
-                                    await _serialPort.BaseStream.ReadToAsync("> ", cancellationTokenSource.Token);
-                                }
-                                catch (OperationCanceledException)
-                                {
-                                    ClearAvalableData();
-                                }
-
-                                PromptEvent promptEvent = new PromptEvent(_serialPort.BaseStream);
-                                OnPromptEvent?.Invoke(promptEvent);
-                                if (await promptEvent.WaitSomeOneTakeItAsync(2000))
-                                {
-                                    await promptEvent.WaitStreamDisposeAsync();
-                                }
-                                else
-                                {
-#if DEBUG
-                                    Console.WriteLine($"{PortName} << [ESC]");
-#endif
-                                    promptEvent.SendEsc();
-                                }
-                            }
-                            continue;
-                        }
-
-                        switch (line)
-                        {
-                            case "OK":
-                                OnCommandResult?.Invoke(true);
-                                _WriteReceivedLog(line);
-                                break;
-
-                            case "ERROR":
-                                OnCommandResult?.Invoke(false);
-                                _WriteReceivedLog(line);
-                                break;
-
-                            case "ATA\r":
-                                _WriteReceivedLog(line);
-                                break;
-
-                            case "Call Ready":
-                            case "NO CARRIER":
-                            case "RING":
-                                OnUnknowReceived?.Invoke(line);
-                                _WriteReceivedLog(line);
-                                break;
-
-                            case "> ":
-                                {
-                                    _WriteReceivedLog(line);
-                                    PromptEvent promptEvent = new PromptEvent(_serialPort.BaseStream);
-                                    OnPromptEvent?.Invoke(promptEvent);
-                                    if (await promptEvent.WaitSomeOneTakeItAsync(2000))
-                                    {
-                                        await promptEvent.WaitStreamDisposeAsync();
-                                    }
-                                    else
-                                    {
-#if DEBUG
-                                        Console.WriteLine($"{PortName} << [ESC]");
-#endif
-                                        promptEvent.SendEsc();
-                                    }
-                                    break;
-                                }
-
-                            case "CONNECT":
-                                _WriteReceivedLog(line);
-                                ConnectDataEvent connectDataEvent = new ConnectDataEvent(_serialPort.BaseStream);
-                                OnConnectDataEvent?.Invoke(connectDataEvent);
-                                if (await connectDataEvent.WaitSomeOneTakeItAsync(2000))
-                                {
-                                    await connectDataEvent.WaitStreamDisposeAsync();
-                                }
-                                break;
-
-                            default:
-                                await _ParseLine(line);
-                                break;
-                        }
+                        await _ParseLine(line);
                     }
                     await Task.Delay(100);
                 }
@@ -205,7 +117,103 @@ namespace TqkLibrary.GSM.AtClient
             }
         }
 
+#if DEBUG
+        public 
+#endif
         async Task _ParseLine(string line)
+        {
+
+            if (line.StartsWith("AT+") && line.EndsWith("\r")) //response for command AT+CLIP=1\r
+            {
+                _WriteReceivedLog(line);
+
+                if (line.StartsWith("AT+CMGS"))
+                {
+                    using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(1000);
+                    try
+                    {
+                        await _serialPort.BaseStream.ReadToAsync("> ", cancellationTokenSource.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        ClearAvalableData();
+                    }
+
+                    PromptEvent promptEvent = new PromptEvent(_serialPort.BaseStream);
+                    OnPromptEvent?.Invoke(promptEvent);
+                    if (await promptEvent.WaitSomeOneTakeItAsync(2000))
+                    {
+                        await promptEvent.WaitStreamDisposeAsync();
+                    }
+                    else
+                    {
+#if DEBUG
+                        Console.WriteLine($"{PortName} << [ESC]");
+#endif
+                        promptEvent.SendEsc();
+                    }
+                }
+                return;
+            }
+
+            switch (line)
+            {
+                case "OK":
+                    OnCommandResult?.Invoke(true);
+                    _WriteReceivedLog(line);
+                    break;
+
+                case "ERROR":
+                    OnCommandResult?.Invoke(false);
+                    _WriteReceivedLog(line);
+                    break;
+
+                case "ATA\r":
+                    _WriteReceivedLog(line);
+                    break;
+
+                case "Call Ready":
+                case "NO CARRIER":
+                case "RING":
+                    OnUnknowReceived?.Invoke(line);
+                    _WriteReceivedLog(line);
+                    break;
+
+                case "> ":
+                    {
+                        _WriteReceivedLog(line);
+                        PromptEvent promptEvent = new PromptEvent(_serialPort.BaseStream);
+                        OnPromptEvent?.Invoke(promptEvent);
+                        if (await promptEvent.WaitSomeOneTakeItAsync(2000))
+                        {
+                            await promptEvent.WaitStreamDisposeAsync();
+                        }
+                        else
+                        {
+#if DEBUG
+                                        Console.WriteLine($"{PortName} << [ESC]");
+#endif
+                            promptEvent.SendEsc();
+                        }
+                        break;
+                    }
+
+                case "CONNECT":
+                    _WriteReceivedLog(line);
+                    ConnectDataEvent connectDataEvent = new ConnectDataEvent(_serialPort.BaseStream);
+                    OnConnectDataEvent?.Invoke(connectDataEvent);
+                    if (await connectDataEvent.WaitSomeOneTakeItAsync(2000))
+                    {
+                        await connectDataEvent.WaitStreamDisposeAsync();
+                    }
+                    break;
+
+                default:
+                    await _ParseLine2(line);
+                    break;
+            }
+        }
+        async Task _ParseLine2(string line)
         {
             const string cme_err = "+CME ERROR:";
             const string cms_err = "+CMS ERROR:";
