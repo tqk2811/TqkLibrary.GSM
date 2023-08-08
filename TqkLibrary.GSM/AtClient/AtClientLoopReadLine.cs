@@ -118,7 +118,7 @@ namespace TqkLibrary.GSM.AtClient
         }
 
 #if DEBUG
-        public 
+        public
 #endif
         async Task _ParseLine(string line)
         {
@@ -191,7 +191,7 @@ namespace TqkLibrary.GSM.AtClient
                         else
                         {
 #if DEBUG
-                                        Console.WriteLine($"{PortName} << [ESC]");
+                            Console.WriteLine($"{PortName} << [ESC]");
 #endif
                             promptEvent.SendEsc();
                         }

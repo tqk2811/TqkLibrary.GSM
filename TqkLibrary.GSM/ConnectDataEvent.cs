@@ -95,6 +95,9 @@
                 _stream = stream ?? throw new ArgumentNullException(nameof(stream));
                 _onDispose = onDispose ?? throw new ArgumentNullException(nameof(stream));
             }
+
+
+            #region override
             public override bool CanRead => _stream.CanRead;
             public override bool CanSeek => _stream.CanSeek;
             public override bool CanWrite => _stream.CanWrite;
@@ -160,6 +163,13 @@
             public override Task FlushAsync(CancellationToken cancellationToken)
             {
                 return _stream.FlushAsync(cancellationToken);
+            }
+            #endregion
+
+
+            public async Task DownloadAsync(int size, CancellationToken cancellationToken = default)
+            {
+
             }
         }
     }
