@@ -246,7 +246,7 @@ namespace TqkLibrary.GSM.AtClient
             else
             {
                 //regex +ABC: data,data2,data3
-                Regex regex_responseCommand = new Regex("\\+([A-z0-9]+):([\\x01-\\x0C\\x0E-\\x7E]+)$");
+                Regex regex_responseCommand = new Regex("\\+([A-z0-9]+):([\\x01-\\x0D\\x0E-\\x7E]+)$");
                 Match match = regex_responseCommand.Match(line);
                 if (match.Success)
                 {
