@@ -30,8 +30,14 @@ namespace TqkLibrary.GSM.Extended
             Action<PromptEvent> action = async (PromptEvent promptEvent) =>
             {
                 using Stream stream = promptEvent.GetStream();
-                await stream.WriteAsync(dataWrite, 0, dataWrite.Length);
-                promptEvent.SendCtrlZ();
+                try
+                {
+                    await stream.WriteAsync(dataWrite, 0, dataWrite.Length);
+                }
+                finally
+                {
+                    promptEvent.SendCtrlZ();
+                }
             };
             MessageFormat? currentMessageFormat = await GsmClient.CMGF().ReadAsync();
             if (currentMessageFormat.HasValue && ForceFormat.HasValue)
