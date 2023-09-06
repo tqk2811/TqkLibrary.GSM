@@ -25,6 +25,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
 
         public byte SenderLength { get; private set; }
         public AddressesType SenderType { get; private set; }
+        byte SenderByteLength => (byte)((SenderLength + SenderLength % 2) / 2);//make length even
         public byte[] SenderNumber { get; private set; }
 
         public byte ProtocalId { get; private set; }
@@ -37,7 +38,6 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         public byte[] Data { get; private set; }
         public UserDataHeader UDH { get; private set; }
 
-        byte SenderByteLength => (byte)((SenderLength + SenderLength % 2) / 2);//make length even
 
         PDU _Parse(Stream rawPdu)
         {
