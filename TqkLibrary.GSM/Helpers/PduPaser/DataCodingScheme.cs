@@ -5,7 +5,7 @@
     /// </summary>
     public class DataCodingScheme
     {
-        readonly byte @byte;
+        byte @byte;
         /// <summary>
         /// 
         /// </summary>
@@ -27,60 +27,76 @@
         //                  1111        Coding Group: Data Coding/Message Class
 
         /// <summary>
-        /// 
+        /// Bit 0 &amp; 1
         /// </summary>
-        public DCS_Class Class
+        public DCS_MessageClass? Class
         {
             get
             {
-                if ((@byte & 0b00010000) == 0) return DCS_Class.Default;
+                if (IsClass)
+                {
+                    return (DCS_MessageClass)(@byte & 0b00000011);
+                }
                 else
                 {
-                    switch (@byte & 0b00000011)
-                    {
-                        case 0b00: return DCS_Class.FlashMessage;
-                        case 0b01: return DCS_Class.ME_Specific;
-                        case 0b10: return DCS_Class.SIM_Or_USIM_Specific;
-                        case 0b11: return DCS_Class.TE_Specific;
-
-                        default: return DCS_Class.Default;
-                    }
+                    return null;
+                }
+            }
+            set
+            {
+                if (value is null)
+                {
+                    IsClass = false;
+                }
+                else
+                {
+                    @byte = (byte)((@byte & 0b11111100) | (byte)value);
                 }
             }
         }
+
         /// <summary>
-        /// 
+        /// Bit 2 &amp; 3
         /// </summary>
-        public DCS_CharacterSet? CharacterSet
+        public DCS_CharacterSet CharacterSet
         {
             get
             {
-                switch ((@byte & 0b00001100) >> 2)
-                {
-                    case 0b00: return DCS_CharacterSet.GSM7Bit;
-                    case 0b01: return DCS_CharacterSet.Data;
-                    case 0b10: return DCS_CharacterSet.UCS2;
-
-                    default: return null;
-                }
+                return (DCS_CharacterSet)((@byte & 0b00001100) >> 2);
+            }
+            set
+            {
+                @byte = (byte)((@byte & 0b11110011) | (byte)((byte)value << 2));
             }
         }
+
         /// <summary>
-        /// 
+        /// Bit 4
         /// </summary>
-        public DCS_CodingGroup? CodingGroup
+        public bool IsClass
+        {
+            get => (@byte & 0b00010000) != 0;
+            set
+            {
+                @byte = (byte)((@byte & 0b00010000) | (value ? 0b00000000 : 0b00010000));
+            }
+        }
+
+        /// <summary>
+        /// Bit 5,6,7
+        /// </summary>
+        public DCS_CodingGroup CodingGroup
         {
             get
             {
-                switch (@byte >> 4)
+                switch (@byte)
                 {
-                    case >= 0b0000 and <= 0b0011: return DCS_CodingGroup.GeneralDataCoding;//0x00 -> 0x3f (0b0011 1111)
-                    case >= 0b0100 and <= 0b0111: return DCS_CodingGroup.MessageMarkedForAutomaticDeletion;
-                    case >= 0b1000 and <= 0b1011: return null;//Reserved
-                    case 0b1100: return DCS_CodingGroup.MessageMarkedForAutomaticDeletion;
-                    case >= 0b1101 and <= 0b1110: return DCS_CodingGroup.MessageWaitingInfo_StoreMessage;
-                    case 0b1111: return DCS_CodingGroup.DataCoding_Or_MessageClass;
-                    default: return null;
+                    case >= 0x00 and <= 0x3f: return DCS_CodingGroup.GeneralDataCoding;
+                    case >= 0x40 and <= 0x7f: return DCS_CodingGroup.MessageMarkedForAutomaticDeletion;
+                    case >= 0x80 and <= 0xbf: return DCS_CodingGroup.Reserved;
+                    case >= 0xc0 and <= 0xcf: return DCS_CodingGroup.MessageWaitingInfo_DiscardMessage;
+                    case >= 0xd0 and <= 0xef: return DCS_CodingGroup.MessageWaitingInfo_StoreMessage;
+                    case >= 0xf0 and <= 0xff: return DCS_CodingGroup.DataCoding_Or_MessageClass;
                 }
             }
         }
@@ -89,10 +105,13 @@
         /// </summary>
         public bool IsCompressed
         {
-
             get
             {
                 return (@byte & 0b00100000) != 0;
+            }
+            set
+            {
+                @byte = (byte)((@byte & 0b11011111) | (value ? 0b00100000 : 0b00000000));
             }
         }
 
@@ -110,9 +129,10 @@
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public enum DCS_CharacterSet
         {
-            GSM7Bit,
-            Data,
-            UCS2
+            GSM7Bit = 0b00,
+            Data = 0b01,
+            UCS2 = 0b10,
+            Reserved = 0b11,
         }
         public enum DCS_CodingGroup
         {
@@ -121,26 +141,26 @@
             MessageWaitingInfo_DiscardMessage,
             MessageWaitingInfo_StoreMessage,
             DataCoding_Or_MessageClass,
+            Reserved
         }
-        public enum DCS_Class
+        public enum DCS_MessageClass : byte
         {
-            Default,
             /// <summary>
             /// Class 0
             /// </summary>
-            FlashMessage,
+            FlashMessage = 0b00,
             /// <summary>
             /// Class 1
             /// </summary>
-            ME_Specific,
+            ME_Specific = 0b01,
             /// <summary>
             /// Class 2
             /// </summary>
-            SIM_Or_USIM_Specific,
+            SIM_Or_USIM_Specific = 0b10,
             /// <summary>
             /// Class 3
             /// </summary>
-            TE_Specific
+            TE_Specific = 0b11,
         }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
