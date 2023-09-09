@@ -169,7 +169,7 @@
 
             return Enumerable
                 .Range(0, str.Length / 2)
-                .Select(x => Convert.ToInt32($"0x{str.Substring(x * 2, 2)}", 16))
+                .Select(x => Convert.ToInt32(str.Substring(x * 2, 2), 16))
                 .Select(x => (byte)(x >> 4 | x << 4))
                 .ToArray();
         }
