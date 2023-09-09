@@ -33,11 +33,11 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         public byte ProtocalId { get; private set; }
         public DataCodingScheme DataCodingScheme { get; private set; }
         public IDecoder DataDecoder { get; set; }
-        public byte[] TimeStamp { get; private set; }
+        public TimeStampHelper TimeStamp { get; private set; }
+
         public byte DataLength { get; private set; }
-
-
         public byte[] Data { get; private set; }
+
         public UserDataHeader UDH { get; private set; }
 
 
@@ -76,7 +76,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
                                 break;
                         }
 
-                        TimeStamp = rawPdu.Read(7);
+                        TimeStamp = new TimeStampHelper(rawPdu.Read(7));
 
 
                         //length of data in byte
@@ -137,7 +137,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
 
             if (TimeStamp is null)
                 throw new InvalidDataException($"{nameof(TimeStamp)} is null");
-            foreach (var b in TimeStamp)
+            foreach (var b in TimeStamp.GetData())
                 yield return b;
 
             yield return DataLength;
