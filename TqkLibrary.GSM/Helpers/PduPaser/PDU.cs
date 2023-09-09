@@ -2,6 +2,7 @@
 Original https://github.com/wi1dcard/sms-decoder
 Edit: tqk2811
  */
+using TqkLibrary.GSM.Helpers.PduPaser.Interfaces;
 using static TqkLibrary.GSM.Helpers.PduPaser.DataCodingScheme;
 
 namespace TqkLibrary.GSM.Helpers.PduPaser
@@ -23,10 +24,11 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
 
         public PduHeader PduHeader { get; private set; }
 
-        public byte SenderLength { get; private set; }
-        public AddressesType SenderType { get; private set; }
-        byte SenderByteLength => (byte)((SenderLength + SenderLength % 2) / 2);//make length even
-        public byte[] SenderNumber { get; private set; }
+        /// <summary>
+        /// <see cref="SenderAddressInfo"/> for <see cref="PduType.SmsDeliver"/><br>
+        /// </br><see cref="TargetAddressInfo"/> for <see cref="PduType.SmsSubmit"/>
+        /// </summary>
+        public IAddressInfo AddressInfo { get; private set; }
 
         public byte ProtocalId { get; private set; }
         public DataCodingScheme DataCodingScheme { get; private set; }
@@ -56,9 +58,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
             {
                 case PduType.SmsDeliver:
                     {
-                        SenderLength = (byte)rawPdu.ReadByte();
-                        SenderType = (AddressesType)rawPdu.ReadByte();
-                        SenderNumber = rawPdu.Read(SenderByteLength);
+                        AddressInfo = SenderAddressInfo.Parse(rawPdu);
 
                         ProtocalId = (byte)rawPdu.ReadByte();
                         DataCodingScheme = (DataCodingScheme)rawPdu.ReadByte();
@@ -127,20 +127,11 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
 
             yield return (byte)PduHeader;
 
-
-            yield return SenderLength;
-            yield return (byte)SenderType;
-            if (SenderLength > 0)
-            {
-                if (SenderNumber is null)
-                    throw new InvalidDataException($"{nameof(SenderNumber)} is null but {nameof(SenderLength)} have value");
-
-                if (SenderByteLength != SenderNumber.Length)
-                    throw new InvalidDataException($"{nameof(SenderLength)} wrong value");
-
-                foreach (var b in SenderNumber)
+            if (AddressInfo is null)
+                throw new InvalidDataException($"{nameof(AddressInfo)} is null");
+            foreach (var b in AddressInfo.GetData())
                     yield return b;
-            }
+
             yield return ProtocalId;
             yield return (byte)DataCodingScheme;
 

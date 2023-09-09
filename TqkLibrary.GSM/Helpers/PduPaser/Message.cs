@@ -34,13 +34,17 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         {
             get
             {
-                if ((pdu.SenderType & AddressesType.ISDNTelephoneNumberingPlan) == AddressesType.ISDNTelephoneNumberingPlan)
+                if (pdu.AddressInfo is not null && 
+                    pdu.AddressInfo is SenderAddressInfo senderAddressInfo)
                 {
-                    return GetDecimalSemiOctets(pdu.SenderNumber).TrimEnd('F');
-                }
-                else if ((pdu.SenderType & AddressesType.Alphanumeric) == AddressesType.Alphanumeric)
-                {
-                    return sevenBitDecoder.Decode(pdu.SenderNumber, pdu.SenderLength);
+                    if (senderAddressInfo.AddressesType.HasFlag(AddressesType.ISDNTelephoneNumberingPlan))
+                    {
+                        return GetDecimalSemiOctets(senderAddressInfo.Address.ToArray()).TrimEnd('F');
+                    }
+                    else if (senderAddressInfo.AddressesType.HasFlag(AddressesType.Alphanumeric))
+                    {
+                        return sevenBitDecoder.Decode(senderAddressInfo.Address.ToArray(), senderAddressInfo.AddressLength);
+                    }
                 }
                 return string.Empty;
             }
