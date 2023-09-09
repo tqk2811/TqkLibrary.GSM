@@ -174,6 +174,15 @@
                 .ToArray();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="e"></param>
+        /// <param name="flag"></param>
+        /// <returns></returns>
+        public static T RemoveFlag<T>(this T e, T flag) where T : Enum
+            => (T)Enum.ToObject(typeof(T), Convert.ToUInt64(e) & (~Convert.ToUInt64(flag)));
 
 
 #if !NET5_0_OR_GREATER
