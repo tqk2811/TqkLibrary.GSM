@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using TqkLibrary.GSM.Helpers.PduPaser.Enums;
 
 namespace TqkLibrary.GSM.Helpers.PduPaser.Interfaces
 {
@@ -16,9 +12,13 @@ namespace TqkLibrary.GSM.Helpers.PduPaser.Interfaces
         /// </summary>
         byte AddressLength { get; }
         /// <summary>
-        /// 
+        /// Type of number
         /// </summary>
-        AddressesType AddressesType { get; }
+        TypeOfNumber TON { get; }
+        /// <summary>
+        /// Numbering plan identification
+        /// </summary>
+        NumberingPlanIdentification NPI { get; }
         /// <summary>
         /// 
         /// </summary>

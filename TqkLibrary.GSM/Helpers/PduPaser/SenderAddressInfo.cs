@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using TqkLibrary.GSM.Helpers.PduPaser.Enums;
 using TqkLibrary.GSM.Helpers.PduPaser.Interfaces;
 
 namespace TqkLibrary.GSM.Helpers.PduPaser
@@ -12,22 +8,46 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
     /// </summary>
     public class SenderAddressInfo : IAddressInfo
     {
+        byte _ext_ton_npi = 0;
         private SenderAddressInfo()
         {
 
         }
+
         /// <summary>
         /// 
         /// </summary>
         public byte AddressLength { get; private set; }
+
         /// <summary>
-        /// 
+        /// Numbering plan identification<br>
+        /// </br>bit 0 1 2 3
         /// </summary>
-        public AddressesType AddressesType { get; private set; }
+        public NumberingPlanIdentification NPI
+        {
+            get
+            {
+                return (NumberingPlanIdentification)(_ext_ton_npi & 0b00001111);
+            }
+        }
+
+        /// <summary>
+        /// Type of number<br>
+        /// </br>bit 4 5 6
+        /// </summary>
+        public TypeOfNumber TON
+        {
+            get
+            {
+                return (TypeOfNumber)(_ext_ton_npi >> 4);
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>
         public IEnumerable<byte> Address { get; private set; }
+
         /// <summary>
         /// 
         /// </summary>
@@ -35,7 +55,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         public IEnumerable<byte> GetData()
         {
             yield return AddressLength;
-            yield return (byte)AddressesType;
+            yield return _ext_ton_npi;
             foreach (var item in Address)
             {
                 yield return item;
@@ -43,6 +63,8 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         }
 
         byte SenderByteLength => (byte)((AddressLength + AddressLength % 2) / 2);//make length even
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -52,7 +74,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         {
             SenderAddressInfo addressInfo = new SenderAddressInfo();
             addressInfo.AddressLength = (byte)rawPdu.ReadByte();
-            addressInfo.AddressesType = (AddressesType)rawPdu.ReadByte();
+            addressInfo._ext_ton_npi = (byte)rawPdu.ReadByte();
             addressInfo.Address = rawPdu.Read(addressInfo.SenderByteLength);
             return addressInfo;
         }

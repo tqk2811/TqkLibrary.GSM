@@ -3,6 +3,8 @@ Original https://github.com/wi1dcard/sms-decoder
 Edit: tqk2811
  */
 
+using TqkLibrary.GSM.Helpers.PduPaser.Enums;
+
 namespace TqkLibrary.GSM.Helpers.PduPaser
 {
     /// <summary>
@@ -37,11 +39,11 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
                 if (pdu.AddressInfo is not null &&
                     pdu.AddressInfo is SenderAddressInfo senderAddressInfo)
                 {
-                    if (senderAddressInfo.AddressesType.HasFlag(AddressesType.ISDNTelephoneNumberingPlan))
+                    if (senderAddressInfo.NPI.HasFlag(NumberingPlanIdentification.ISDNTelephoneNumberingPlan))
                     {
                         return senderAddressInfo.Address.DecimalSemiOctetsToString().TrimEnd('F');
                     }
-                    else if (senderAddressInfo.AddressesType.HasFlag(AddressesType.Alphanumeric))
+                    else if (senderAddressInfo.TON.HasFlag(TypeOfNumber.Alphanumeric))
                     {
                         return sevenBitDecoder.Decode(senderAddressInfo.Address.ToArray(), senderAddressInfo.AddressLength);
                     }
