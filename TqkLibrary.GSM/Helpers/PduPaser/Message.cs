@@ -25,7 +25,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         /// <summary>
         /// an address(number) of sms center
         /// </summary>
-        public string SmscNumber => pdu.SmscNumber.GetDecimalSemiOctets().TrimEnd('F');
+        public string SmscNumber => pdu.SmscNumber.DecimalSemiOctetsToString().TrimEnd('F');
 
         /// <summary>
         /// an address(number) of sms sender
@@ -39,7 +39,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
                 {
                     if (senderAddressInfo.AddressesType.HasFlag(AddressesType.ISDNTelephoneNumberingPlan))
                     {
-                        return senderAddressInfo.Address.GetDecimalSemiOctets().TrimEnd('F');
+                        return senderAddressInfo.Address.DecimalSemiOctetsToString().TrimEnd('F');
                     }
                     else if (senderAddressInfo.AddressesType.HasFlag(AddressesType.Alphanumeric))
                     {
@@ -86,7 +86,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
 
         private static DateTime ParseDateTime(byte[] bytes)
         {
-            string time = bytes.GetDecimalSemiOctets();
+            string time = bytes.DecimalSemiOctetsToString();
             byte timeZone = bytes.Last();
             bool timeZoneIsNegative = false;
             if ((timeZone & 0b00001000) == 0b00001000)

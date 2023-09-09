@@ -152,7 +152,7 @@
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
-        public static string GetDecimalSemiOctets(this IEnumerable<byte> bytes)
+        public static string DecimalSemiOctetsToString(this IEnumerable<byte> bytes)
             => BitConverter.ToString(bytes.Select(x => (byte)(x >> 4 | x << 4)).ToArray()).Replace("-", string.Empty);
 
 
