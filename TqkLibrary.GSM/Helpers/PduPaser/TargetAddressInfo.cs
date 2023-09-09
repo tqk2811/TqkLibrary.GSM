@@ -44,7 +44,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         {
             get
             {
-                return (TypeOfNumber)(_ext_ton_npi >> 4);
+                return (TypeOfNumber)((_ext_ton_npi & 0b01110000) >> 4);
             }
             set
             {
