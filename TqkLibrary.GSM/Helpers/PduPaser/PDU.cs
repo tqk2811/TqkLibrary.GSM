@@ -30,7 +30,13 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         /// </summary>
         public IAddressInfo AddressInfo { get; private set; }
 
+        /// <summary>
+        /// TP-PID
+        /// </summary>
         public byte ProtocalId { get; private set; }
+        /// <summary>
+        /// TP-DCS
+        /// </summary>
         public DataCodingScheme DataCodingScheme { get; private set; }
         public IDecoder DataDecoder { get; set; }
         public TimeStampHelper TimeStamp { get; private set; }
