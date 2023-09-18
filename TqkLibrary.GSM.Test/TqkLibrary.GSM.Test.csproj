@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TqkLibrary.GSM.Extended\TqkLibrary.GSM.Extended.csproj" />
+    <ProjectReference Include="..\TqkLibrary.GSM.PDU\TqkLibrary.GSM.PDU.csproj" />
     <ProjectReference Include="..\TqkLibrary.GSM\TqkLibrary.GSM.csproj" />
   </ItemGroup>
 

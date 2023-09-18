@@ -43,7 +43,7 @@ namespace TqkLibrary.GSM.PDU
         /// </summary>
         public DataCodingScheme DataCodingScheme { get; private set; }
         /// <summary>
-        /// TP-SCTS
+        /// TP-SCTS or TP-VP with <see cref="ValidityPeriodFormat.PresentAndSemiOctetRepresented"/>
         /// </summary>
         public ServiceCentreTimeStamp ServiceCentreTimeStamp { get; private set; }
         /// <summary>
@@ -149,13 +149,13 @@ namespace TqkLibrary.GSM.PDU
             switch (PduHeader.ValidityPeriodFormat)
             {
                 case ValidityPeriodFormat.NotPresent:
+                case ValidityPeriodFormat.PresentAndSemiOctetRepresented:
                     if (ServiceCentreTimeStamp is null)
                         throw new InvalidDataException($"{nameof(this.ServiceCentreTimeStamp)} is null");
                     foreach (var b in ServiceCentreTimeStamp.GetData())
                         yield return b;
                     break;
 
-                case ValidityPeriodFormat.PresentAndSemiOctetRepresented:
                 case ValidityPeriodFormat.PresentAndIntegerRepresented:
                     if (ValidityPeriod is null)
                         throw new InvalidDataException($"{nameof(this.ValidityPeriod)} is null");
@@ -199,11 +199,11 @@ namespace TqkLibrary.GSM.PDU
         }
 
         public static IEnumerable<Pdu> Create(
-            string desNumber, string message, DateTime? timeSend = null
+            string desNumber, string message, TimeSpan? ValidityPeriod = null
             )
         {
-            if (!timeSend.HasValue)
-                timeSend = DateTime.Now;
+            if (!ValidityPeriod.HasValue)
+                ValidityPeriod = TimeSpan.Zero;
 
             bool isNumber = desNumber.All(x => x == '+' || (x >= '0' && x <= '9'));
             bool isUnicode = message.Any(x => x > 128);
@@ -215,7 +215,7 @@ namespace TqkLibrary.GSM.PDU
             List<string> msgs = Enumerable.Range(0, (int)Math.Ceiling(message.Length * 1.0 / chars_length_per_msg))
                 .Select(x => message.Substring(x * chars_length_per_msg, Math.Min(chars_length_per_msg, message.Length - x * chars_length_per_msg)))
                 .ToList();
-            byte CSMSReferenceNumber = (byte)new Random((int)timeSend.Value.Ticks).Next();
+            byte CSMSReferenceNumber = (byte)new Random((int)DateTime.Now.Ticks).Next();
 
             for (int i = 0; i < msgs.Count; i++)
             {
@@ -244,6 +244,7 @@ namespace TqkLibrary.GSM.PDU
                 pdu.DataCodingScheme.CharacterSet = isUnicode ? DCS_CharacterSet.UCS2 : DCS_CharacterSet.GSM7Bit;
 
                 pdu.ValidityPeriod = new ValidityPeriod(pdu);
+                pdu.ServiceCentreTimeStamp = new ServiceCentreTimeStamp(DateTime.Now.AddHours(1));
 
                 if (pdu.PduHeader.IsUserDataHeaderIndicator)
                 {

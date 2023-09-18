@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TqkLibrary.GSM.Extensions;
-using TqkLibrary.GSM.Helpers.PduPaser;
-using TqkLibrary.GSM.Helpers.PduPaser.Enums;
-using static TqkLibrary.GSM.Helpers.PduPaser.UserDataHeaderIndicator;
+using TqkLibrary.GSM.PDU;
+using TqkLibrary.GSM.PDU.Enums;
+using static TqkLibrary.GSM.PDU.UserDataHeaderIndicator;
 
-namespace TqkLibrary.GSM.Test
+namespace TqkLibrary.GSM.Test.PDU
 {
     [TestClass]
     public class TestPduCreate

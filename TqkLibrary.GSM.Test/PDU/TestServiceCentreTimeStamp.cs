@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TqkLibrary.GSM.Extensions;
-using TqkLibrary.GSM.Helpers.PduPaser;
-using TqkLibrary.GSM.Helpers.PduPaser.Enums;
+using TqkLibrary.GSM.PDU;
+using TqkLibrary.GSM.PDU.Enums;
 
-namespace TqkLibrary.GSM.Test
+namespace TqkLibrary.GSM.Test.PDU
 {
     [TestClass]
-    public class TestTimeStampHelper
+    public class TestServiceCentreTimeStamp
     {
         [TestMethod]
         public void Test()

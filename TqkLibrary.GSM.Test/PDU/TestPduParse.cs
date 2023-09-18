@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TqkLibrary.GSM.Extensions;
-using TqkLibrary.GSM.Helpers.PduPaser;
+using TqkLibrary.GSM.PDU;
 
-namespace TqkLibrary.GSM.Test
+namespace TqkLibrary.GSM.Test.PDU
 {
     [TestClass]
     public class TestPduParse
@@ -17,37 +17,30 @@ namespace TqkLibrary.GSM.Test
         const string pdu4 = "07914889200026F5400B914883537892F10008226003614542828C05000309020100540069006E0020006E00681EAF006E0020007400691EBF006E00670020007600691EC70074002000540069006E0020006E00681EAF006E0020007400691EBF006E00670020007600691EC700540069006E0020006E00681EAF006E0020007400691EBF006E00670020007600691EC700740020002000540069006E0020006E00681EAF006E";
         const string pdu5 = "07914889200026F5640B914883537892F10008226003614542821E0500030902020020007400691EBF006E00670020007600691EC700740020";
         const string pdu6 = "07914889200026F5240B914883537892F100002270107170058207D4021DE4FEBF01";
-        [TestMethod]
-        public void TestPdu1()
+        public static IEnumerable<object[]> AdditionData
         {
-            byte[] arr = pdu1.HexStringToByteArray();
-            var pdu = Pdu.Parse(arr);
-            var message = new Message(pdu);
-            string text = message.Content;
-            string senderNumber = message.SenderNumber;
-            int l = text.Length;
+            get
+            {
+                yield return new object[] { pdu1 };
+                yield return new object[] { pdu2 };
+                yield return new object[] { pdu3 };
+                yield return new object[] { pdu4 };
+                yield return new object[] { pdu5 };
+                yield return new object[] { pdu6 };
+            }
         }
 
         [TestMethod]
-        public void TestPdu4()
+        [DynamicData(nameof(AdditionData))]
+        public void TestPdu(string raw_pdu)
         {
-            byte[] arr = pdu4.HexStringToByteArray();
+            byte[] arr = raw_pdu.HexStringToByteArray();
             var pdu = Pdu.Parse(arr);
             var message = new Message(pdu);
             string text = message.Content;
             string senderNumber = message.SenderNumber;
             int l = text.Length;
-        }
-
-        [TestMethod]
-        public void TestPdu6()
-        {
-            byte[] arr = pdu6.HexStringToByteArray();
-            var pdu = Pdu.Parse(arr);
-            var message = new Message(pdu);
-            string text = message.Content;
-            string senderNumber = message.SenderNumber;
-            int l = text.Length;
+            Assert.IsTrue(Enumerable.SequenceEqual(arr, (byte[])pdu));
         }
     }
 }
