@@ -1,7 +1,7 @@
 ﻿namespace TqkLibrary.GSM.Helpers.PduPaser
 {
     /// <summary>
-    /// 
+    /// TP-DCS
     /// </summary>
     public class DataCodingScheme
     {

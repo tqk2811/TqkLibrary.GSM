@@ -1,4 +1,5 @@
 ﻿using Nito.AsyncEx;
+using TqkLibrary.GSM.Helpers.PduPaser.Interfaces;
 using static TqkLibrary.GSM.Extended.CommandRequestCMGF;
 using static TqkLibrary.GSM.Extended.CommandRequestCNMI;
 using static TqkLibrary.GSM.Extended.CommandRequestCPMS;
@@ -44,7 +45,7 @@ namespace TqkLibrary.GSM.Extended.Advances
         /// 
         /// </summary>
         public event Action<ISms> OnSmsReceived;
-        readonly Dictionary<byte, List<Message>> pdu_cache = new Dictionary<byte, List<Message>>();
+        readonly Dictionary<UInt16, List<Message>> pdu_cache = new Dictionary<UInt16, List<Message>>();
         readonly AsyncLock asyncLock = new AsyncLock();
         /// <summary>
         /// 
@@ -98,19 +99,20 @@ namespace TqkLibrary.GSM.Extended.Advances
                             {
                                 using (await asyncLock.LockAsync().ConfigureAwait(false))
                                 {
-                                    if (pdu_cache.ContainsKey(pdu.UDH.CSMSReferenceNumber))
+                                    IConcatenatedSms concatenatedSms = pdu.UserDataHeaderIndicator.UserData as IConcatenatedSms;
+                                    if (pdu_cache.ContainsKey(concatenatedSms.CSMSReferenceNumber))
                                     {
-                                        pdu_cache[pdu.UDH.CSMSReferenceNumber].Add(message);
-                                        if (pdu_cache[pdu.UDH.CSMSReferenceNumber].Count == pdu.UDH.TotalNumberOfParts)
+                                        pdu_cache[concatenatedSms.CSMSReferenceNumber].Add(message);
+                                        if (pdu_cache[concatenatedSms.CSMSReferenceNumber].Count == concatenatedSms.TotalNumberOfParts)
                                         {
-                                            SmsPdu smsPdu = new SmsPdu(pdu_cache[pdu.UDH.CSMSReferenceNumber]);
-                                            pdu_cache.Remove(pdu.UDH.CSMSReferenceNumber);
+                                            SmsPdu smsPdu = new SmsPdu(pdu_cache[concatenatedSms.CSMSReferenceNumber]);
+                                            pdu_cache.Remove(concatenatedSms.CSMSReferenceNumber);
                                             OnSmsReceived?.Invoke(smsPdu);
                                         }
                                     }
                                     else
                                     {
-                                        pdu_cache[pdu.UDH.CSMSReferenceNumber] = new List<Message>() { message };
+                                        pdu_cache[concatenatedSms.CSMSReferenceNumber] = new List<Message>() { message };
                                     }
                                 }
                             }

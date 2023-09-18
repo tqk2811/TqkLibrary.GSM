@@ -4,6 +4,8 @@ Edit: tqk2811
  */
 
 using TqkLibrary.GSM.Helpers.PduPaser.Enums;
+using TqkLibrary.GSM.Helpers.PduPaser.Interfaces;
+using TqkLibrary.GSM.Helpers.PduPaser.UserDataHeaderIndicatorDatas;
 
 namespace TqkLibrary.GSM.Helpers.PduPaser
 {
@@ -36,8 +38,8 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         {
             get
             {
-                if (pdu.AddressInfo is not null &&
-                    pdu.AddressInfo is SenderAddressInfo senderAddressInfo)
+                if (pdu.Address is not null &&
+                    pdu.Address is OriginatingAddress senderAddressInfo)
                 {
                     if (senderAddressInfo.NPI.HasFlag(NumberingPlanIdentification.ISDNTelephoneNumberingPlan))
                     {
@@ -55,34 +57,66 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         /// <summary>
         /// timestamp of sms center, this value should be sms sent time of local timezone by default
         /// </summary>
-        public DateTime DateTime => pdu.TimeStamp.TimeStamp;
+        public DateTime DateTime => pdu.ServiceCentreTimeStamp.TimeStamp;
 
         /// <summary>
         /// sms content, maybe a part
         /// </summary>
         public string Content => pdu.DataDecoder?.Decode(
             pdu.Data,
-            (int)pdu.DataLength - (pdu.UDH?.HeaderLength ?? 0),
-            pdu?.UDH?.Padding ?? 0);
+            (int)pdu.DataLength - (pdu.UserDataHeaderIndicator?.GetData()?.Count() ?? 0),
+            pdu?.UserDataHeaderIndicator?.Padding ?? 0);
 
         /// <summary>
         /// for long sms which be split, this value will be true
         /// </summary>
-        public bool IsSplit => pdu.UDH != null;
+        public bool IsSplit => 
+            pdu.UserDataHeaderIndicator?.InformationElementIdentifier == InformationElementIdentifier.ConcatenatedShortMessages || 
+            pdu.UserDataHeaderIndicator?.InformationElementIdentifier == InformationElementIdentifier.ConcatenatedShortMessage16BitReferenceNumber;
 
         /// <summary>
         /// unique identifier of long sms which be split
         /// </summary>
-        public byte? SplitId => pdu.UDH?.CSMSReferenceNumber;
+        public UInt16? SplitId
+        {
+            get
+            {
+                if(pdu?.UserDataHeaderIndicator?.UserData is IConcatenatedSms concatenatedSms)
+                {
+                    return concatenatedSms.CSMSReferenceNumber;
+                }
+                return null;
+            }
+        }
 
         /// <summary>
         /// number of parts that long sms split into
         /// </summary>
-        public byte? SplitCount => pdu.UDH?.TotalNumberOfParts;
+        public byte? SplitCount
+        {
+            get
+            {
+                if (pdu?.UserDataHeaderIndicator?.UserData is IConcatenatedSms concatenatedSms)
+                {
+                    return concatenatedSms.TotalNumberOfParts;
+                }
+                return null;
+            }
+        }
 
         /// <summary>
         /// index of split long sms, when <see cref="IsSplit"/> is true
         /// </summary>
-        public byte? SplitIndex => pdu.UDH?.PartNumberInTheSequence;
+        public byte? SplitIndex
+        {
+            get
+            {
+                if (pdu?.UserDataHeaderIndicator?.UserData is IConcatenatedSms concatenatedSms)
+                {
+                    return concatenatedSms.PartNumberInTheSequence;
+                }
+                return null;
+            }
+        }
     }
 }

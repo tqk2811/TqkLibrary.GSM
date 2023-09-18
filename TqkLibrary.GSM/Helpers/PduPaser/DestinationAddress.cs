@@ -4,9 +4,9 @@ using TqkLibrary.GSM.Helpers.PduPaser.Interfaces;
 namespace TqkLibrary.GSM.Helpers.PduPaser
 {
     /// <summary>
-    /// 
+    /// TP-DA
     /// </summary>
-    public class TargetAddressInfo : ITargetAddressInfo
+    public class DestinationAddress : IDestinationAddress
     {
         byte _ext_ton_npi = 0;
 

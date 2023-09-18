@@ -9,13 +9,13 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
     /// <summary>
     /// 
     /// </summary>
-    public class TimeStampHelper
+    public class ServiceCentreTimeStamp
     {
         /// <summary>
         /// 
         /// </summary>
         /// <param name="buff"></param>
-        public TimeStampHelper(byte[] buff)
+        public ServiceCentreTimeStamp(byte[] buff)
         {
             if (buff is null)
                 throw new ArgumentNullException(nameof(buff));
@@ -27,7 +27,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         /// <summary>
         /// 
         /// </summary>
-        public TimeStampHelper(DateTime dateTime)
+        public ServiceCentreTimeStamp(DateTime dateTime)
         {
             this.TimeStamp = dateTime;
         }

@@ -9,9 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TqkLibrary.GSM", "TqkLibrar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TqkLibrary.GSM.Test", "TqkLibrary.GSM.Test\TqkLibrary.GSM.Test.csproj", "{FACB607B-7AF4-4ED8-A823-71023915A3C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TqkLibrary.GSM.Proxy", "TqkLibrary.GSM.Proxy\TqkLibrary.GSM.Proxy.csproj", "{E3A2348D-3DF9-4B75-8522-60F2CD71A5D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TqkLibrary.GSM.Proxy", "TqkLibrary.GSM.Proxy\TqkLibrary.GSM.Proxy.csproj", "{E3A2348D-3DF9-4B75-8522-60F2CD71A5D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TqkLibrary.GSM.Extended", "TqkLibrary.GSM.Extended\TqkLibrary.GSM.Extended.csproj", "{09C82809-91D9-4944-8BF0-3A3D0156D6E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TqkLibrary.GSM.Extended", "TqkLibrary.GSM.Extended\TqkLibrary.GSM.Extended.csproj", "{09C82809-91D9-4944-8BF0-3A3D0156D6E6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -173,6 +173,13 @@
                 .Select(x => (byte)(x >> 4 | x << 4))
                 .ToArray();
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="chars"></param>
+        /// <returns></returns>
+        public static string ConvertToString(this IEnumerable<char> chars)
+            => new string(chars.ToArray());
 
         /// <summary>
         /// 

@@ -5,7 +5,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser.Interfaces
     /// <summary>
     /// 
     /// </summary>
-    public interface IAddressInfo
+    public interface IAddress
     {
         /// <summary>
         /// 

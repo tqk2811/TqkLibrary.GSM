@@ -19,8 +19,8 @@ namespace TqkLibrary.GSM.Test
             var str_time = DateTime.Now.ToString();
             var time = DateTime.Parse(str_time);
 
-            var buffer = TimeStampHelper.DateTimeToBuffer(time);
-            var parse = TimeStampHelper.ParseDateTime(buffer);
+            var buffer = ServiceCentreTimeStamp.DateTimeToBuffer(time);
+            var parse = ServiceCentreTimeStamp.ParseDateTime(buffer);
             Assert.IsTrue(parse.Equals(time));
         }
     }

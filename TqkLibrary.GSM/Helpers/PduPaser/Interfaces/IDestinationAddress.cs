@@ -3,7 +3,7 @@
     /// <summary>
     /// 
     /// </summary>
-    public interface ITargetAddressInfo : IAddressInfo
+    public interface IDestinationAddress : IAddress
     {
         /// <summary>
         /// 

@@ -74,7 +74,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         /// </summary>
         public ValidityPeriodFormat ValidityPeriodFormat
         {
-            get => (ValidityPeriodFormat)(_byte >> 3);
+            get => (ValidityPeriodFormat)((_byte & 0b00011000) >> 3);
             set
             {
                 _byte = (byte)((_byte & 0b11100111) | (byte)((byte)value << 3));
@@ -120,7 +120,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         }
         /// <summary>
         /// Bit 6<br>
-        /// </br>When TP-User-Data-Header-Indicator (TP-UDHI) has value 1, the TP-UD field starts with <see cref="UserDataHeader"/>.
+        /// </br>When TP-User-Data-Header-Indicator (TP-UDHI) has value 1, the TP-UD field starts with <see cref="UserDataHeaderIndicator"/>.
         /// </summary>
         public bool IsUserDataHeaderIndicator
         {

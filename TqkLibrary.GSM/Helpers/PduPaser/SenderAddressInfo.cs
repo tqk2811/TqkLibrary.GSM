@@ -6,10 +6,10 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
     /// <summary>
     /// 
     /// </summary>
-    public class SenderAddressInfo : IAddressInfo
+    public class OriginatingAddress : IAddress
     {
         byte _ext_ton_npi = 0;
-        private SenderAddressInfo()
+        private OriginatingAddress()
         {
 
         }
@@ -70,9 +70,9 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         /// </summary>
         /// <param name="rawPdu"></param>
         /// <returns></returns>
-        public static SenderAddressInfo Parse(Stream rawPdu)
+        public static OriginatingAddress Parse(Stream rawPdu)
         {
-            SenderAddressInfo addressInfo = new SenderAddressInfo();
+            OriginatingAddress addressInfo = new OriginatingAddress();
             addressInfo.AddressLength = (byte)rawPdu.ReadByte();
             addressInfo._ext_ton_npi = (byte)rawPdu.ReadByte();
             addressInfo.Address = rawPdu.Read(addressInfo.SenderByteLength);

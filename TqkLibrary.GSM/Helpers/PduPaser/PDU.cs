@@ -2,7 +2,9 @@
 Original https://github.com/wi1dcard/sms-decoder
 Edit: tqk2811
  */
+using TqkLibrary.GSM.Helpers.PduPaser.Enums;
 using TqkLibrary.GSM.Helpers.PduPaser.Interfaces;
+using TqkLibrary.GSM.Helpers.PduPaser.UserDataHeaderIndicatorDatas;
 using static TqkLibrary.GSM.Helpers.PduPaser.DataCodingScheme;
 
 namespace TqkLibrary.GSM.Helpers.PduPaser
@@ -25,26 +27,32 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
         public PduHeader PduHeader { get; private set; }
 
         /// <summary>
-        /// <see cref="SenderAddressInfo"/> for <see cref="PduType.SmsDeliver"/><br>
-        /// </br><see cref="TargetAddressInfo"/> for <see cref="PduType.SmsSubmit"/>
+        /// <see cref="OriginatingAddress"/> for <see cref="PduType.SmsDeliver"/><br>
+        /// </br><see cref="DestinationAddress"/> for <see cref="PduType.SmsSubmit"/>
         /// </summary>
-        public IAddressInfo AddressInfo { get; private set; }
+        public IAddress Address { get; private set; }
 
         /// <summary>
         /// TP-PID
         /// </summary>
-        public byte ProtocalId { get; private set; }
+        public byte ProtocalIdentifier { get; private set; }
         /// <summary>
         /// TP-DCS
         /// </summary>
         public DataCodingScheme DataCodingScheme { get; private set; }
+        /// <summary>
+        /// TP-SCTS
+        /// </summary>
+        public ServiceCentreTimeStamp ServiceCentreTimeStamp { get; private set; }
+        /// <summary>
+        /// TP-VP
+        /// </summary>
+        public ValidityPeriod ValidityPeriod { get; private set; }
+        public UserDataHeaderIndicator UserDataHeaderIndicator { get; private set; }
         public IDecoder DataDecoder { get; set; }
-        public TimeStampHelper TimeStamp { get; private set; }
-
         public byte DataLength { get; private set; }
         public byte[] Data { get; private set; }
 
-        public UserDataHeader UDH { get; private set; }
 
 
         PDU _Parse(Stream rawPdu)
@@ -64,9 +72,9 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
             {
                 case PduType.SmsDeliver:
                     {
-                        AddressInfo = SenderAddressInfo.Parse(rawPdu);
+                        Address = OriginatingAddress.Parse(rawPdu);
 
-                        ProtocalId = (byte)rawPdu.ReadByte();
+                        ProtocalIdentifier = (byte)rawPdu.ReadByte();
                         DataCodingScheme = (DataCodingScheme)rawPdu.ReadByte();
 
                         switch (DataCodingScheme.CharacterSet)
@@ -82,7 +90,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
                                 break;
                         }
 
-                        TimeStamp = new TimeStampHelper(rawPdu.Read(7));
+                        ServiceCentreTimeStamp = new ServiceCentreTimeStamp(rawPdu.Read(7));
 
 
                         //length of data in byte
@@ -92,12 +100,7 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
 
                         if (PduHeader.IsUserDataHeaderIndicator)
                         {
-                            byte UDH_Length = (byte)rawPdu.ReadByte();
-                            byte[] headers = new byte[UDH_Length + 1];
-                            headers[0] = UDH_Length;
-                            rawPdu.Read(headers, 1, UDH_Length);
-                            //https://en.wikipedia.org/wiki/User_Data_Header
-                            UDH = new UserDataHeader(headers);
+                            UserDataHeaderIndicator = UserDataHeaderIndicator.Read(rawPdu);
                             Data = rawPdu.ReadToEnd();//length wrong??
                         }
                         else Data = rawPdu.ReadToEnd();//length wrong??
@@ -133,23 +136,36 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
 
             yield return (byte)PduHeader;
 
-            if (AddressInfo is null)
-                throw new InvalidDataException($"{nameof(AddressInfo)} is null");
-            foreach (var b in AddressInfo.GetData())
-                    yield return b;
+            if (Address is null)
+                throw new InvalidDataException($"{nameof(Address)} is null");
+            foreach (var b in Address.GetData())
+                yield return b;
 
-            yield return ProtocalId;
+            yield return ProtocalIdentifier;
             yield return (byte)DataCodingScheme;
 
-            if (TimeStamp is null)
-                throw new InvalidDataException($"{nameof(TimeStamp)} is null");
-            foreach (var b in TimeStamp.GetData())
-                yield return b;
+            switch (PduHeader.ValidityPeriodFormat)
+            {
+                case ValidityPeriodFormat.NotPresent:
+                    if (ServiceCentreTimeStamp is null)
+                        throw new InvalidDataException($"{nameof(this.ServiceCentreTimeStamp)} is null");
+                    foreach (var b in ServiceCentreTimeStamp.GetData())
+                        yield return b;
+                    break;
+
+                case ValidityPeriodFormat.PresentAndSemiOctetRepresented:
+                case ValidityPeriodFormat.PresentAndIntegerRepresented:
+                    if (ValidityPeriod is null)
+                        throw new InvalidDataException($"{nameof(this.ValidityPeriod)} is null");
+                    foreach (var b in ValidityPeriod.GetData())
+                        yield return b;
+                    break;
+            }
 
             yield return DataLength;
             if (PduHeader.IsUserDataHeaderIndicator)
             {
-                foreach (var b in (byte[])UDH)
+                foreach (var b in (byte[])UserDataHeaderIndicator)
                     yield return b;
             }
             foreach (var b in Data)
@@ -180,21 +196,93 @@ namespace TqkLibrary.GSM.Helpers.PduPaser
             }
         }
 
-        //public static PDU Create(
-        //    string desNumber, AddressesType desType,
+        public static IEnumerable<PDU> Create(
+            string desNumber, string message, DateTime? timeSend = null
+            )
+        {
+            if (!timeSend.HasValue)
+                timeSend = DateTime.Now;
 
-        //    )
-        //{
-        //    //http://www.gsm-modem.de/sms-pdu-mode.html
-        //    PDU pdu = new PDU();
-        //    pdu.SmscByteLength = 0;//just zero
-        //    pdu.PduHeader = new PduHeader(0x00);
-        //    pdu.PduHeader.Type = PduType.SmsSubmit;
+            bool isNumber = desNumber.All(x => x == '+' || (x >= '0' && x <= '9'));
+            bool isUnicode = message.Any(x => x > 128);
 
+            IEncodeDecode encodeDecode = isUnicode ? new UnicodeEncrypt() : new SevenBitEncrypt();
+            Encoding encoding = isUnicode ? Encoding.Unicode : Encoding.ASCII;
+            int chars_length_per_msg = isUnicode ? 76 : 160;//ASCII 160, unicode 70
 
+            List<string> msgs = Enumerable.Range(0, (int)Math.Ceiling(message.Length * 1.0 / chars_length_per_msg))
+                .Select(x => message.Substring(x * chars_length_per_msg, Math.Min(chars_length_per_msg, message.Length - x * chars_length_per_msg)))
+                .ToList();
+            byte CSMSReferenceNumber = (byte)new Random((int)timeSend.Value.Ticks).Next();
 
-        //    return pdu;
-        //}
+            for (int i = 0; i < msgs.Count; i++)
+            {
+                //http://www.gsm-modem.de/sms-pdu-mode.html
+                //https://www.smsdeliverer.com/online-sms-pdu-encoder.aspx
+                PDU pdu = new PDU();
+                pdu.SmscByteLength = 0;//just zero
+                pdu.PduHeader = new PduHeader(0x00);
+                pdu.PduHeader.Type = PduType.SmsSubmit;
+                pdu.PduHeader.IsStatusReportRequest = false;//if need report success or failed
+                pdu.PduHeader.ValidityPeriodFormat = ValidityPeriodFormat.PresentAndIntegerRepresented;
+                pdu.PduHeader.IsUserDataHeaderIndicator = msgs.Count > 1;
+                pdu.Address = new DestinationAddress()
+                {
+                    MessageReference = 0,
+                    AddressLength = (byte)desNumber.TrimStart('+').Length,
+                    //If a subscriber enters a telephone number with `+' sign at its start, the `+' sign will be removed and the address gets TON=1 (international number), NPI=1.
+                    //The number itself must always start with a country code and must be formatted exactly according to the E.164 standard.
+                    NPI = isNumber ? NumberingPlanIdentification.ISDNTelephoneNumberingPlan : NumberingPlanIdentification.Unknown,
+                    TON = isNumber ? TypeOfNumber.Unknown : TypeOfNumber.Alphanumeric,
+                    Address = isNumber ? desNumber.Trim('+').ToDecimalSemiOctets() : new SevenBitEncrypt().Encode(desNumber),
+                };
+                pdu.ProtocalIdentifier = 0;
+                pdu.DataCodingScheme = new DataCodingScheme(0x00);
+                //pdu.DataCodingScheme.Class = DCS_MessageClass.FlashMessage;
+                pdu.DataCodingScheme.CharacterSet = isUnicode ? DCS_CharacterSet.UCS2 : DCS_CharacterSet.GSM7Bit;
+
+                pdu.ValidityPeriod = new ValidityPeriod(pdu);
+
+                if (pdu.PduHeader.IsUserDataHeaderIndicator)
+                {
+                    pdu.UserDataHeaderIndicator = new UserDataHeaderIndicator();
+                    pdu.UserDataHeaderIndicator.InformationElementIdentifier = InformationElementIdentifier.ConcatenatedShortMessages;
+                    pdu.UserDataHeaderIndicator.UserData = new ConcatenatedSms8()
+                    {
+                        CSMSReferenceNumber = CSMSReferenceNumber,
+                        TotalNumberOfParts = (byte)msgs.Count,
+                        PartNumberInTheSequence = (byte)i,
+                    };
+                    pdu.DataLength = (byte)(msgs[i].Length + ((byte[])pdu.UserDataHeaderIndicator).Length);
+                }
+                else
+                {
+                    pdu.DataLength = (byte)msgs[i].Length;
+                }
+                pdu.Data = encodeDecode.Encode(msgs[i]);
+
+#if DEBUG
+                //https://www.smsdeliverer.com/online-sms-pdu-encoder.aspx Validity period (hours):	 2
+                //test 1
+                //0011000A81 3018111111 00 00 17 17 C8329BFD064D9B5362999DB697E565B96BFC6E8700
+                //test 2
+                //0051000A81 3018111111 00 08 17 8C 050003000301 005200FA00740020006C007500690020002C0020006B006800F4006E006700200072006100200074006800EA006D002000731EA3006E0020007000681EA9006D0020006E00EA006E0020006300F30020007400681EDD00690020006700690061006E0020006300680061007500200063006800751ED10074002000630068006F002000621EA3
+                //0051000A81 3018111111 00 08 17 8C 050003000302 006E00200074006800E2006E002C0020006E00EA006E0020006E006800EC006E0020006E006701B01EDD00690020006300F30020007400ED0020006301A1002000721ED300690020002C00200074006100790020006E00E000790020006300681EAF00630020006D1ED90074002000761EE300740020006C01690020007200751ED300690020
+                //0051000A81 3018111111 00 08 17 48 050003000303 00621EC700700020006400ED0020002C0020006300F2006E0020007200751ED3006900200063006800610020006300681EAF00630020006D1ED900740020007600E3
+
+                //tool
+                //test 1
+                //0011000A01 3018111111 00 00 32901112008282 17 C8329BFD064D9B5362999DB697E565B96BFC6E8700
+                //test 2
+                //                          time -  data length - udh - dataaaaa
+                //0051000A01 3018111111 00 08 32901112111482 46 050003970300 005200FA00740020006C007500690020002C0020006B006800F4006E006700200072006100200074006800EA006D002000731EA3006E0020007000681EA9006D0020006E00EA006E0020006300F30020007400681EDD00690020006700690061006E0020006300680061007500200063006800751ED10074002000630068006F002000621EA3006E00200074
+                //0051000A01 3018111111 00 08 32901112316082 46 050003100301 006800E2006E002C0020006E00EA006E0020006E006800EC006E0020006E006701B01EDD00690020006300F30020007400ED0020006301A1002000721ED300690020002C00200074006100790020006E00E000790020006300681EAF00630020006D1ED90074002000761EE300740020006C01690020007200751ED30069002000621EC700700020006400ED
+                //0051000A01 3018111111 00 08 32901112316082 1B 050003100302 0020002C0020006300F2006E0020007200751ED3006900200063006800610020006300681EAF00630020006D1ED900740020007600E3
+                string hex = BitConverter.ToString(pdu.GetBytes().ToArray()).Replace("-", string.Empty);
+#endif
+                yield return pdu;
+            }
+        }
     }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }
