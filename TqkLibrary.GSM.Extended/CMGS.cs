@@ -1,4 +1,5 @@
-﻿using static TqkLibrary.GSM.Extended.CommandRequestCMGF;
+﻿using TqkLibrary.GSM.PDU;
+using static TqkLibrary.GSM.Extended.CommandRequestCMGF;
 
 namespace TqkLibrary.GSM.Extended
 {
@@ -10,6 +11,11 @@ namespace TqkLibrary.GSM.Extended
         internal CommandRequestCMGS(IGsmClient gsmClient) : base(gsmClient, "CMGS")
         {
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public TimeSpan ValidityPeriod { get; set; } = TimeSpan.Zero;
 
         /// <summary>
         /// 
@@ -49,31 +55,26 @@ namespace TqkLibrary.GSM.Extended
                 MessageFormat? _currentMessageFormat = await GsmClient.CMGF().ReadAsync();
                 switch (_currentMessageFormat)
                 {
-                    //case MessageFormat.PduMode:
-                    //    {
-                    //        IEncodeDecode decoder = null;
-                    //        if (message.Any(x => x > 127))//unicode
-                    //        {
-                    //            decoder = new UnicodeEncrypt();
-                    //        }
-                    //        else//ascii
-                    //        {
-                    //            decoder = new SevenBitEncrypt();
-                    //        }
-                    //        dataWrite = decoder.Encode(message);
+                    case MessageFormat.PduMode:
+                        {
+                            List<Pdu> pdus = Pdu.Create(destPhoneNumber, message, this.ValidityPeriod).ToList();
+                            GsmCommandResult gsmCommandResult = null;
+                            foreach (var pdu in pdus)
+                            {
+                                dataWrite = (byte[])pdu;
+                                try
+                                {
+                                    GsmClient.OnPromptEvent += action;
 
-                    //        try
-                    //        {
-                    //            GsmClient.OnPromptEvent += action;
-
-                    //            await base.WriteAsync(cancellationToken, dataWrite.Length);
-                    //        }
-                    //        finally
-                    //        {
-                    //            GsmClient.OnPromptEvent -= action;
-                    //        }
-                    //        break;
-                    //    }
+                                    gsmCommandResult = await base.WriteAsync(cancellationToken, dataWrite.Length);
+                                }
+                                finally
+                                {
+                                    GsmClient.OnPromptEvent -= action;
+                                }
+                            }
+                            return gsmCommandResult;
+                        }
 
                     case MessageFormat.TextMode:
                         {
