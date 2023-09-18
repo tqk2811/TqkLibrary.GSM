@@ -1,5 +1,6 @@
 ﻿using Nito.AsyncEx;
-using TqkLibrary.GSM.Helpers.PduPaser.Interfaces;
+using TqkLibrary.GSM.PDU;
+using TqkLibrary.GSM.PDU.Interfaces;
 using static TqkLibrary.GSM.Extended.CommandRequestCMGF;
 using static TqkLibrary.GSM.Extended.CommandRequestCNMI;
 using static TqkLibrary.GSM.Extended.CommandRequestCPMS;
@@ -91,7 +92,7 @@ namespace TqkLibrary.GSM.Extended.Advances
                 {
                     case MessageFormat.PduMode:
                         //[<alpha>],<length><CR><LF><pdu>
-                        PDU pdu = PDU.TryParse(commandData.Data.HexStringToByteArray());
+                        Pdu pdu = Pdu.TryParse(commandData.Data.HexStringToByteArray());
                         if (pdu?.PduHeader?.Type == PduType.SmsDeliver)
                         {
                             Message message = new Message(pdu);

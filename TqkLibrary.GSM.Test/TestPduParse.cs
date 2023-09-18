@@ -21,7 +21,7 @@ namespace TqkLibrary.GSM.Test
         public void TestPdu1()
         {
             byte[] arr = pdu1.HexStringToByteArray();
-            var pdu = PDU.Parse(arr);
+            var pdu = Pdu.Parse(arr);
             var message = new Message(pdu);
             string text = message.Content;
             string senderNumber = message.SenderNumber;
@@ -32,7 +32,7 @@ namespace TqkLibrary.GSM.Test
         public void TestPdu4()
         {
             byte[] arr = pdu4.HexStringToByteArray();
-            var pdu = PDU.Parse(arr);
+            var pdu = Pdu.Parse(arr);
             var message = new Message(pdu);
             string text = message.Content;
             string senderNumber = message.SenderNumber;
@@ -43,7 +43,7 @@ namespace TqkLibrary.GSM.Test
         public void TestPdu6()
         {
             byte[] arr = pdu6.HexStringToByteArray();
-            var pdu = PDU.Parse(arr);
+            var pdu = Pdu.Parse(arr);
             var message = new Message(pdu);
             string text = message.Content;
             string senderNumber = message.SenderNumber;

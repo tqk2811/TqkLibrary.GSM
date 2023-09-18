@@ -9,5 +9,4 @@ global using System.Threading;
 global using System.Threading.Tasks;
 global using TqkLibrary.GSM.Exceptions;
 global using TqkLibrary.GSM.Extensions;
-global using TqkLibrary.GSM.Helpers.PduPaser.Encrypts;
 global using TqkLibrary.GSM.Interfaces;

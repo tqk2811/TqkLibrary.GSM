@@ -150,32 +150,6 @@
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        public static string DecimalSemiOctetsToString(this IEnumerable<byte> bytes)
-            => BitConverter.ToString(bytes.Select(x => (byte)(x >> 4 | x << 4)).ToArray()).Replace("-", string.Empty);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="str"></param>
-        /// <returns></returns>
-        public static byte[] ToDecimalSemiOctets(this string str)
-        {
-            if (!str.All(x => x >= '0' && x <= '9'))
-                throw new InvalidDataException($"{nameof(str)} only allow number");
-
-            str = (str.Length % 2 == 0) ? str : str + "F";
-
-            return Enumerable
-                .Range(0, str.Length / 2)
-                .Select(x => Convert.ToInt32(str.Substring(x * 2, 2), 16))
-                .Select(x => (byte)(x >> 4 | x << 4))
-                .ToArray();
-        }
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="chars"></param>
         /// <returns></returns>
         public static string ConvertToString(this IEnumerable<char> chars)

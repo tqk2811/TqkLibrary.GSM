@@ -11,8 +11,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\TqkLibrary.GSM.PDU\TqkLibrary.GSM.PDU.csproj" />
-	  <ProjectReference Include="..\TqkLibrary.GSM\TqkLibrary.GSM.csproj" />
+		<PackageReference Include="Nito.AsyncEx" Version="5.1.2" />
+		<PackageReference Include="System.IO.Ports" Version="6.0.0" />
 	</ItemGroup>
 
 </Project>

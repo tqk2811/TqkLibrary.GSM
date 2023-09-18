@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TqkLibrary.GSM.Proxy", "Tqk
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TqkLibrary.GSM.Extended", "TqkLibrary.GSM.Extended\TqkLibrary.GSM.Extended.csproj", "{09C82809-91D9-4944-8BF0-3A3D0156D6E6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TqkLibrary.GSM.PDU", "TqkLibrary.GSM.PDU\TqkLibrary.GSM.PDU.csproj", "{4BAE0EB1-D9B7-4B0C-BA5A-35EA038B160A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,18 @@ Global
 		{09C82809-91D9-4944-8BF0-3A3D0156D6E6}.Release|x64.Build.0 = Release|Any CPU
 		{09C82809-91D9-4944-8BF0-3A3D0156D6E6}.Release|x86.ActiveCfg = Release|Any CPU
 		{09C82809-91D9-4944-8BF0-3A3D0156D6E6}.Release|x86.Build.0 = Release|Any CPU
+		{4BAE0EB1-D9B7-4B0C-BA5A-35EA038B160A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BAE0EB1-D9B7-4B0C-BA5A-35EA038B160A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BAE0EB1-D9B7-4B0C-BA5A-35EA038B160A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4BAE0EB1-D9B7-4B0C-BA5A-35EA038B160A}.Debug|x64.Build.0 = Debug|Any CPU
+		{4BAE0EB1-D9B7-4B0C-BA5A-35EA038B160A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4BAE0EB1-D9B7-4B0C-BA5A-35EA038B160A}.Debug|x86.Build.0 = Debug|Any CPU
+		{4BAE0EB1-D9B7-4B0C-BA5A-35EA038B160A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BAE0EB1-D9B7-4B0C-BA5A-35EA038B160A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BAE0EB1-D9B7-4B0C-BA5A-35EA038B160A}.Release|x64.ActiveCfg = Release|Any CPU
+		{4BAE0EB1-D9B7-4B0C-BA5A-35EA038B160A}.Release|x64.Build.0 = Release|Any CPU
+		{4BAE0EB1-D9B7-4B0C-BA5A-35EA038B160A}.Release|x86.ActiveCfg = Release|Any CPU
+		{4BAE0EB1-D9B7-4B0C-BA5A-35EA038B160A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

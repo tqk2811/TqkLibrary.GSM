@@ -19,7 +19,7 @@ namespace TqkLibrary.GSM.Test
             string message = "Hello SMSDeliverer.com!";
             string desNumber = "0381111111";
 
-            var pdus = PDU.Create(desNumber, message)
+            var pdus = Pdu.Create(desNumber, message)
                 .ToList();
         }
         [TestMethod]
@@ -28,7 +28,7 @@ namespace TqkLibrary.GSM.Test
             string message = "Rút lui , không ra thêm sản phẩm nên có thời gian chau chuốt cho bản thân, nên nhìn người có tí cơ rồi , tay này chắc một vợt lũ ruồi bệp dí , còn ruồi cha chắc một vã";
             string desNumber = "0381111111";
 
-            var pdus = PDU.Create(desNumber, message)
+            var pdus = Pdu.Create(desNumber, message)
                 .ToList();
         }
     }

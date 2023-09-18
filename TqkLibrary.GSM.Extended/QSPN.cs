@@ -1,4 +1,6 @@
-﻿namespace TqkLibrary.GSM.Extended
+﻿using TqkLibrary.GSM.PDU.Encrypts;
+
+namespace TqkLibrary.GSM.Extended
 {
     //https://www.manualslib.com/manual/1511434/Quectel-Ec25.html?page=88#manual
     /// <summary>

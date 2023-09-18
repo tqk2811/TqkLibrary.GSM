@@ -19,7 +19,7 @@ namespace TqkLibrary.GSM.Test
             string message = "Hello SMSDeliverer.com!";
             string desNumber = "0381111111";
 
-            var pdus = PDU.Create(desNumber, message)
+            var pdus = Pdu.Create(desNumber, message)
                 .ToList();
 
             foreach (var pdu in pdus)
