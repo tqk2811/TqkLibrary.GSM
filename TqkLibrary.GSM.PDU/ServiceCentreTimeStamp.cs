@@ -86,12 +86,13 @@ namespace TqkLibrary.GSM.PDU
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="dateTime"></param>
         /// <returns></returns>
-        public static byte[] DateTimeToBuffer(DateTime dateTime)
+        public static byte[] DateTimeToBuffer(DateTime dateTime, TimeZoneInfo timeZoneInfo = null)
         {
-            TimeZoneInfo localZone = TimeZoneInfo.Local;
-            TimeSpan timeZone = localZone.BaseUtcOffset;
+            if (timeZoneInfo is null) 
+                timeZoneInfo = TimeZoneInfo.Local;
+
+            TimeSpan timeZone = timeZoneInfo.BaseUtcOffset;
             bool timeZoneIsNegative = timeZone.Hours < 0;
             int timeInQuad = Math.Abs(timeZone.Hours) * 4; // * 60 / 15
 
@@ -101,7 +102,7 @@ namespace TqkLibrary.GSM.PDU
             Array.Copy(buff_time, buffer, 6);
 
             buffer[6] = (byte)Convert.ToInt32(new string(timeInQuad.ToString().Reverse().ToArray()), 16);
-            if(timeZoneIsNegative)
+            if (timeZoneIsNegative)
             {
                 buffer[6] = (byte)(buffer[6] | 0b00001000);
             }
