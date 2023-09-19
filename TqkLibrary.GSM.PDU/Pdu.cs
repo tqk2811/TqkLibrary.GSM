@@ -254,7 +254,7 @@ namespace TqkLibrary.GSM.PDU
                     {
                         CSMSReferenceNumber = CSMSReferenceNumber,
                         TotalNumberOfParts = (byte)msgs.Count,
-                        PartNumberInTheSequence = (byte)i,
+                        PartNumberInTheSequence = (byte)(i + 1),
                     };
                     pdu.DataLength = (byte)(msgs[i].Length + ((byte[])pdu.UserDataHeaderIndicator).Length);
                 }
