@@ -1,4 +1,4 @@
-﻿namespace TqkLibrary.GSM.PDU
+﻿namespace TqkLibrary.GSM.PDU.Enums
 {
     /// <summary>
     /// TPDU Types for Mobile Station (MS) and Short Message Service Centre (SMSC, SC).

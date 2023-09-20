@@ -1,6 +1,4 @@
-﻿using TqkLibrary.GSM.PDU.Interfaces;
-
-namespace TqkLibrary.GSM.PDU.UserDataHeaderIndicatorDatas
+﻿namespace TqkLibrary.GSM.PDU.UserDataHeaderIndicatorDatas
 {
     /// <summary>
     /// 

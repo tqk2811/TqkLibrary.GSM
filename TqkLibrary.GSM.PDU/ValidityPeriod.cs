@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TqkLibrary.GSM.PDU
+﻿namespace TqkLibrary.GSM.PDU
 {
     /// <summary>
     /// 
@@ -18,13 +12,13 @@ namespace TqkLibrary.GSM.PDU
         /// </summary>
         public ValidityPeriod(byte b, Pdu pdu)
         {
-            this._b = b;
-            this._pdu = pdu ?? throw new ArgumentNullException(nameof(pdu));
+            _b = b;
+            _pdu = pdu ?? throw new ArgumentNullException(nameof(pdu));
         }
         /// <summary>
         /// 
         /// </summary>
-        public ValidityPeriod(Pdu pdu) : this(0x00, pdu)
+        public ValidityPeriod(Pdu pdu) : this(0xff, pdu)
         {
 
         }
@@ -40,11 +34,6 @@ namespace TqkLibrary.GSM.PDU
                 switch (_pdu.PduHeader?.ValidityPeriodFormat)
                 {
                     case ValidityPeriodFormat.PresentAndIntegerRepresented:
-                        break;
-
-                    case ValidityPeriodFormat.PresentAndSemiOctetRepresented:
-                        string str_val = (new byte[1] { _b }).DecimalSemiOctetsToString();
-                        val = (byte)int.Parse(str_val);
                         break;
 
                     default:
@@ -75,7 +64,7 @@ namespace TqkLibrary.GSM.PDU
                 {
                     throw new InvalidDataException($"{nameof(value)} must be larger than Zero");
                 }
-                else if(value == TimeSpan.Zero)
+                else if (value == TimeSpan.Zero)
                 {
                     val = 0xff;
                 }
@@ -99,15 +88,7 @@ namespace TqkLibrary.GSM.PDU
                 switch (_pdu.PduHeader?.ValidityPeriodFormat)
                 {
                     case ValidityPeriodFormat.PresentAndIntegerRepresented:
-                        this._b = (byte)val;
-                        break;
-
-                    case ValidityPeriodFormat.PresentAndSemiOctetRepresented:
-                        if (val >= 100) 
-                            val = 99;
-                        string val_Str = val.ToString("00");
-                        byte[] semiOctets = val_Str.ToDecimalSemiOctets();
-                        this._b = semiOctets.First();
+                        _b = (byte)val;
                         break;
 
                     default:

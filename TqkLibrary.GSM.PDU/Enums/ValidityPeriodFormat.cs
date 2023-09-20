@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TqkLibrary.GSM.PDU
+﻿namespace TqkLibrary.GSM.PDU.Enums
 {
     /// <summary>
     /// 9.2.3.3 TP-Validity-Period-Format (TP-VPF)<br>

@@ -29,13 +29,13 @@
         /// <summary>
         /// Bit 0 &amp; 1
         /// </summary>
-        public DCS_MessageClass? Class
+        public MessageClass? Class
         {
             get
             {
                 if (IsClass)
                 {
-                    return (DCS_MessageClass)(@byte & 0b00000011);
+                    return (MessageClass)(@byte & 0b00000011);
                 }
                 else
                 {
@@ -50,6 +50,7 @@
                 }
                 else
                 {
+                    IsClass = true;
                     @byte = (byte)((@byte & 0b11111100) | (byte)value);
                 }
             }
@@ -58,11 +59,11 @@
         /// <summary>
         /// Bit 2 &amp; 3
         /// </summary>
-        public DCS_CharacterSet CharacterSet
+        public CharacterSet CharacterSet
         {
             get
             {
-                return (DCS_CharacterSet)((@byte & 0b00001100) >> 2);
+                return (CharacterSet)((@byte & 0b00001100) >> 2);
             }
             set
             {
@@ -85,18 +86,18 @@
         /// <summary>
         /// Bit 5,6,7
         /// </summary>
-        public DCS_CodingGroup CodingGroup
+        public CodingGroup CodingGroup
         {
             get
             {
                 switch (@byte)
                 {
-                    case >= 0x00 and <= 0x3f: return DCS_CodingGroup.GeneralDataCoding;
-                    case >= 0x40 and <= 0x7f: return DCS_CodingGroup.MessageMarkedForAutomaticDeletion;
-                    case >= 0x80 and <= 0xbf: return DCS_CodingGroup.Reserved;
-                    case >= 0xc0 and <= 0xcf: return DCS_CodingGroup.MessageWaitingInfo_DiscardMessage;
-                    case >= 0xd0 and <= 0xef: return DCS_CodingGroup.MessageWaitingInfo_StoreMessage;
-                    case >= 0xf0 and <= 0xff: return DCS_CodingGroup.DataCoding_Or_MessageClass;
+                    case >= 0x00 and <= 0x3f: return CodingGroup.GeneralDataCoding;
+                    case >= 0x40 and <= 0x7f: return CodingGroup.MessageMarkedForAutomaticDeletion;
+                    case >= 0x80 and <= 0xbf: return CodingGroup.Reserved;
+                    case >= 0xc0 and <= 0xcf: return CodingGroup.MessageWaitingInfo_DiscardMessage;
+                    case >= 0xd0 and <= 0xef: return CodingGroup.MessageWaitingInfo_StoreMessage;
+                    case >= 0xf0 and <= 0xff: return CodingGroup.DataCoding_Or_MessageClass;
                 }
             }
         }
@@ -128,81 +129,5 @@
         /// <param name="byte"></param>
         public static implicit operator DataCodingScheme(byte @byte) => new DataCodingScheme(@byte);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public enum DCS_CharacterSet
-        {
-            /// <summary>
-            /// 
-            /// </summary>
-            GSM7Bit = 0b00,
-            /// <summary>
-            /// 
-            /// </summary>
-            Data = 0b01,
-            /// <summary>
-            /// 
-            /// </summary>
-            UCS2 = 0b10,
-            /// <summary>
-            /// 
-            /// </summary>
-            Reserved = 0b11,
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public enum DCS_CodingGroup
-        {
-            /// <summary>
-            /// 
-            /// </summary>
-            GeneralDataCoding,
-            /// <summary>
-            /// 
-            /// </summary>
-            MessageMarkedForAutomaticDeletion,
-            /// <summary>
-            /// 
-            /// </summary>
-            MessageWaitingInfo_DiscardMessage,
-            /// <summary>
-            /// 
-            /// </summary>
-            MessageWaitingInfo_StoreMessage,
-            /// <summary>
-            /// 
-            /// </summary>
-            DataCoding_Or_MessageClass,
-            /// <summary>
-            /// 
-            /// </summary>
-            Reserved
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public enum DCS_MessageClass : byte
-        {
-            /// <summary>
-            /// Class 0
-            /// </summary>
-            FlashMessage = 0b00,
-            /// <summary>
-            /// Class 1
-            /// </summary>
-            ME_Specific = 0b01,
-            /// <summary>
-            /// Class 2
-            /// </summary>
-            SIM_Or_USIM_Specific = 0b10,
-            /// <summary>
-            /// Class 3
-            /// </summary>
-            TE_Specific = 0b11,
-        }
     }
 }

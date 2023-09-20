@@ -1,10 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using TqkLibrary.GSM.PDU.Enums;
-using TqkLibrary.GSM.PDU.Interfaces;
-using TqkLibrary.GSM.PDU.UserDataHeaderIndicatorDatas;
+﻿using TqkLibrary.GSM.PDU.UserDataHeaderIndicatorDatas;
 
 namespace TqkLibrary.GSM.PDU
 {

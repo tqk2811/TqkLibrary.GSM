@@ -1,4 +1,4 @@
-﻿namespace TqkLibrary.GSM.PDU.Encrypts
+﻿namespace TqkLibrary.GSM.PDU.Interfaces
 {
     /// <summary>
     /// 

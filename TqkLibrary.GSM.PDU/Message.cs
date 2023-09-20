@@ -58,15 +58,15 @@ namespace TqkLibrary.GSM.PDU
         /// sms content, maybe a part
         /// </summary>
         public string Content => pdu.DataDecoder?.Decode(
-            pdu.Data,
-            (int)pdu.DataLength - (pdu.UserDataHeaderIndicator?.GetData()?.Count() ?? 0),
+            pdu.Data.ToArray(),
+            (int)pdu.UserDataLength - (pdu.UserDataHeaderIndicator?.GetData()?.Count() ?? 0),
             pdu?.UserDataHeaderIndicator?.Padding ?? 0);
 
         /// <summary>
         /// for long sms which be split, this value will be true
         /// </summary>
-        public bool IsSplit => 
-            pdu.UserDataHeaderIndicator?.InformationElementIdentifier == InformationElementIdentifier.ConcatenatedShortMessages || 
+        public bool IsSplit =>
+            pdu.UserDataHeaderIndicator?.InformationElementIdentifier == InformationElementIdentifier.ConcatenatedShortMessages ||
             pdu.UserDataHeaderIndicator?.InformationElementIdentifier == InformationElementIdentifier.ConcatenatedShortMessage16BitReferenceNumber;
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace TqkLibrary.GSM.PDU
         {
             get
             {
-                if(pdu?.UserDataHeaderIndicator?.UserData is IConcatenatedSms concatenatedSms)
+                if (pdu?.UserDataHeaderIndicator?.UserData is IConcatenatedSms concatenatedSms)
                 {
                     return concatenatedSms.CSMSReferenceNumber;
                 }

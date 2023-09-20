@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using TqkLibrary.GSM.PDU.Enums;
-
-namespace TqkLibrary.GSM.PDU.Interfaces
+﻿namespace TqkLibrary.GSM.PDU.Interfaces
 {
     /// <summary>
     /// 

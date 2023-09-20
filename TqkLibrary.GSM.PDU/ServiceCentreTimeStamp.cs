@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TqkLibrary.GSM.PDU
+﻿namespace TqkLibrary.GSM.PDU
 {
     /// <summary>
     /// 
@@ -22,14 +16,14 @@ namespace TqkLibrary.GSM.PDU
             if (buff.Length != 7)
                 throw new InvalidDataException($"{nameof(buff)} array must be length = 7");
 
-            this._buff = buff.ToArray();
+            _buff = buff.ToArray();
         }
         /// <summary>
         /// 
         /// </summary>
         public ServiceCentreTimeStamp(DateTime dateTime)
         {
-            this.TimeStamp = dateTime;
+            TimeStamp = dateTime;
         }
 
         byte[] _buff = new byte[7];
@@ -45,9 +39,13 @@ namespace TqkLibrary.GSM.PDU
             }
             set
             {
-                _buff = DateTimeToBuffer(value);
+                _buff = DateTimeToBuffer(value, TimeZoneInfo);
             }
         }
+        /// <summary>
+        /// default <see cref="TimeZoneInfo.Local"/>
+        /// </summary>
+        public TimeZoneInfo TimeZoneInfo { get; set; } = TimeZoneInfo.Local;
 
         /// <summary>
         /// 
@@ -89,7 +87,7 @@ namespace TqkLibrary.GSM.PDU
         /// <returns></returns>
         public static byte[] DateTimeToBuffer(DateTime dateTime, TimeZoneInfo timeZoneInfo = null)
         {
-            if (timeZoneInfo is null) 
+            if (timeZoneInfo is null)
                 timeZoneInfo = TimeZoneInfo.Local;
 
             TimeSpan timeZone = timeZoneInfo.BaseUtcOffset;

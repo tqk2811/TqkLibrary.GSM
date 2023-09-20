@@ -8,6 +8,11 @@
         /// <summary>
         /// 
         /// </summary>
+        public static UnicodeEncrypt Instance { get; } = new UnicodeEncrypt();
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="raw"></param>
         /// <param name="dataLength"></param>
         /// <param name="padding"></param>

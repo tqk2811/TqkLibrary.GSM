@@ -3,8 +3,6 @@ Original https://github.com/wi1dcard/sms-decoder
 Edit: tqk2811
  */
 
-using TqkLibrary.GSM.PDU.Enums;
-
 namespace TqkLibrary.GSM.PDU.Attributes
 {
     /// <summary>

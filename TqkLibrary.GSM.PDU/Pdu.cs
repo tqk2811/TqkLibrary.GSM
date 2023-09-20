@@ -2,16 +2,8 @@
 Original https://github.com/wi1dcard/sms-decoder
 Edit: tqk2811
  */
-using System.IO;
-using TqkLibrary.GSM.PDU.Enums;
-using TqkLibrary.GSM.PDU.Encrypts;
-using TqkLibrary.GSM.PDU.Interfaces;
-using TqkLibrary.GSM.PDU.UserDataHeaderIndicatorDatas;
-using static TqkLibrary.GSM.PDU.DataCodingScheme;
-
 namespace TqkLibrary.GSM.PDU
 {
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     /// <summary>
     /// http://www.gsm-modem.de/sms-pdu-mode.html
     /// </summary>
@@ -21,11 +13,21 @@ namespace TqkLibrary.GSM.PDU
         {
 
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public byte SmscByteLength { get; private set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public byte SmscType { get; private set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public byte[] SmscNumber { get; private set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public PduHeader PduHeader { get; private set; }
 
         /// <summary>
@@ -50,10 +52,22 @@ namespace TqkLibrary.GSM.PDU
         /// TP-VP
         /// </summary>
         public ValidityPeriod ValidityPeriod { get; private set; }
+        /// <summary>
+        /// TP-UDHI
+        /// </summary>
         public UserDataHeaderIndicator UserDataHeaderIndicator { get; private set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public IDecoder DataDecoder { get; set; }
-        public byte DataLength { get; private set; }
-        public byte[] Data { get; private set; }
+        /// <summary>
+        /// TP-UDL: User data length, length of message
+        /// </summary>
+        public byte UserDataLength { get; private set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public IEnumerable<byte> Data { get; private set; }
 
 
 
@@ -81,10 +95,10 @@ namespace TqkLibrary.GSM.PDU
 
                         switch (DataCodingScheme.CharacterSet)
                         {
-                            case DCS_CharacterSet.GSM7Bit:
+                            case CharacterSet.GSM7Bit:
                                 DataDecoder = new SevenBitEncrypt();
                                 break;
-                            case DCS_CharacterSet.UCS2:
+                            case CharacterSet.UCS2:
                                 DataDecoder = new UnicodeEncrypt();
                                 break;
 
@@ -95,24 +109,31 @@ namespace TqkLibrary.GSM.PDU
                         ServiceCentreTimeStamp = new ServiceCentreTimeStamp(rawPdu.Read(7));
 
 
-                        //length of data in byte
+                        //length of data after decode in byte
                         //7bit => decode to byte => take DataLength - HeadSize
                         //unicode/8bit => length = DataLength - HeadSize, string_unicode take 1/2 length
-                        DataLength = (byte)rawPdu.ReadByte();
-
+                        this.UserDataLength = (byte)rawPdu.ReadByte();
+                        int udhi_length = 0;
+                        int data_padding = 0;
                         if (PduHeader.IsUserDataHeaderIndicator)
                         {
                             UserDataHeaderIndicator = UserDataHeaderIndicator.Read(rawPdu);
-                            Data = rawPdu.ReadToEnd();//length wrong??
+                            udhi_length = UserDataHeaderIndicator.GetData().Count();
+                            data_padding = UserDataHeaderIndicator.Padding;
                         }
-                        else Data = rawPdu.ReadToEnd();//length wrong??
+                        int dataLength = DataCodingScheme.CharacterSet switch
+                        {
+                            CharacterSet.GSM7Bit => (int)Math.Ceiling(1.0 * (this.UserDataLength - udhi_length) / 8 * 7 - data_padding),//6.125 -> 7 (padding 0);  118.125 -> 118 (padding 1);
+                            //CharacterSet.UCS2 => this.UserDataLength - udhi_length,
+                            _ => this.UserDataLength - udhi_length
+                        };
+                        Data = rawPdu.Read(dataLength);
                         break;
                     }
-                case PduType.SmsSubmitReport:
-                    {
-
-                        break;
-                    }
+                //case PduType.SmsSubmitReport:
+                //    {
+                //        break;
+                //    }
 
                 default: throw new NotSupportedException(PduHeader.Type.ToString());
             }
@@ -151,20 +172,20 @@ namespace TqkLibrary.GSM.PDU
                 case ValidityPeriodFormat.NotPresent:
                 case ValidityPeriodFormat.PresentAndSemiOctetRepresented:
                     if (ServiceCentreTimeStamp is null)
-                        throw new InvalidDataException($"{nameof(this.ServiceCentreTimeStamp)} is null");
+                        throw new InvalidDataException($"{nameof(ServiceCentreTimeStamp)} is null");
                     foreach (var b in ServiceCentreTimeStamp.GetData())
                         yield return b;
                     break;
 
                 case ValidityPeriodFormat.PresentAndIntegerRepresented:
                     if (ValidityPeriod is null)
-                        throw new InvalidDataException($"{nameof(this.ValidityPeriod)} is null");
+                        throw new InvalidDataException($"{nameof(ValidityPeriod)} is null");
                     foreach (var b in ValidityPeriod.GetData())
                         yield return b;
                     break;
             }
 
-            yield return DataLength;
+            yield return UserDataLength;
             if (PduHeader.IsUserDataHeaderIndicator)
             {
                 foreach (var b in (byte[])UserDataHeaderIndicator)
@@ -208,9 +229,15 @@ namespace TqkLibrary.GSM.PDU
             bool isNumber = desNumber.All(x => x == '+' || (x >= '0' && x <= '9'));
             bool isUnicode = message.Any(x => x > 128);
 
-            IEncodeDecode encodeDecode = isUnicode ? new UnicodeEncrypt() : new SevenBitEncrypt();
+            IEncodeDecode encodeDecode = isUnicode ? UnicodeEncrypt.Instance : SevenBitEncrypt.Instance;
             Encoding encoding = isUnicode ? Encoding.Unicode : Encoding.ASCII;
-            int chars_length_per_msg = isUnicode ? 76 : 160;//ASCII 160, unicode 70
+            //Data max 140 bytes => 140/7*8 = 160 chars 7 bit or 140/2 = 70 char 16 bit
+            int chars_length_per_msg = isUnicode ? 70 : 160;
+            if (message.Length > chars_length_per_msg)//need split message
+            {
+                //6 bit UDHI then data 134 bytes => 134/7*8 = 153.1428 chars 7 bit or 67 char 16 bit
+                chars_length_per_msg = isUnicode ? 67 : 153;
+            }
 
             List<string> msgs = Enumerable.Range(0, (int)Math.Ceiling(message.Length * 1.0 / chars_length_per_msg))
                 .Select(x => message.Substring(x * chars_length_per_msg, Math.Min(chars_length_per_msg, message.Length - x * chars_length_per_msg)))
@@ -236,12 +263,12 @@ namespace TqkLibrary.GSM.PDU
                     //The number itself must always start with a country code and must be formatted exactly according to the E.164 standard.
                     NPI = isNumber ? NumberingPlanIdentification.ISDNTelephoneNumberingPlan : NumberingPlanIdentification.Unknown,
                     TON = isNumber ? TypeOfNumber.Unknown : TypeOfNumber.Alphanumeric,
-                    Address = isNumber ? desNumber.Trim('+').ToDecimalSemiOctets() : new SevenBitEncrypt().Encode(desNumber),
+                    Address = isNumber ? desNumber.Trim('+').ToDecimalSemiOctets() : SevenBitEncrypt.Instance.Encode(desNumber),
                 };
                 pdu.ProtocalIdentifier = 0;
                 pdu.DataCodingScheme = new DataCodingScheme(0x00);
-                //pdu.DataCodingScheme.Class = DCS_MessageClass.FlashMessage;
-                pdu.DataCodingScheme.CharacterSet = isUnicode ? DCS_CharacterSet.UCS2 : DCS_CharacterSet.GSM7Bit;
+                //pdu.DataCodingScheme.Class = MessageClass.FlashMessage;
+                pdu.DataCodingScheme.CharacterSet = isUnicode ? CharacterSet.UCS2 : CharacterSet.GSM7Bit;
 
                 pdu.ValidityPeriod = new ValidityPeriod(pdu);
                 pdu.ServiceCentreTimeStamp = new ServiceCentreTimeStamp(DateTime.Now.AddHours(1));
@@ -256,12 +283,8 @@ namespace TqkLibrary.GSM.PDU
                         TotalNumberOfParts = (byte)msgs.Count,
                         PartNumberInTheSequence = (byte)(i + 1),
                     };
-                    pdu.DataLength = (byte)(msgs[i].Length + ((byte[])pdu.UserDataHeaderIndicator).Length);
                 }
-                else
-                {
-                    pdu.DataLength = (byte)msgs[i].Length;
-                }
+
                 pdu.Data = encodeDecode.Encode(msgs[i]);
 
 #if DEBUG
@@ -287,5 +310,4 @@ namespace TqkLibrary.GSM.PDU
             }
         }
     }
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

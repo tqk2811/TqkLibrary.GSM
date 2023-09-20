@@ -8,6 +8,10 @@
         /// <summary>
         /// 
         /// </summary>
+        public static SevenBitEncrypt Instance { get; } = new SevenBitEncrypt();
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="raw"></param>
         /// <param name="dataLength"></param>
         /// <param name="padding"></param>

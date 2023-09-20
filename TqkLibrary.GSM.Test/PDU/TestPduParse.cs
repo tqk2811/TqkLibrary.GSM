@@ -40,7 +40,16 @@ namespace TqkLibrary.GSM.Test.PDU
             string text = message.Content;
             string senderNumber = message.SenderNumber;
             int l = text.Length;
-            Assert.IsTrue(Enumerable.SequenceEqual(arr, (byte[])pdu));
+
+            byte[] pdu_buff = (byte[])pdu;
+
+
+            Assert.IsTrue(pdu_buff.Length == arr.Length);
+            for (int i = 0; i < pdu_buff.Length; i++)
+            {
+                Assert.AreEqual(pdu_buff[i], arr[i]);
+            }
+            //Assert.IsTrue(Enumerable.SequenceEqual(arr, pdu_buff));
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using TqkLibrary.GSM.PDU.Interfaces;
-
-namespace TqkLibrary.GSM.PDU.UserDataHeaderIndicatorDatas
+﻿namespace TqkLibrary.GSM.PDU.UserDataHeaderIndicatorDatas
 {
     /// <summary>
     /// 
@@ -26,7 +24,7 @@ namespace TqkLibrary.GSM.PDU.UserDataHeaderIndicatorDatas
         public DefaultUserDataHeaderData(byte[] data)
         {
             if (data is null) throw new ArgumentNullException(nameof(data));
-            this._data = data;
+            _data = data;
         }
         /// <summary>
         /// 

@@ -1,4 +1,5 @@
 ﻿using TqkLibrary.GSM.PDU.Encrypts;
+using TqkLibrary.GSM.PDU.Interfaces;
 
 namespace TqkLibrary.GSM.Extended
 {

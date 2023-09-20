@@ -1,7 +1,4 @@
-﻿using TqkLibrary.GSM.PDU.Enums;
-using TqkLibrary.GSM.PDU.Interfaces;
-
-namespace TqkLibrary.GSM.PDU
+﻿namespace TqkLibrary.GSM.PDU
 {
     /// <summary>
     /// TP-DA

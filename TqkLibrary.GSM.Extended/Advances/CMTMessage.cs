@@ -1,5 +1,6 @@
 ﻿using Nito.AsyncEx;
 using TqkLibrary.GSM.PDU;
+using TqkLibrary.GSM.PDU.Enums;
 using TqkLibrary.GSM.PDU.Interfaces;
 using static TqkLibrary.GSM.Extended.CommandRequestCMGF;
 using static TqkLibrary.GSM.Extended.CommandRequestCNMI;
