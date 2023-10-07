@@ -5,7 +5,8 @@
     /// </summary>
     public class DestinationAddress : IDestinationAddress
     {
-        byte _ext_ton_npi = 0;
+        //The EXT bit is always 1 meaning "no extension".
+        byte _ext_ton_npi = 0b10000000;
 
         /// <summary>
         /// 
@@ -46,6 +47,21 @@
             set
             {
                 _ext_ton_npi = (byte)((_ext_ton_npi & 0b10001111) | ((byte)value << 4));
+            }
+        }
+
+        /// <summary>
+        /// Is false mean "no extension".
+        /// </summary>
+        public bool IsHaveExt
+        {
+            get
+            {
+                return (_ext_ton_npi & 0b10000000) == 0;//The EXT bit is 1 meaning "no extension"
+            }
+            set
+            {
+                _ext_ton_npi = (byte)((_ext_ton_npi & 0b01111111) | ((value ? 0 : 1) << 7));
             }
         }
 
