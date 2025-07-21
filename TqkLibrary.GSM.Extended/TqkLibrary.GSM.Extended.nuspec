@@ -11,10 +11,6 @@
 		<license type="expression">MIT</license>
 		<readme>docs\README.md</readme>
 		<dependencies>
-			<group targetFramework="net462">
-				<dependency id="TqkLibrary.GSM" version="1.0.2-build0" />
-				<dependency id="TqkLibrary.GSM.PDU" version="1.0.2-build0" />
-			</group>
 			<group targetFramework="netstandard2.0">
 				<dependency id="TqkLibrary.GSM" version="1.0.2-build0" />
 				<dependency id="TqkLibrary.GSM.PDU" version="1.0.2-build0" />
@@ -23,7 +19,7 @@
 				<dependency id="TqkLibrary.GSM" version="1.0.2-build0" />
 				<dependency id="TqkLibrary.GSM.PDU" version="1.0.2-build0" />
 			</group>
-			<group targetFramework="net7.0-windows7.0">
+			<group targetFramework="net8.0-windows7.0">
 				<dependency id="TqkLibrary.GSM" version="1.0.2-build0" />
 				<dependency id="TqkLibrary.GSM.PDU" version="1.0.2-build0" />
 			</group>
