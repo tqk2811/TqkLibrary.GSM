@@ -1,14 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFrameworks>net462;netstandard2.0;net6.0-windows7.0;net7.0-windows7.0</TargetFrameworks>
-		<LangVersion>10.0</LangVersion>
-		<PreserveCompilationContext>false</PreserveCompilationContext>
-		<GenerateDependencyFile>false</GenerateDependencyFile>
-		<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
-		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<PathMap>$(MSBuildProjectDirectory)=$(MSBuildProjectName)</PathMap>
-	</PropertyGroup>
+	<Import Project="..\ProjectBuildProperties.targets" />
 
 	<ItemGroup>
 		<PackageReference Include="Nito.AsyncEx" Version="5.1.2" />
