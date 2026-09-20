@@ -98,9 +98,13 @@
             /// </summary>
             AlphanumericLongForm = 0,
             /// <summary>
-            /// numeric 5 digits [country code (3) + network code (2)] 
+            /// alphanumeric short form (max length 8 digits)
             /// </summary>
-            Numeric5Digits = 1,
+            AlphanumericShortForm = 1,
+            /// <summary>
+            /// numeric 5 digits [country code (3) + network code (2)]
+            /// </summary>
+            Numeric5Digits = 2,
         }
     }
     /// <summary>
