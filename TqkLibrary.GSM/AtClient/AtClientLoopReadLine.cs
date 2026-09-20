@@ -106,7 +106,6 @@ namespace TqkLibrary.GSM.AtClient
 
                         await _ParseLine(line);
                     }
-                    await Task.Delay(100);
                 }
                 catch (Exception ex)
                 {
@@ -114,6 +113,9 @@ namespace TqkLibrary.GSM.AtClient
                     Console.WriteLine($"{ex.GetType().FullName}: {ex.Message}, {ex.StackTrace}");
 #endif
                 }
+                //outside the try on purpose: BytesToRead throws on an unplugged port while IsOpen
+                //is still true, and without a delay here that fault spins the loop at full speed
+                await Task.Delay(100);
             }
         }
 
