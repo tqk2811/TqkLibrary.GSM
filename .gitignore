@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# Local MSBuild tuning, must not be forced on other machines
+Directory.Build.rsp
